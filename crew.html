@@ -30,6 +30,62 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 .notice{padding:12px;border-radius:12px;background:#fff7db;color:#6f5700;font-size:12px;margin-bottom:12px}
 @media(max-width:900px){.orderGrid{grid-template-columns:repeat(2,1fr)}.productList{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.orderGrid{grid-template-columns:1fr}.productList{grid-template-columns:1fr 1fr}.product img{height:120px}.header{padding:12px}.nav{top:72px}}
+
+/* ===== V5 OPERATIONAL POLISH ===== */
+.headerActions{display:flex;gap:7px;align-items:center}
+.notifyBtn.enabled{background:#fff;color:#111}
+.orderCard{position:relative;overflow:hidden}
+.orderCard.isNew{border:2px solid #F20D12;box-shadow:0 8px 22px rgba(242,13,18,.12)}
+.orderNo{
+  font-size:22px;font-weight:1000;line-height:1;
+  letter-spacing:-.5px
+}
+.elapsed{
+  display:inline-flex;align-items:center;gap:5px;
+  border-radius:999px;padding:5px 7px;background:#f5f1ed;color:#5d554f;
+  font-size:10px;font-weight:900
+}
+.elapsed.late{background:#fff0f0;color:#bf1f24}
+.orderType{
+  display:inline-block;margin-top:7px;border-radius:999px;padding:5px 8px;
+  background:#111;color:white;font-size:10px;font-weight:900
+}
+.orderType.delivery{background:#F20D12}
+.kitchenItems{
+  margin:10px 0;background:#faf7f4;border-radius:11px;padding:9px;
+}
+.kitchenLine{
+  display:grid;grid-template-columns:31px 1fr;gap:7px;
+  align-items:start;font-size:13px;font-weight:800;margin:6px 0
+}
+.kitchenQty{
+  min-width:28px;text-align:center;background:#FFC928;color:#111;
+  border-radius:7px;padding:4px;font-weight:1000
+}
+.orderNote{
+  margin-top:6px;padding:8px;border-radius:8px;background:#fff7db;
+  color:#6f5700;font-size:11px;line-height:1.35
+}
+.customerGrid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:12px
+}
+.customerCard{
+  background:white;border:1px solid var(--line);border-radius:16px;padding:14px
+}
+.customerTop{display:flex;justify-content:space-between;gap:8px;align-items:start}
+.customerTop h3{font-size:14px;margin:0 0 3px}
+.customerStats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px
+}
+.customerMetric{
+  padding:9px;border-radius:10px;background:#f8f4f0;text-align:center
+}
+.customerMetric b{font-size:14px;display:block}
+.customerMetric small{font-size:9px;color:var(--muted)}
+.emptyState{text-align:center;padding:34px;color:#777}
+@media(max-width:760px){.customerGrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.customerGrid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -48,11 +104,15 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 <div id="appView" class="shell" style="display:none">
   <header class="header">
     <div class="brand"><img src="icon-512.png"><div><h1>AYENAS CREW</h1><small id="profileLine">Loading...</small></div></div>
-    <button id="logoutBtn">Logout</button>
+    <div class="headerActions">
+      <button id="notifyBtn" class="notifyBtn">🔔 Bunyi ON</button>
+      <button id="logoutBtn">Logout</button>
+    </div>
   </header>
   <nav class="nav">
     <button class="active" data-panel="orders">🔥 Live Orders</button>
     <button data-panel="menu">🍗 Menu</button>
+    <button data-panel="customers">👥 Customers</button>
     <button data-panel="account">👤 Account</button>
   </nav>
   <main class="main">
@@ -76,6 +136,11 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
       <div class="notice" id="seedNotice">Jika Firestore masih kosong, tekan “Import Menu Asas” sekali sahaja.</div>
       <button class="primary" id="seedBtn" style="max-width:220px;margin:0 0 14px">IMPORT MENU ASAS</button>
       <div class="productList" id="productList"></div>
+    </section>
+
+    <section class="panel" id="customersPanel">
+      <div class="toolbar"><h2>Customer Database</h2><span id="customerCount" style="font-size:12px;color:#746E68">0 customer</span></div>
+      <div class="customerGrid" id="customerList"></div>
     </section>
 
     <section class="panel" id="accountPanel">
@@ -121,12 +186,57 @@ const auth=authMod.getAuth(app);
 const db=fsMod.getFirestore(app);
 
 const seed=[{"id": "nasi-korean", "name": "Nasi Ayam Korean Spicy", "category": "Nasi Ayam", "flavour": "Korean Spicy", "price": 8.9, "imageUrl": "korean.jpg", "desc": "Ayam bakar Korean Spicy + nasi basmathi + sos Ayenas.", "badge": "#1 BEST SELLER", "active": true}, {"id": "nasi-madu", "name": "Nasi Ayam Madu", "category": "Nasi Ayam", "flavour": "Madu", "price": 7.9, "imageUrl": "nasi.jpg", "desc": "Ayam bakar madu manis berasap + nasi basmathi.", "badge": "POPULAR", "active": true}, {"id": "nasi-herba", "name": "Nasi Ayam Herba", "category": "Nasi Ayam", "flavour": "Herba", "price": 8.9, "imageUrl": "nasi.jpg", "desc": "Ayam bakar herba aromatik + nasi basmathi.", "badge": "", "active": true}, {"id": "ramen-korean", "name": "Ramen Ayam Korean Spicy", "category": "Ramen", "flavour": "Korean Spicy", "price": 11.5, "imageUrl": "ramen.jpg", "desc": "Ramen spicy dengan ayam bakar signature Ayenas.", "badge": "HOT", "active": true}, {"id": "ramen-madu", "name": "Ramen Ayam Madu", "category": "Ramen", "flavour": "Madu", "price": 9.9, "imageUrl": "ramen.jpg", "desc": "Ramen + ayam bakar madu.", "badge": "", "active": true}, {"id": "aglio-korean", "name": "Aglio Olio Korean Spicy", "category": "Pasta", "flavour": "Korean Spicy", "price": 11.5, "imageUrl": "pasta.jpg", "desc": "Aglio olio + ayam bakar Korean Spicy.", "badge": "", "active": true}, {"id": "mandy-ayam", "name": "Mandy Ayam 1/4", "category": "Mandy", "flavour": "", "price": 13.9, "imageUrl": "mandy.jpg", "desc": "Nasi Arab Mandy Ayenas bersama ayam bakar.", "badge": "FAMILY PICK", "active": true}, {"id": "superbox", "name": "Superbox Ayenas", "category": "Superbox", "flavour": "Mix", "price": 32.9, "imageUrl": "superbox.jpg", "desc": "5 menu dalam 1 box. Sesuai untuk share & enjoy.", "badge": "SHARE", "active": true}, {"id": "chicken-chop", "name": "Chicken Chop Ayenas", "category": "Western", "flavour": "", "price": 17.9, "imageUrl": "chickenchop.jpg", "desc": "Homemade fresh chicken chop lengkap dengan sides.", "badge": "NEW", "active": true}, {"id": "burrito", "name": "Burrito Ayenas", "category": "Snacks", "flavour": "", "price": 7.0, "imageUrl": "snacks.jpg", "desc": "Burrito ringkas untuk snack atau light meal.", "badge": "", "active": true}, {"id": "freshie", "name": "Freshie Sparkling", "category": "Drinks", "flavour": "", "price": 6.0, "imageUrl": "drinks.jpg", "desc": "Pilihan sparkling yang fresh dan ringan.", "badge": "REFRESH", "active": true}];
-let profile=null, products=[], orders=[], editingId=null, unsubOrders=null, unsubProducts=null;
+let profile=null, products=[], orders=[], customers=[], editingId=null, unsubOrders=null, unsubProducts=null, unsubCustomers=null;
+let knownOrderIds=new Set(), ordersInitialized=false, soundEnabled=true, audioCtx=null;
 
 const $=id=>document.getElementById(id);
 const money=n=>'RM'+Number(n||0).toFixed(2);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const outletName=id=>id==='tanah-merah'?'Tanah Merah':id==='lembah-sireh'?'Lembah Sireh':'Semua Outlet';
+
+function unlockAudio(){
+  try{
+    if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended') audioCtx.resume();
+  }catch(e){}
+}
+function playOrderSound(){
+  if(!soundEnabled) return;
+  try{
+    unlockAudio();
+    const now=audioCtx.currentTime;
+    [880,1175,880].forEach((freq,i)=>{
+      const osc=audioCtx.createOscillator();
+      const gain=audioCtx.createGain();
+      osc.type='sine'; osc.frequency.value=freq;
+      gain.gain.setValueAtTime(0.0001,now+i*.16);
+      gain.gain.exponentialRampToValueAtTime(.22,now+i*.16+.02);
+      gain.gain.exponentialRampToValueAtTime(.0001,now+i*.16+.13);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(now+i*.16); osc.stop(now+i*.16+.15);
+    });
+    if(navigator.vibrate) navigator.vibrate([160,70,160]);
+  }catch(e){console.warn('Sound unavailable',e)}
+}
+function flashTitle(order){
+  const base='Ayenas Crew Console';
+  let n=0;
+  const timer=setInterval(()=>{
+    document.title=(n++%2===0?'🔴 ORDER BARU!':base);
+    if(n>7){clearInterval(timer);document.title=base}
+  },650);
+  if('Notification' in window && Notification.permission==='granted'){
+    new Notification('Order Baru Ayenas',{
+      body:`#${order.id||''} • ${order.name||'Customer'} • ${money(order.total)}`,
+      icon:'icon-192.png'
+    });
+  }
+}
+function minutesAgo(o){
+  const d=o.createdAt?.toDate?.()||new Date(o.created||Date.now());
+  return Math.max(0,Math.floor((Date.now()-d.getTime())/60000));
+}
+
 
 $('loginBtn').onclick=async()=>{
   $('loginMsg').style.display='none';
@@ -136,6 +246,17 @@ $('loginBtn').onclick=async()=>{
   }
 };
 $('logoutBtn').onclick=()=>authMod.signOut(auth);
+$('notifyBtn').onclick=async()=>{
+  unlockAudio();
+  soundEnabled=!soundEnabled;
+  $('notifyBtn').textContent=soundEnabled?'🔔 Bunyi ON':'🔕 Bunyi OFF';
+  $('notifyBtn').classList.toggle('enabled',soundEnabled);
+  if(soundEnabled && 'Notification' in window && Notification.permission==='default'){
+    try{await Notification.requestPermission()}catch(e){}
+  }
+  if(soundEnabled) playOrderSound();
+};
+document.addEventListener('pointerdown',unlockAudio,{once:true});
 
 authMod.onAuthStateChanged(auth,async user=>{
   if(!user){ $('loginView').style.display='grid'; $('appView').style.display='none'; return; }
@@ -152,7 +273,7 @@ authMod.onAuthStateChanged(auth,async user=>{
   $('accName').textContent=profile.name||profile.email;
   $('accRole').textContent=profile.role;
   $('accOutlet').textContent=outletName(profile.outletId||'all');
-  listenProducts(); listenOrders();
+  listenProducts(); listenOrders(); listenCustomers();
 });
 
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{
@@ -180,20 +301,67 @@ function listenOrders(){
     q=fsMod.query(fsMod.collection(db,'orders'),fsMod.where('outletId','==',profile.outletId));
   }
   unsubOrders=fsMod.onSnapshot(q,snap=>{
-    orders=snap.docs.map(d=>({firestoreId:d.id,...d.data()}));
-    orders.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    const incoming=snap.docs.map(d=>({firestoreId:d.id,...d.data()}));
+    incoming.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+
+    if(ordersInitialized){
+      const fresh=incoming.filter(o=>(o.status||'new')==='new' && !knownOrderIds.has(o.firestoreId));
+      if(fresh.length){
+        playOrderSound();
+        flashTitle(fresh[0]);
+      }
+    }
+
+    knownOrderIds=new Set(incoming.map(o=>o.firestoreId));
+    ordersInitialized=true;
+    orders=incoming;
     renderOrders();
   });
 }
 
+function listenCustomers(){
+  if(unsubCustomers)unsubCustomers();
+  unsubCustomers=fsMod.onSnapshot(fsMod.collection(db,'customers'),snap=>{
+    customers=snap.docs.map(d=>({id:d.id,...d.data()}));
+    customers.sort((a,b)=>(b.totalSpend||0)-(a.totalSpend||0));
+    renderCustomers();
+  },err=>console.warn('Customer listener error',err));
+}
+
 function orderCard(o){
-  const items=(o.items||[]).map(i=>`${i.qty||1}× ${esc(i.name)}`).join('<br>');
+  const mins=minutesAgo(o);
+  const late=mins>=12 && (o.status||'new')!=='completed';
   const next={new:['Terima Pesanan','preparing'],preparing:['Tanda Sedia','ready'],ready:['Selesaikan','completed']}[o.status||'new'];
-  return `<div class="orderCard">
-    <div class="orderTop"><b>#${esc(o.id||o.firestoreId.slice(0,6))}</b><b>${money(o.total)}</b></div>
-    <small>${esc(o.name)} • ${esc(o.phone)}<br>${outletName(o.outletId)} • ${o.mode==='delivery'?'Delivery':'Pickup'}</small>
-    <div class="items">${items}</div>
-    ${next?`<button class="action" onclick="window.updateStatus('${o.firestoreId}','${next[1]}')">${next[0]}</button>`:''}
+  const orderNo=o.id||String(o.firestoreId||'').slice(0,7).toUpperCase();
+
+  return `<div class="orderCard ${(o.status||'new')==='new'?'isNew':''}">
+    <div class="orderTop">
+      <div>
+        <div class="orderNo">#${esc(orderNo)}</div>
+        <div class="elapsed ${late?'late':''}">⏱ ${mins<1?'BARU':mins+' min'}</div>
+      </div>
+      <div style="text-align:right">
+        <b style="font-size:17px">${money(o.total)}</b><br>
+        <span class="orderType ${o.mode==='delivery'?'delivery':''}">${o.mode==='delivery'?'🛵 DELIVERY':'🛍 PICKUP'}</span>
+      </div>
+    </div>
+
+    <div style="margin-top:9px;font-size:12px">
+      <b>${esc(o.name)}</b> • ${esc(o.phone)}<br>
+      <small>📍 ${outletName(o.outletId)} • ${o.createdAt?.toDate?.().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})||''}</small>
+    </div>
+
+    <div class="kitchenItems">
+      ${(o.items||[]).map(i=>`
+        <div class="kitchenLine">
+          <span class="kitchenQty">${i.qty||1}×</span>
+          <span>${esc(i.name)}${i.extras?` <small>+ Extra</small>`:''}</span>
+        </div>
+        ${i.note?`<div class="orderNote">📝 ${esc(i.note)}</div>`:''}
+      `).join('')}
+    </div>
+
+    ${next?`<button class="action ${next[1]==='ready'?'ready':''}" onclick="window.updateStatus('${o.firestoreId}','${next[1]}')">${next[0]}</button>`:''}
   </div>`;
 }
 function renderOrders(){
@@ -220,6 +388,38 @@ function renderProducts(){
       <small>${esc(p.category)} • ${money(p.price)}</small>
       <button class="primary" style="margin-top:10px" onclick="window.editProduct('${p.id}')">EDIT</button>
     </div></div>`).join('');
+}
+
+
+function renderCustomers(){
+  const list=$('customerList');
+  if(!list) return;
+  $('customerCount').textContent=`${customers.length} customer`;
+  if(!customers.length){
+    list.innerHTML='<div class="emptyState">Belum ada customer daripada order sebenar.</div>';
+    return;
+  }
+  list.innerHTML=customers.map(c=>{
+    const last=c.lastOrderAt?.toDate?.();
+    return `<div class="customerCard">
+      <div class="customerTop">
+        <div>
+          <h3>${esc(c.name||'Customer')}</h3>
+          <small>${esc(c.phone||'—')}</small>
+        </div>
+        <span class="pill">${Number(c.points||0)} pts</span>
+      </div>
+      <div style="font-size:11px;color:#746E68;margin-top:10px">
+        📍 Last: ${outletName(c.lastOutletId)}<br>
+        🕒 ${last?last.toLocaleDateString('ms-MY'):'—'}
+      </div>
+      <div class="customerStats">
+        <div class="customerMetric"><b>${Number(c.orderCount||0)}</b><small>Orders</small></div>
+        <div class="customerMetric"><b>${money(c.totalSpend||0)}</b><small>Spend</small></div>
+        <div class="customerMetric"><b>${Number(c.points||0)}</b><small>Points</small></div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 window.editProduct=id=>{

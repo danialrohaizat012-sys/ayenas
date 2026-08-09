@@ -76,3 +76,14 @@ V4 SAVE FIX
 - Previous V3 still referenced removed Firebase Storage code inside the save handler.
 - Image upload now really uses browser compression only.
 - Save errors are shown directly to crew instead of failing silently.
+
+
+V5 OPERATIONAL POLISH
+- Crew: bunyi + vibration + optional browser notification bila order baru masuk.
+- Crew: order cards redesigned for kitchen use with big order number, elapsed minutes, order type, notes and quantities.
+- Customer: live order tracking now follows Firestore statuses new > preparing > ready > completed.
+- Customer: removed old simulation status button.
+- Customer database: every new order increments orderCount, totalSpend and points in customers/{uid}.
+- Crew: new Customers tab with customer count, phone, last outlet, orders, spend and points.
+- Customer points now sync from Firestore customer profile.
+- Firebase Storage is still NOT used.

@@ -523,6 +523,47 @@ button,input,textarea,select{font:inherit} button{cursor:pointer}
   right:14px;
 }
 
+
+/* ===== V5 LIVE ORDER TRACKING ===== */
+.trackHero{
+  text-align:center;
+  padding:8px 0 4px;
+}
+.trackIcon{
+  width:74px;height:74px;margin:auto;border-radius:24px;
+  display:grid;place-items:center;font-size:38px;
+  background:#fff0f0;
+}
+.trackHero h2{margin:13px 0 5px;font-size:22px}
+.trackHero p{margin:0;color:#746E68;font-size:13px;line-height:1.45}
+.trackOrderMeta{
+  display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:18px 0;
+}
+.trackMetaCard{
+  background:#fff;border:1px solid #E9E2DA;border-radius:14px;padding:12px;
+}
+.trackMetaCard small{display:block;color:#746E68;font-size:10px;margin-bottom:3px}
+.trackMetaCard b{font-size:13px}
+.liveBadge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 9px;border-radius:999px;background:#edf7ee;color:#287536;
+  font-size:10px;font-weight:900;margin-top:10px;
+}
+.liveDot{
+  width:7px;height:7px;border-radius:50%;background:#2b8a3e;
+  box-shadow:0 0 0 4px rgba(43,138,62,.12);
+  animation:pulseDot 1.4s infinite;
+}
+@keyframes pulseDot{50%{box-shadow:0 0 0 8px rgba(43,138,62,0)}}
+.orderItemsBox{
+  background:#fff;border:1px solid #E9E2DA;border-radius:16px;padding:13px;margin-top:12px;
+}
+.orderItemsBox .row{margin:7px 0}
+.statusHelp{
+  margin-top:12px;padding:11px 12px;border-radius:12px;
+  background:#fff7db;color:#6f5700;font-size:11px;line-height:1.45;
+}
+
 </style>
 </head>
 <body>
@@ -744,8 +785,106 @@ async function placeOrder(){
   points+=earned;cart=[];save();showPage('orders');
   toast('Pesanan diterima! +'+earned+' points');
 }
-function renderOrders(){let el=document.getElementById('ordersContent');if(!orders.length){el.innerHTML='<div class="empty">Belum ada pesanan.</div>';return}let o=orders[0];el.innerHTML=`<div class="orderStatus"><div style="text-align:center"><div style="font-size:54px">🍜</div><h2>Pesanan sedang disediakan</h2><p style="color:#666">Kami sedang menyediakan pesanan terbaik untuk anda.</p></div><div class="timeline">${['Diterima','Disediakan','Sedia','Selesai'].map((s,i)=>`<div class="step ${i<=o.status?'done':''}">${s}</div>`).join('')}</div><div class="outlet"><div><small>No. Pesanan</small><br><b>#${o.id}</b></div><div style="text-align:right"><small>Jenis</small><br><b>${o.mode==='pickup'?'Pickup':'Delivery'}</b></div></div>${o.items.map(x=>`<div class="row"><span>${x.qty}× ${x.name}</span><b>${money((x.price+x.extras)*x.qty)}</b></div>`).join('')}<div class="row total"><span>Jumlah</span><span>${money(o.total)}</span></div><button class="primary" onclick="advanceStatus()">SIMULASI STATUS SETERUSNYA</button></div>`}
-function advanceStatus(){if(!orders.length)return;if(orders[0].status<3)orders[0].status++;save();renderOrders()}
+function orderStatusIndex(status){
+  return {new:0,preparing:1,ready:2,completed:3}[status] ?? 0;
+}
+function orderStatusCopy(status,mode){
+  const map={
+    new:{
+      icon:'✓',
+      title:'Pesanan diterima',
+      text:'Order anda sudah masuk ke Ayenas. Crew akan mula menyediakan sebentar lagi.'
+    },
+    preparing:{
+      icon:'🍳',
+      title:'Sedang disediakan',
+      text:'Dapur Ayenas sedang menyediakan pesanan anda.'
+    },
+    ready:{
+      icon:mode==='delivery'?'🛵':'🛍️',
+      title:mode==='delivery'?'Sedia untuk rider':'Sedia untuk diambil',
+      text:mode==='delivery'
+        ?'Pesanan sudah siap dan menunggu proses penghantaran.'
+        :'Pesanan anda sudah siap. Boleh datang ke outlet untuk pickup.'
+    },
+    completed:{
+      icon:'🔥',
+      title:'Pesanan selesai',
+      text:'Terima kasih order Ayenas. Jumpa lagi!'
+    }
+  };
+  return map[status]||map.new;
+}
+function renderOrders(){
+  const el=document.getElementById('ordersContent');
+  if(!orders.length){
+    el.innerHTML='<div class="empty">Belum ada pesanan.<br><br><button class="primary" onclick="showPage(\'menu\')">ORDER SEKARANG</button></div>';
+    return;
+  }
+
+  const o=orders[0];
+  const status=o.status||'new';
+  const idx=orderStatusIndex(status);
+  const copy=orderStatusCopy(status,o.mode);
+  const outletKey=o.outletId||o.outlet||'tanah-merah';
+  const outlet=outlets[outletKey]?.name||'Ayenas';
+  const created=o.createdAt?.seconds
+    ? new Date(o.createdAt.seconds*1000)
+    : new Date(o.created||Date.now());
+
+  el.innerHTML=`
+    <div class="orderStatus">
+      <div class="trackHero">
+        <div class="trackIcon">${copy.icon}</div>
+        <h2>${copy.title}</h2>
+        <p>${copy.text}</p>
+        ${status!=='completed'?'<div class="liveBadge"><span class="liveDot"></span> LIVE UPDATE</div>':''}
+      </div>
+
+      <div class="timeline">
+        ${['Diterima','Disediakan','Sedia','Selesai'].map((s,i)=>
+          `<div class="step ${i<=idx?'done':''}">${s}</div>`
+        ).join('')}
+      </div>
+
+      <div class="trackOrderMeta">
+        <div class="trackMetaCard">
+          <small>NO. PESANAN</small>
+          <b>#${o.id||String(o.firestoreId||'').slice(0,7).toUpperCase()}</b>
+        </div>
+        <div class="trackMetaCard">
+          <small>JENIS</small>
+          <b>${o.mode==='delivery'?'🛵 Delivery':'🛍️ Pickup'}</b>
+        </div>
+        <div class="trackMetaCard">
+          <small>OUTLET</small>
+          <b>${outlet}</b>
+        </div>
+        <div class="trackMetaCard">
+          <small>MASA ORDER</small>
+          <b>${created.toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})}</b>
+        </div>
+      </div>
+
+      <div class="orderItemsBox">
+        <b>Pesanan</b>
+        ${(o.items||[]).map(x=>`
+          <div class="row">
+            <span>${x.qty||1}× ${x.name}</span>
+            <b>${money((Number(x.price||0)+Number(x.extras||0))*(x.qty||1))}</b>
+          </div>
+          ${x.note?`<div style="font-size:10px;color:#746E68;margin:-2px 0 7px">Nota: ${x.note}</div>`:''}
+        `).join('')}
+        <div class="row total"><span>Jumlah</span><span>${money(o.total)}</span></div>
+      </div>
+
+      ${status==='ready'
+        ?`<div class="statusHelp">${o.mode==='delivery'
+          ?'Pastikan telefon anda boleh dihubungi untuk urusan penghantaran.'
+          :'Tunjukkan nombor pesanan ini kepada crew ketika pickup.'}</div>`
+        :''}
+    </div>`;
+}
 function renderRewards(){document.getElementById('pointsTop').textContent=points;document.getElementById('rewardPts').textContent=points;document.getElementById('activity').innerHTML=orders.slice(0,5).map(o=>`<div class="listCard"><div style="font-size:28px">🍗</div><div class="grow"><b>+${o.earned} pts</b><div class="desc">${o.items[0]?.name||'Pesanan Ayenas'}</div></div><small>${new Date(o.created).toLocaleDateString('ms-MY')}</small></div>`).join('')||'<div class="empty">Belum ada aktiviti.</div>'}
 function showPage(id){let current=document.querySelector('.page.active')?.id;if(current&&current!==id)previousPage=current;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.bottom button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));if(id==='cart')renderCart();if(id==='checkout')renderCheckout();if(id==='orders')renderOrders();if(id==='rewards')renderRewards();if(id==='menu')renderMenu();window.scrollTo(0,0)}
 function historyBack(){showPage(previousPage||'home')}
@@ -785,7 +924,7 @@ const { initializeApp } = await import(APP);
 const { getAuth, signInAnonymously, onAuthStateChanged } = await import(AUTH);
 const {
   getFirestore, collection, doc, setDoc, addDoc, onSnapshot, query, where,
-  serverTimestamp
+  serverTimestamp, increment
 } = await import(FS);
 
 const app = initializeApp(firebaseConfig);
@@ -821,7 +960,10 @@ window.ayenasCreateOrder = async function(order){
     phoneDigits:digits,
     lastOutletId:order.outletId,
     lastOrderAt:serverTimestamp(),
-    updatedAt:serverTimestamp()
+    updatedAt:serverTimestamp(),
+    orderCount:increment(1),
+    totalSpend:increment(Number(order.total||0)),
+    points:increment(Number(order.earned||0))
   }, {merge:true});
   return {id:ref.id};
 };
@@ -842,6 +984,20 @@ async function listenMenu(){
   }, err=>console.warn('Menu live unavailable',err));
 }
 
+
+async function listenCustomerProfile(){
+  const user=await ensureAnonymous();
+  onSnapshot(doc(db,'customers',user.uid),snap=>{
+    if(!snap.exists()) return;
+    const data=snap.data();
+    if(Number.isFinite(Number(data.points))){
+      points=Number(data.points);
+      localStorage.setItem('ayenas_points',points);
+      renderRewards();
+    }
+  },err=>console.warn('Customer profile listener unavailable',err));
+}
+
 async function listenMyOrders(){
   const user = await ensureAnonymous();
   customerUid=user.uid;
@@ -859,7 +1015,7 @@ async function listenMyOrders(){
   }, err=>console.warn('Order listener unavailable',err));
 }
 
-onAuthStateChanged(auth, ()=>{ listenMenu(); listenMyOrders(); });
+onAuthStateChanged(auth, ()=>{ listenMenu(); listenMyOrders(); listenCustomerProfile(); });
 ensureAnonymous().catch(()=>{});
 </script>
 
