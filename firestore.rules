@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function profile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isStaff() {
+      return signedIn()
+        && profile().active == true
+        && profile().role in ['owner','admin','manager','crew'];
+    }
+
+    function isOwner() {
+      return isStaff() && profile().role == 'owner';
+    }
+
+    function sameOutlet(data) {
+      return isOwner()
+        || profile().outletId == 'all'
+        || data.outletId == profile().outletId;
+    }
+
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isStaff());
+      allow create, update, delete: if isOwner();
+    }
+
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update: if isStaff();
+      allow delete: if isOwner();
+    }
+
+    match /orders/{orderId} {
+      allow create: if signedIn()
+        && request.resource.data.customerUid == request.auth.uid
+        && request.resource.data.status == 'new';
+
+      allow read: if signedIn()
+        && (
+          resource.data.customerUid == request.auth.uid
+          || (isStaff() && sameOutlet(resource.data))
+        );
+
+      allow update: if isStaff()
+        && sameOutlet(resource.data);
+
+      allow delete: if isOwner();
+    }
+
+    match /customers/{uid} {
+      allow create, read, update: if signedIn()
+        && (request.auth.uid == uid || isStaff());
+      allow delete: if isOwner();
+    }
+  }
+}

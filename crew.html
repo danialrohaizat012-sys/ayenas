@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F20D12">
+<title>Ayenas Crew Console</title>
+<style>
+:root{--red:#F20D12;--black:#111;--cream:#FFF8F1;--yellow:#FFC928;--line:#E9E2DA;--muted:#746E68}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f2eee9;color:#111}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+.shell{max-width:1180px;margin:auto;min-height:100vh;background:var(--cream)}
+.header{background:linear-gradient(135deg,#d90005,#F20D12 55%,#111);color:white;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:10}
+.brand{display:flex;align-items:center;gap:11px}.brand img{width:48px;height:48px;border-radius:50%;background:white}.brand h1{font-size:17px;margin:0}.brand small{color:#ffd7d7}
+.header button{border:1px solid #ffffff44;background:#ffffff16;color:white;border-radius:10px;padding:9px 12px}
+.login{min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(145deg,#FFF8F1,#fde5e1)}
+.loginCard{width:min(410px,100%);background:white;border-radius:24px;padding:25px;box-shadow:0 28px 70px #60131318}
+.loginCard img{width:88px;height:88px;border-radius:50%;display:block;margin:auto}.loginCard h2{text-align:center;margin:14px 0 5px}.loginCard p{text-align:center;color:var(--muted);font-size:13px}
+.field{margin-top:12px}.field label{display:block;font-size:11px;font-weight:900;margin-bottom:5px}input,textarea,select{width:100%;border:1px solid var(--line);background:white;border-radius:11px;padding:11px}
+.primary{width:100%;border:0;border-radius:12px;padding:13px;background:var(--red);color:white;font-weight:900;margin-top:14px}
+.nav{display:flex;gap:8px;padding:14px 18px;background:white;border-bottom:1px solid var(--line);position:sticky;top:84px;z-index:9;overflow:auto}.nav button{border:0;background:#f6f2ee;border-radius:999px;padding:10px 14px;font-weight:900;white-space:nowrap}.nav button.active{background:#111;color:white}
+.main{padding:18px}.panel{display:none}.panel.active{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}.stat{background:white;border:1px solid var(--line);border-radius:15px;padding:14px}.stat strong{font-size:24px;display:block}.stat small{color:var(--muted)}
+.orderGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.column{background:#eee9e3;border-radius:16px;padding:10px;min-height:260px}.column h3{font-size:12px;margin:2px 4px 10px;text-transform:uppercase}
+.orderCard{background:white;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:9px}.orderTop{display:flex;justify-content:space-between;gap:8px}.orderCard small{color:var(--muted)}.items{font-size:12px;line-height:1.45;margin:9px 0;padding-top:8px;border-top:1px solid #f2ede8}.action{width:100%;border:0;border-radius:9px;padding:9px;background:#111;color:white;font-weight:800}.action.ready{background:#2b8a3e}.action.done{background:#777}
+.toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:13px}.toolbar h2{margin:0;font-size:18px}.toolbar button{border:0;border-radius:10px;background:var(--red);color:white;padding:10px 12px;font-weight:900}
+.productList{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.product{background:white;border:1px solid var(--line);border-radius:16px;overflow:hidden}.product img{width:100%;height:145px;object-fit:cover}.productBody{padding:12px}.product h3{font-size:14px;margin:0 0 5px}.product .row{display:flex;justify-content:space-between;align-items:center}.pill{display:inline-block;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:900;background:#edf7ee;color:#287536}.pill.off{background:#fff0f0;color:#b32121}
+.modal{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;justify-content:center;z-index:50}.modal.show{display:flex}.modalCard{width:min(560px,100%);max-height:92vh;overflow:auto;background:white;border-radius:24px 24px 0 0;padding:18px}.modalHead{display:flex;justify-content:space-between;align-items:center}.modalHead button{border:0;background:#eee;width:38px;height:38px;border-radius:50%}
+.preview{width:100%;height:220px;border-radius:15px;object-fit:cover;background:#eee;margin-top:10px}.switchRow{display:flex;justify-content:space-between;align-items:center;padding:12px 0}
+.notice{padding:12px;border-radius:12px;background:#fff7db;color:#6f5700;font-size:12px;margin-bottom:12px}
+@media(max-width:900px){.orderGrid{grid-template-columns:repeat(2,1fr)}.productList{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.orderGrid{grid-template-columns:1fr}.productList{grid-template-columns:1fr 1fr}.product img{height:120px}.header{padding:12px}.nav{top:72px}}
+</style>
+</head>
+<body>
+<div id="loginView" class="login">
+  <div class="loginCard">
+    <img src="icon-512.png" alt="Ayenas">
+    <h2>Ayenas Crew</h2>
+    <p>Login crew / owner untuk urus order dan menu.</p>
+    <div id="loginMsg" class="notice" style="display:none"></div>
+    <div class="field"><label>EMAIL</label><input id="email" type="email" placeholder="crew@ayenas.my"></div>
+    <div class="field"><label>PASSWORD</label><input id="password" type="password" placeholder="••••••••"></div>
+    <button class="primary" id="loginBtn">LOG MASUK</button>
+  </div>
+</div>
+
+<div id="appView" class="shell" style="display:none">
+  <header class="header">
+    <div class="brand"><img src="icon-512.png"><div><h1>AYENAS CREW</h1><small id="profileLine">Loading...</small></div></div>
+    <button id="logoutBtn">Logout</button>
+  </header>
+  <nav class="nav">
+    <button class="active" data-panel="orders">🔥 Live Orders</button>
+    <button data-panel="menu">🍗 Menu</button>
+    <button data-panel="account">👤 Account</button>
+  </nav>
+  <main class="main">
+    <section class="panel active" id="ordersPanel">
+      <div class="stats">
+        <div class="stat"><strong id="sNew">0</strong><small>Order Baru</small></div>
+        <div class="stat"><strong id="sPrep">0</strong><small>Preparing</small></div>
+        <div class="stat"><strong id="sReady">0</strong><small>Ready</small></div>
+        <div class="stat"><strong id="sToday">RM0.00</strong><small>Sales Hari Ini</small></div>
+      </div>
+      <div class="orderGrid">
+        <div class="column"><h3>🔴 New</h3><div id="colNew"></div></div>
+        <div class="column"><h3>🟠 Preparing</h3><div id="colPreparing"></div></div>
+        <div class="column"><h3>🟢 Ready</h3><div id="colReady"></div></div>
+        <div class="column"><h3>⚫ Completed</h3><div id="colCompleted"></div></div>
+      </div>
+    </section>
+
+    <section class="panel" id="menuPanel">
+      <div class="toolbar"><h2>Menu Ayenas</h2><button id="addProductBtn">+ Produk</button></div>
+      <div class="notice" id="seedNotice">Jika Firestore masih kosong, tekan “Import Menu Asas” sekali sahaja.</div>
+      <button class="primary" id="seedBtn" style="max-width:220px;margin:0 0 14px">IMPORT MENU ASAS</button>
+      <div class="productList" id="productList"></div>
+    </section>
+
+    <section class="panel" id="accountPanel">
+      <div class="toolbar"><h2>Account</h2></div>
+      <div class="stat"><small>Nama</small><strong id="accName" style="font-size:18px">—</strong></div><br>
+      <div class="stat"><small>Role</small><strong id="accRole" style="font-size:18px">—</strong></div><br>
+      <div class="stat"><small>Outlet</small><strong id="accOutlet" style="font-size:18px">—</strong></div>
+    </section>
+  </main>
+</div>
+
+<div class="modal" id="productModal">
+  <div class="modalCard">
+    <div class="modalHead"><h2 id="modalTitle">Edit Produk</h2><button id="closeModal">×</button></div>
+    <img id="imgPreview" class="preview" src="nasi.jpg">
+    <div class="field"><label>GAMBAR BARU</label><input id="pImage" type="file" accept="image/*"></div>
+    <div class="field"><label>NAMA</label><input id="pName"></div>
+    <div class="field"><label>KATEGORI</label><input id="pCategory"></div>
+    <div class="field"><label>HARGA (RM)</label><input id="pPrice" type="number" step="0.10"></div>
+    <div class="field"><label>DESCRIPTION</label><textarea id="pDesc" rows="3"></textarea></div>
+    <div class="field"><label>BADGE</label><input id="pBadge" placeholder="POPULAR / NEW / HOT"></div>
+    <div class="switchRow"><b>Available</b><input id="pActive" type="checkbox" style="width:auto"></div>
+    <button class="primary" id="saveProductBtn">SIMPAN PERUBAHAN</button>
+  </div>
+</div>
+
+<script type="module">
+const firebaseConfig = {"apiKey": "AIzaSyAQdk3ZfMnIGyr7k2UD1HDc3UQWWbxSFFw", "authDomain": "ayenas-1dcd9.firebaseapp.com", "projectId": "ayenas-1dcd9", "storageBucket": "ayenas-1dcd9.firebasestorage.app", "messagingSenderId": "503075108633", "appId": "1:503075108633:web:0a8e912f634dbfbadeb788"};
+const [appMod,authMod,fsMod,storageMod] = await Promise.all([
+  import('https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js'),
+  import('https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js'),
+  import('https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js'),
+  import('https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js')
+]);
+const app=appMod.initializeApp(firebaseConfig);
+const auth=authMod.getAuth(app);
+const db=fsMod.getFirestore(app);
+const storage=storageMod.getStorage(app);
+
+const seed=[{"id": "nasi-korean", "name": "Nasi Ayam Korean Spicy", "category": "Nasi Ayam", "flavour": "Korean Spicy", "price": 8.9, "imageUrl": "korean.jpg", "desc": "Ayam bakar Korean Spicy + nasi basmathi + sos Ayenas.", "badge": "#1 BEST SELLER", "active": true}, {"id": "nasi-madu", "name": "Nasi Ayam Madu", "category": "Nasi Ayam", "flavour": "Madu", "price": 7.9, "imageUrl": "nasi.jpg", "desc": "Ayam bakar madu manis berasap + nasi basmathi.", "badge": "POPULAR", "active": true}, {"id": "nasi-herba", "name": "Nasi Ayam Herba", "category": "Nasi Ayam", "flavour": "Herba", "price": 8.9, "imageUrl": "nasi.jpg", "desc": "Ayam bakar herba aromatik + nasi basmathi.", "badge": "", "active": true}, {"id": "ramen-korean", "name": "Ramen Ayam Korean Spicy", "category": "Ramen", "flavour": "Korean Spicy", "price": 11.5, "imageUrl": "ramen.jpg", "desc": "Ramen spicy dengan ayam bakar signature Ayenas.", "badge": "HOT", "active": true}, {"id": "ramen-madu", "name": "Ramen Ayam Madu", "category": "Ramen", "flavour": "Madu", "price": 9.9, "imageUrl": "ramen.jpg", "desc": "Ramen + ayam bakar madu.", "badge": "", "active": true}, {"id": "aglio-korean", "name": "Aglio Olio Korean Spicy", "category": "Pasta", "flavour": "Korean Spicy", "price": 11.5, "imageUrl": "pasta.jpg", "desc": "Aglio olio + ayam bakar Korean Spicy.", "badge": "", "active": true}, {"id": "mandy-ayam", "name": "Mandy Ayam 1/4", "category": "Mandy", "flavour": "", "price": 13.9, "imageUrl": "mandy.jpg", "desc": "Nasi Arab Mandy Ayenas bersama ayam bakar.", "badge": "FAMILY PICK", "active": true}, {"id": "superbox", "name": "Superbox Ayenas", "category": "Superbox", "flavour": "Mix", "price": 32.9, "imageUrl": "superbox.jpg", "desc": "5 menu dalam 1 box. Sesuai untuk share & enjoy.", "badge": "SHARE", "active": true}, {"id": "chicken-chop", "name": "Chicken Chop Ayenas", "category": "Western", "flavour": "", "price": 17.9, "imageUrl": "chickenchop.jpg", "desc": "Homemade fresh chicken chop lengkap dengan sides.", "badge": "NEW", "active": true}, {"id": "burrito", "name": "Burrito Ayenas", "category": "Snacks", "flavour": "", "price": 7.0, "imageUrl": "snacks.jpg", "desc": "Burrito ringkas untuk snack atau light meal.", "badge": "", "active": true}, {"id": "freshie", "name": "Freshie Sparkling", "category": "Drinks", "flavour": "", "price": 6.0, "imageUrl": "drinks.jpg", "desc": "Pilihan sparkling yang fresh dan ringan.", "badge": "REFRESH", "active": true}];
+let profile=null, products=[], orders=[], editingId=null, unsubOrders=null, unsubProducts=null;
+
+const $=id=>document.getElementById(id);
+const money=n=>'RM'+Number(n||0).toFixed(2);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const outletName=id=>id==='tanah-merah'?'Tanah Merah':id==='lembah-sireh'?'Lembah Sireh':'Semua Outlet';
+
+$('loginBtn').onclick=async()=>{
+  $('loginMsg').style.display='none';
+  try{await authMod.signInWithEmailAndPassword(auth,$('email').value.trim(),$('password').value)}catch(e){
+    $('loginMsg').textContent='Login gagal. Semak email/password dan pastikan Email/Password Authentication diaktifkan.';
+    $('loginMsg').style.display='block';
+  }
+};
+$('logoutBtn').onclick=()=>authMod.signOut(auth);
+
+authMod.onAuthStateChanged(auth,async user=>{
+  if(!user){ $('loginView').style.display='grid'; $('appView').style.display='none'; return; }
+  const snap=await fsMod.getDoc(fsMod.doc(db,'users',user.uid));
+  if(!snap.exists() || snap.data().active!==true || !['owner','crew','admin','manager'].includes(snap.data().role)){
+    await authMod.signOut(auth);
+    $('loginMsg').textContent='Akaun ini belum diberi akses crew. Cipta users/'+user.uid+' dengan active:true dan role:"owner" atau "crew".';
+    $('loginMsg').style.display='block';
+    return;
+  }
+  profile={uid:user.uid,email:user.email,...snap.data()};
+  $('loginView').style.display='none'; $('appView').style.display='block';
+  $('profileLine').textContent=(profile.name||profile.email)+' • '+outletName(profile.outletId||'all');
+  $('accName').textContent=profile.name||profile.email;
+  $('accRole').textContent=profile.role;
+  $('accOutlet').textContent=outletName(profile.outletId||'all');
+  listenProducts(); listenOrders();
+});
+
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active')); b.classList.add('active');
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  $(b.dataset.panel+'Panel').classList.add('active');
+});
+
+function listenProducts(){
+  if(unsubProducts)unsubProducts();
+  unsubProducts=fsMod.onSnapshot(fsMod.collection(db,'products'),snap=>{
+    products=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.category||'').localeCompare(b.category||''));
+    renderProducts();
+    $('seedNotice').style.display=products.length?'none':'block';
+    $('seedBtn').style.display=products.length?'none':'block';
+  });
+}
+
+function listenOrders(){
+  if(unsubOrders)unsubOrders();
+  let q;
+  if(profile.role==='owner' || !profile.outletId || profile.outletId==='all'){
+    q=fsMod.collection(db,'orders');
+  }else{
+    q=fsMod.query(fsMod.collection(db,'orders'),fsMod.where('outletId','==',profile.outletId));
+  }
+  unsubOrders=fsMod.onSnapshot(q,snap=>{
+    orders=snap.docs.map(d=>({firestoreId:d.id,...d.data()}));
+    orders.sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+    renderOrders();
+  });
+}
+
+function orderCard(o){
+  const items=(o.items||[]).map(i=>`${i.qty||1}× ${esc(i.name)}`).join('<br>');
+  const next={new:['Terima Pesanan','preparing'],preparing:['Tanda Sedia','ready'],ready:['Selesaikan','completed']}[o.status||'new'];
+  return `<div class="orderCard">
+    <div class="orderTop"><b>#${esc(o.id||o.firestoreId.slice(0,6))}</b><b>${money(o.total)}</b></div>
+    <small>${esc(o.name)} • ${esc(o.phone)}<br>${outletName(o.outletId)} • ${o.mode==='delivery'?'Delivery':'Pickup'}</small>
+    <div class="items">${items}</div>
+    ${next?`<button class="action" onclick="window.updateStatus('${o.firestoreId}','${next[1]}')">${next[0]}</button>`:''}
+  </div>`;
+}
+function renderOrders(){
+  const groups={new:[],preparing:[],ready:[],completed:[]};
+  orders.forEach(o=>(groups[o.status]||groups.new).push(o));
+  $('colNew').innerHTML=groups.new.map(orderCard).join('')||'<small>Tiada order</small>';
+  $('colPreparing').innerHTML=groups.preparing.map(orderCard).join('')||'<small>Tiada order</small>';
+  $('colReady').innerHTML=groups.ready.map(orderCard).join('')||'<small>Tiada order</small>';
+  $('colCompleted').innerHTML=groups.completed.slice(0,12).map(orderCard).join('')||'<small>Tiada order</small>';
+  $('sNew').textContent=groups.new.length; $('sPrep').textContent=groups.preparing.length; $('sReady').textContent=groups.ready.length;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const sales=groups.completed.filter(o=>(o.createdAt?.toDate?.()||new Date(o.created||0))>=today).reduce((s,o)=>s+Number(o.total||0),0);
+  $('sToday').textContent=money(sales);
+}
+window.updateStatus=async(id,status)=>{
+  await fsMod.updateDoc(fsMod.doc(db,'orders',id),{status,updatedAt:fsMod.serverTimestamp()});
+};
+
+function renderProducts(){
+  $('productList').innerHTML=products.map(p=>`<div class="product">
+    <img src="${esc(p.imageUrl||'nasi.jpg')}" onerror="this.src='nasi.jpg'">
+    <div class="productBody">
+      <div class="row"><h3>${esc(p.name)}</h3><span class="pill ${p.active===false?'off':''}">${p.active===false?'Sold Out':'Available'}</span></div>
+      <small>${esc(p.category)} • ${money(p.price)}</small>
+      <button class="primary" style="margin-top:10px" onclick="window.editProduct('${p.id}')">EDIT</button>
+    </div></div>`).join('');
+}
+
+window.editProduct=id=>{
+  const p=products.find(x=>x.id===id); editingId=id;
+  $('modalTitle').textContent='Edit Produk'; $('pName').value=p.name||''; $('pCategory').value=p.category||'';
+  $('pPrice').value=p.price||0; $('pDesc').value=p.desc||''; $('pBadge').value=p.badge||''; $('pActive').checked=p.active!==false;
+  $('imgPreview').src=p.imageUrl||'nasi.jpg'; $('pImage').value=''; $('productModal').classList.add('show');
+};
+$('addProductBtn').onclick=()=>{
+  editingId=null; $('modalTitle').textContent='Tambah Produk'; ['pName','pCategory','pDesc','pBadge'].forEach(id=>$(id).value='');
+  $('pPrice').value=''; $('pActive').checked=true; $('pImage').value=''; $('imgPreview').src='nasi.jpg'; $('productModal').classList.add('show');
+};
+$('closeModal').onclick=()=>$('productModal').classList.remove('show');
+$('productModal').onclick=e=>{if(e.target.id==='productModal')$('productModal').classList.remove('show')};
+$('pImage').onchange=e=>{const f=e.target.files[0];if(f)$('imgPreview').src=URL.createObjectURL(f)};
+
+$('saveProductBtn').onclick=async()=>{
+  const id=editingId||('p-'+Date.now());
+  let imageUrl=editingId?(products.find(x=>x.id===editingId)?.imageUrl||'nasi.jpg'):'nasi.jpg';
+  const file=$('pImage').files[0];
+  if(file){
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    const path=`products/${id}-${Date.now()}.${ext}`;
+    const ref=storageMod.ref(storage,path);
+    await storageMod.uploadBytes(ref,file);
+    imageUrl=await storageMod.getDownloadURL(ref);
+  }
+  await fsMod.setDoc(fsMod.doc(db,'products',id),{
+    name:$('pName').value.trim(),category:$('pCategory').value.trim(),price:Number($('pPrice').value||0),
+    desc:$('pDesc').value.trim(),badge:$('pBadge').value.trim(),active:$('pActive').checked,imageUrl,
+    updatedAt:fsMod.serverTimestamp(),updatedBy:profile.uid
+  },{merge:true});
+  $('productModal').classList.remove('show');
+};
+
+$('seedBtn').onclick=async()=>{
+  if(products.length && !confirm('Menu sudah ada. Import semula?'))return;
+  for(const p of seed){
+    const {id,...data}=p;
+    await fsMod.setDoc(fsMod.doc(db,'products',id),{...data,createdAt:fsMod.serverTimestamp(),updatedAt:fsMod.serverTimestamp()},{merge:true});
+  }
+};
+</script>
+</body></html>

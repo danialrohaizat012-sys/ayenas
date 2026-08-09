@@ -1,0 +1,123 @@
+[
+  {
+    "id": "nasi-korean",
+    "name": "Nasi Ayam Korean Spicy",
+    "category": "Nasi Ayam",
+    "flavour": "Korean Spicy",
+    "price": 8.9,
+    "imageUrl": "korean.jpg",
+    "desc": "Ayam bakar Korean Spicy + nasi basmathi + sos Ayenas.",
+    "badge": "#1 BEST SELLER",
+    "active": true
+  },
+  {
+    "id": "nasi-madu",
+    "name": "Nasi Ayam Madu",
+    "category": "Nasi Ayam",
+    "flavour": "Madu",
+    "price": 7.9,
+    "imageUrl": "nasi.jpg",
+    "desc": "Ayam bakar madu manis berasap + nasi basmathi.",
+    "badge": "POPULAR",
+    "active": true
+  },
+  {
+    "id": "nasi-herba",
+    "name": "Nasi Ayam Herba",
+    "category": "Nasi Ayam",
+    "flavour": "Herba",
+    "price": 8.9,
+    "imageUrl": "nasi.jpg",
+    "desc": "Ayam bakar herba aromatik + nasi basmathi.",
+    "badge": "",
+    "active": true
+  },
+  {
+    "id": "ramen-korean",
+    "name": "Ramen Ayam Korean Spicy",
+    "category": "Ramen",
+    "flavour": "Korean Spicy",
+    "price": 11.5,
+    "imageUrl": "ramen.jpg",
+    "desc": "Ramen spicy dengan ayam bakar signature Ayenas.",
+    "badge": "HOT",
+    "active": true
+  },
+  {
+    "id": "ramen-madu",
+    "name": "Ramen Ayam Madu",
+    "category": "Ramen",
+    "flavour": "Madu",
+    "price": 9.9,
+    "imageUrl": "ramen.jpg",
+    "desc": "Ramen + ayam bakar madu.",
+    "badge": "",
+    "active": true
+  },
+  {
+    "id": "aglio-korean",
+    "name": "Aglio Olio Korean Spicy",
+    "category": "Pasta",
+    "flavour": "Korean Spicy",
+    "price": 11.5,
+    "imageUrl": "pasta.jpg",
+    "desc": "Aglio olio + ayam bakar Korean Spicy.",
+    "badge": "",
+    "active": true
+  },
+  {
+    "id": "mandy-ayam",
+    "name": "Mandy Ayam 1/4",
+    "category": "Mandy",
+    "flavour": "",
+    "price": 13.9,
+    "imageUrl": "mandy.jpg",
+    "desc": "Nasi Arab Mandy Ayenas bersama ayam bakar.",
+    "badge": "FAMILY PICK",
+    "active": true
+  },
+  {
+    "id": "superbox",
+    "name": "Superbox Ayenas",
+    "category": "Superbox",
+    "flavour": "Mix",
+    "price": 32.9,
+    "imageUrl": "superbox.jpg",
+    "desc": "5 menu dalam 1 box. Sesuai untuk share & enjoy.",
+    "badge": "SHARE",
+    "active": true
+  },
+  {
+    "id": "chicken-chop",
+    "name": "Chicken Chop Ayenas",
+    "category": "Western",
+    "flavour": "",
+    "price": 17.9,
+    "imageUrl": "chickenchop.jpg",
+    "desc": "Homemade fresh chicken chop lengkap dengan sides.",
+    "badge": "NEW",
+    "active": true
+  },
+  {
+    "id": "burrito",
+    "name": "Burrito Ayenas",
+    "category": "Snacks",
+    "flavour": "",
+    "price": 7.0,
+    "imageUrl": "snacks.jpg",
+    "desc": "Burrito ringkas untuk snack atau light meal.",
+    "badge": "",
+    "active": true
+  },
+  {
+    "id": "freshie",
+    "name": "Freshie Sparkling",
+    "category": "Drinks",
+    "flavour": "",
+    "price": 6.0,
+    "imageUrl": "drinks.jpg",
+    "desc": "Pilihan sparkling yang fresh dan ringan.",
+    "badge": "REFRESH",
+    "active": true
+  }
+]

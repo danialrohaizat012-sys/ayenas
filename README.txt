@@ -1,0 +1,61 @@
+AYENAS FIREBASE V1
+
+Files:
+- index.html       Customer ordering app
+- crew.html        Crew / owner console
+- firestore.rules  Firestore security rules
+- storage.rules    Firebase Storage security rules
+- products-seed.json
+- *.jpg             Clean menu product images (semua di root, tiada folder assets)
+- manifest.webmanifest, service-worker.js, icons
+
+FIREBASE SETUP REQUIRED
+
+1. Authentication
+   Enable:
+   - Anonymous
+   - Email/Password
+
+2. Firestore Database
+   Create Firestore and publish the included firestore.rules.
+
+3. Storage
+   Enable Firebase Storage and publish the included storage.rules.
+
+4. Create owner login
+   Firebase Console > Authentication > Users > Add user.
+   Create your owner email/password.
+
+5. Create owner profile in Firestore
+   Copy the UID from Authentication.
+   Create collection: users
+   Document ID: <OWNER UID>
+   Fields:
+     active   boolean  true
+     role     string   owner
+     name     string   <owner name>
+     outletId string   all
+
+For branch crew:
+     active   boolean  true
+     role     string   crew
+     name     string   <crew name>
+     outletId string   tanah-merah
+OR
+     outletId string   lembah-sireh
+
+6. Deploy all files to GitHub Pages.
+   Customer app: /index.html
+   Crew console: /crew.html
+
+7. Login crew.html as owner, open Menu, and press IMPORT MENU ASAS once.
+   After that, customer index.html reads the live Firestore menu.
+
+IMPORTANT
+- Customer orders require Anonymous Authentication to be enabled.
+- Product image upload requires Firebase Storage.
+- Crew order list updates live through Firestore onSnapshot.
+
+
+V2 FLAT STRUCTURE
+Semua fail dan gambar berada dalam root yang sama. Tiada folder assets diperlukan.
