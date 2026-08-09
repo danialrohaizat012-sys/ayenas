@@ -4,7 +4,6 @@ Files:
 - index.html       Customer ordering app
 - crew.html        Crew / owner console
 - firestore.rules  Firestore security rules
-- storage.rules    Firebase Storage security rules
 - products-seed.json
 - *.jpg             Clean menu product images (semua di root, tiada folder assets)
 - manifest.webmanifest, service-worker.js, icons
@@ -19,8 +18,10 @@ FIREBASE SETUP REQUIRED
 2. Firestore Database
    Create Firestore and publish the included firestore.rules.
 
-3. Storage
-   Enable Firebase Storage and publish the included storage.rules.
+3. Firebase Storage
+   TAK PERLU. Versi ini tidak menggunakan Firebase Storage.
+   Crew boleh pilih gambar terus dari phone/computer.
+   Browser akan auto-resize + compress ke JPEG sebelum gambar disimpan dalam field imageUrl di Firestore.
 
 4. Create owner login
    Firebase Console > Authentication > Users > Add user.
@@ -59,3 +60,12 @@ IMPORTANT
 
 V2 FLAT STRUCTURE
 Semua fail dan gambar berada dalam root yang sama. Tiada folder assets diperlukan.
+
+
+V3 NO-STORAGE IMAGE UPLOAD
+- Tiada Firebase Storage.
+- Crew boleh upload/tukar gambar terus melalui crew.html.
+- Gambar di-compress dalam browser (maks dimension 1000px, JPEG adaptive quality).
+- Sasaran saiz sekitar 160 KB sebelum disimpan sebagai data URL dalam document product Firestore.
+- Sesuai untuk MVP / menu berskala kecil.
+- Elakkan upload gambar terlalu banyak atau gambar resolusi ekstrem dalam satu masa.

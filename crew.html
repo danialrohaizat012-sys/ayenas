@@ -91,7 +91,14 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
   <div class="modalCard">
     <div class="modalHead"><h2 id="modalTitle">Edit Produk</h2><button id="closeModal">×</button></div>
     <img id="imgPreview" class="preview" src="nasi.jpg">
-    <div class="field"><label>GAMBAR BARU</label><input id="pImage" type="file" accept="image/*"></div>
+    <div class="field">
+  <label>GAMBAR BARU</label>
+  <input id="pImage" type="file" accept="image/*" capture="environment">
+  <small style="display:block;color:#746E68;margin-top:6px;line-height:1.4">
+    Gambar akan auto-compress sebelum disimpan. Sasaran maksimum ±160 KB.
+  </small>
+  <div id="compressInfo" style="display:none;margin-top:7px;padding:8px 10px;background:#edf7ee;color:#287536;border-radius:9px;font-size:11px"></div>
+</div>
     <div class="field"><label>NAMA</label><input id="pName"></div>
     <div class="field"><label>KATEGORI</label><input id="pCategory"></div>
     <div class="field"><label>HARGA (RM)</label><input id="pPrice" type="number" step="0.10"></div>
@@ -104,16 +111,14 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 
 <script type="module">
 const firebaseConfig = {"apiKey": "AIzaSyAQdk3ZfMnIGyr7k2UD1HDc3UQWWbxSFFw", "authDomain": "ayenas-1dcd9.firebaseapp.com", "projectId": "ayenas-1dcd9", "storageBucket": "ayenas-1dcd9.firebasestorage.app", "messagingSenderId": "503075108633", "appId": "1:503075108633:web:0a8e912f634dbfbadeb788"};
-const [appMod,authMod,fsMod,storageMod] = await Promise.all([
+const [appMod,authMod,fsMod] = await Promise.all([
   import('https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js'),
   import('https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js'),
-  import('https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js'),
-  import('https://www.gstatic.com/firebasejs/12.17.1/firebase-storage.js')
+  import('https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js')
 ]);
 const app=appMod.initializeApp(firebaseConfig);
 const auth=authMod.getAuth(app);
 const db=fsMod.getFirestore(app);
-const storage=storageMod.getStorage(app);
 
 const seed=[{"id": "nasi-korean", "name": "Nasi Ayam Korean Spicy", "category": "Nasi Ayam", "flavour": "Korean Spicy", "price": 8.9, "imageUrl": "korean.jpg", "desc": "Ayam bakar Korean Spicy + nasi basmathi + sos Ayenas.", "badge": "#1 BEST SELLER", "active": true}, {"id": "nasi-madu", "name": "Nasi Ayam Madu", "category": "Nasi Ayam", "flavour": "Madu", "price": 7.9, "imageUrl": "nasi.jpg", "desc": "Ayam bakar madu manis berasap + nasi basmathi.", "badge": "POPULAR", "active": true}, {"id": "nasi-herba", "name": "Nasi Ayam Herba", "category": "Nasi Ayam", "flavour": "Herba", "price": 8.9, "imageUrl": "nasi.jpg", "desc": "Ayam bakar herba aromatik + nasi basmathi.", "badge": "", "active": true}, {"id": "ramen-korean", "name": "Ramen Ayam Korean Spicy", "category": "Ramen", "flavour": "Korean Spicy", "price": 11.5, "imageUrl": "ramen.jpg", "desc": "Ramen spicy dengan ayam bakar signature Ayenas.", "badge": "HOT", "active": true}, {"id": "ramen-madu", "name": "Ramen Ayam Madu", "category": "Ramen", "flavour": "Madu", "price": 9.9, "imageUrl": "ramen.jpg", "desc": "Ramen + ayam bakar madu.", "badge": "", "active": true}, {"id": "aglio-korean", "name": "Aglio Olio Korean Spicy", "category": "Pasta", "flavour": "Korean Spicy", "price": 11.5, "imageUrl": "pasta.jpg", "desc": "Aglio olio + ayam bakar Korean Spicy.", "badge": "", "active": true}, {"id": "mandy-ayam", "name": "Mandy Ayam 1/4", "category": "Mandy", "flavour": "", "price": 13.9, "imageUrl": "mandy.jpg", "desc": "Nasi Arab Mandy Ayenas bersama ayam bakar.", "badge": "FAMILY PICK", "active": true}, {"id": "superbox", "name": "Superbox Ayenas", "category": "Superbox", "flavour": "Mix", "price": 32.9, "imageUrl": "superbox.jpg", "desc": "5 menu dalam 1 box. Sesuai untuk share & enjoy.", "badge": "SHARE", "active": true}, {"id": "chicken-chop", "name": "Chicken Chop Ayenas", "category": "Western", "flavour": "", "price": 17.9, "imageUrl": "chickenchop.jpg", "desc": "Homemade fresh chicken chop lengkap dengan sides.", "badge": "NEW", "active": true}, {"id": "burrito", "name": "Burrito Ayenas", "category": "Snacks", "flavour": "", "price": 7.0, "imageUrl": "snacks.jpg", "desc": "Burrito ringkas untuk snack atau light meal.", "badge": "", "active": true}, {"id": "freshie", "name": "Freshie Sparkling", "category": "Drinks", "flavour": "", "price": 6.0, "imageUrl": "drinks.jpg", "desc": "Pilihan sparkling yang fresh dan ringan.", "badge": "REFRESH", "active": true}];
 let profile=null, products=[], orders=[], editingId=null, unsubOrders=null, unsubProducts=null;
