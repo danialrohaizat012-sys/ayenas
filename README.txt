@@ -69,3 +69,10 @@ V3 NO-STORAGE IMAGE UPLOAD
 - Sasaran saiz sekitar 160 KB sebelum disimpan sebagai data URL dalam document product Firestore.
 - Sesuai untuk MVP / menu berskala kecil.
 - Elakkan upload gambar terlalu banyak atau gambar resolusi ekstrem dalam satu masa.
+
+
+V4 SAVE FIX
+- Fixed crew menu Save button.
+- Previous V3 still referenced removed Firebase Storage code inside the save handler.
+- Image upload now really uses browser compression only.
+- Save errors are shown directly to crew instead of failing silently.

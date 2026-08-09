@@ -234,25 +234,137 @@ $('addProductBtn').onclick=()=>{
 };
 $('closeModal').onclick=()=>$('productModal').classList.remove('show');
 $('productModal').onclick=e=>{if(e.target.id==='productModal')$('productModal').classList.remove('show')};
-$('pImage').onchange=e=>{const f=e.target.files[0];if(f)$('imgPreview').src=URL.createObjectURL(f)};
+$('pImage').onchange=e=>{
+  const f=e.target.files[0];
+  if($('compressInfo')) $('compressInfo').style.display='none';
+  if(f) $('imgPreview').src=URL.createObjectURL(f);
+};
+
+
+async function compressImage(file){
+  const dataUrl = await new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result);
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+
+  const img = await new Promise((resolve,reject)=>{
+    const im=new Image();
+    im.onload=()=>resolve(im);
+    im.onerror=reject;
+    im.src=dataUrl;
+  });
+
+  const MAX_DIM=1000;
+  let w=img.naturalWidth, h=img.naturalHeight;
+  if(Math.max(w,h)>MAX_DIM){
+    const scale=MAX_DIM/Math.max(w,h);
+    w=Math.round(w*scale);
+    h=Math.round(h*scale);
+  }
+
+  const canvas=document.createElement('canvas');
+  canvas.width=w; canvas.height=h;
+  const ctx=canvas.getContext('2d',{alpha:false});
+  ctx.fillStyle='#fff';
+  ctx.fillRect(0,0,w,h);
+  ctx.drawImage(img,0,0,w,h);
+
+  let quality=.76;
+  let output=canvas.toDataURL('image/jpeg',quality);
+  const targetBytes=150*1024;
+
+  while((output.length*0.75)>targetBytes && quality>.38){
+    quality-=.08;
+    output=canvas.toDataURL('image/jpeg',quality);
+  }
+
+  if((output.length*0.75)>targetBytes){
+    const scale=.75;
+    const c2=document.createElement('canvas');
+    c2.width=Math.round(w*scale);
+    c2.height=Math.round(h*scale);
+    const c2x=c2.getContext('2d',{alpha:false});
+    c2x.fillStyle='#fff';
+    c2x.fillRect(0,0,c2.width,c2.height);
+    c2x.drawImage(canvas,0,0,c2.width,c2.height);
+    output=c2.toDataURL('image/jpeg',.5);
+  }
+
+  return {
+    dataUrl: output,
+    approxKB: Math.round((output.length*0.75)/1024)
+  };
+}
 
 $('saveProductBtn').onclick=async()=>{
-  const id=editingId||('p-'+Date.now());
-  let imageUrl=editingId?(products.find(x=>x.id===editingId)?.imageUrl||'nasi.jpg'):'nasi.jpg';
-  const file=$('pImage').files[0];
-  if(file){
-    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
-    const path=`products/${id}-${Date.now()}.${ext}`;
-    const ref=storageMod.ref(storage,path);
-    await storageMod.uploadBytes(ref,file);
-    imageUrl=await storageMod.getDownloadURL(ref);
+  const btn=$('saveProductBtn');
+  btn.disabled=true;
+  const oldText=btn.textContent;
+  btn.textContent='MENYIMPAN...';
+
+  try{
+    const id=editingId||('p-'+Date.now());
+    const oldProduct=editingId?products.find(x=>x.id===editingId):null;
+    let imageUrl=oldProduct?.imageUrl||'nasi.jpg';
+
+    const file=$('pImage').files[0];
+    if(file){
+      btn.textContent='COMPRESS GAMBAR...';
+      const compressed=await compressImage(file);
+
+      // Firestore document has a size limit, so keep image comfortably below it.
+      if(compressed.approxKB>220){
+        throw new Error('Gambar masih terlalu besar selepas compression. Cuba gambar lain.');
+      }
+
+      imageUrl=compressed.dataUrl;
+      const info=$('compressInfo');
+      if(info){
+        info.style.display='block';
+        info.textContent=`Gambar siap compress: ±${compressed.approxKB} KB`;
+      }
+      btn.textContent='MENYIMPAN...';
+    }
+
+    const name=$('pName').value.trim();
+    const category=$('pCategory').value.trim();
+    const price=Number($('pPrice').value||0);
+
+    if(!name) throw new Error('Nama produk wajib diisi.');
+    if(!category) throw new Error('Kategori wajib diisi.');
+    if(!Number.isFinite(price) || price<0) throw new Error('Harga tidak sah.');
+
+    await fsMod.setDoc(
+      fsMod.doc(db,'products',id),
+      {
+        name,
+        category,
+        price,
+        desc:$('pDesc').value.trim(),
+        badge:$('pBadge').value.trim(),
+        active:$('pActive').checked,
+        imageUrl,
+        updatedAt:fsMod.serverTimestamp(),
+        updatedBy:profile.uid
+      },
+      {merge:true}
+    );
+
+    $('productModal').classList.remove('show');
+    $('pImage').value='';
+    if($('compressInfo')) $('compressInfo').style.display='none';
+
+    // onSnapshot will refresh the menu automatically.
+    alert('Perubahan menu berjaya disimpan.');
+  }catch(err){
+    console.error('Save product failed:',err);
+    alert('Tak dapat simpan perubahan: '+(err?.message||err));
+  }finally{
+    btn.disabled=false;
+    btn.textContent=oldText||'SIMPAN PERUBAHAN';
   }
-  await fsMod.setDoc(fsMod.doc(db,'products',id),{
-    name:$('pName').value.trim(),category:$('pCategory').value.trim(),price:Number($('pPrice').value||0),
-    desc:$('pDesc').value.trim(),badge:$('pBadge').value.trim(),active:$('pActive').checked,imageUrl,
-    updatedAt:fsMod.serverTimestamp(),updatedBy:profile.uid
-  },{merge:true});
-  $('productModal').classList.remove('show');
 };
 
 $('seedBtn').onclick=async()=>{
