@@ -1,0 +1,23 @@
+{
+  "name": "Ayenas",
+  "short_name": "Ayenas",
+  "description": "Order pickup atau delivery Ayenas dan kumpul Ayenas Points.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F20D12",
+  "theme_color": "#F20D12",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
