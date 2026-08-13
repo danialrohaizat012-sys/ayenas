@@ -1,0 +1,11 @@
+name = "ayenas-payment"
+main = "payment-worker.js"
+compatibility_date = "2026-08-13"
+
+[vars]
+BILLPLZ_API_BASE = "https://www.billplz-sandbox.com"
+ALLOWED_ORIGIN = "https://REPLACE-WITH-YOUR-GITHUB-PAGES-DOMAIN"
+
+[[kv_namespaces]]
+binding = "PAYMENTS"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"

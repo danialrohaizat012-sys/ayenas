@@ -1,0 +1,19 @@
+AYENAS V6 — BILLPLZ PAYMENT READY
+
+1. Create Billplz SANDBOX account.
+2. Create one Collection.
+3. Get Secret Key, Collection ID, X Signature Key.
+
+Cloudflare Worker:
+- Create Worker + KV namespace bound as PAYMENTS.
+- Edit wrangler.toml ALLOWED_ORIGIN + KV namespace id.
+- Set secrets:
+  npx wrangler secret put BILLPLZ_SECRET_KEY
+  npx wrangler secret put BILLPLZ_COLLECTION_ID
+  npx wrangler secret put BILLPLZ_X_SIGNATURE_KEY
+- Deploy:
+  npx wrangler deploy
+- Copy workers.dev URL.
+- Replace PAYMENT_API_BASE in index.html with that URL.
+
+Do NOT put Billplz Secret Key inside index.html/GitHub.
