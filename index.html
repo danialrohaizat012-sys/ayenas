@@ -565,16 +565,26 @@ button,input,textarea,select{font:inherit} button{cursor:pointer}
 }
 
 
-.paymentChoice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.paymentOption{border:1px solid #E9E2DA;background:#fff;border-radius:14px;padding:14px;text-align:left}
-.paymentOption.active{border:2px solid #F20D12;background:#fff5f5}
-.paymentOption b{display:block;font-size:13px;margin-top:5px}
-.paymentOption small{display:block;color:#746E68;margin-top:3px;line-height:1.35}
-.payBadge{display:inline-block;background:#edf7ee;color:#287536;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:900;margin-top:5px}
-.paymentState{margin-top:12px;padding:12px;border-radius:12px;background:#fff7db;color:#6f5700;font-size:11px;line-height:1.45}
+/* V7 dine-in + delivery */
+.serviceGate{position:fixed;inset:0;z-index:10002;background:rgba(10,8,8,.78);display:none;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(8px)}
+.serviceGate.show{display:flex}.serviceCard{width:min(430px,100%);background:#fff;border-radius:24px;padding:20px;box-shadow:0 24px 70px rgba(0,0,0,.28)}
+.serviceChoices{display:grid;grid-template-columns:1fr 1fr;gap:10px}.serviceChoice{border:1px solid #e8e0d8;border-radius:17px;padding:17px 12px;background:#fff;text-align:left}
+.serviceChoice b{display:block;margin-top:7px}.serviceChoice small{display:block;color:#746E68;margin-top:4px;line-height:1.35}.serviceChoice .ico{font-size:28px}
+.v7box{background:#f8f5f2;border-radius:14px;padding:12px;margin-top:10px}.v7hidden{display:none!important}
+.v7choice{display:grid;grid-template-columns:1fr 1fr;gap:8px}.v7choice button{border:1px solid #e4ddd6;background:#fff;border-radius:12px;padding:11px;font-weight:800}
+.v7choice button.active{border:2px solid #f20d12;background:#fff4f4}.v7loc{font-size:11px;color:#6f6964;margin-top:7px;word-break:break-word}
+.tableInput{font-size:18px!important;font-weight:900!important;text-align:center!important}
+
+/* V8 operational states */
+.outletStateBar{margin:10px 0;padding:10px 12px;border-radius:13px;font-size:11px;font-weight:800;background:#edf7ee;color:#287536}
+.outletStateBar.busy{background:#fff7db;color:#725900}.outletStateBar.closed{background:#fff0f0;color:#b32121}
+.soldOutMask{opacity:.52;filter:grayscale(.15)}.soldOutBadge{display:inline-block;padding:4px 7px;border-radius:999px;background:#111;color:#fff;font-size:9px;font-weight:900}
+.etaCard{background:#fff7db;color:#6f5700;padding:10px 12px;border-radius:12px;margin-top:10px;font-size:11px}
 </style>
 </head>
 <body>
+<div id="outletStateBar" class="outletStateBar" style="display:none"></div>
+
 <div id="splash" aria-label="Ayenas sedang dibuka">
   <div class="splash-inner">
     <div class="splash-badge"><img src="icon-512.png" alt="Ayenas"></div>
@@ -675,12 +685,24 @@ button,input,textarea,select{font:inherit} button{cursor:pointer}
       <div class="label">Butiran anda</div><input id="custName" placeholder="Nama penuh"/><div style="height:9px"></div><input id="custPhone" placeholder="No. telefon"/>
       <div id="addressWrap" style="display:none"><div class="label">Alamat penghantaran</div><textarea id="custAddress" rows="3" placeholder="Alamat penuh"></textarea></div>
       <div class="label">Waktu</div><select id="time"><option>Sekarang (10–15 minit)</option><option>Jadualkan kemudian</option></select>
-      <div class="label">Kaedah pembayaran</div>
-<div class="paymentChoice">
-  <button class="paymentOption active" data-paymethod="online" onclick="selectPayment('online')">💳<b>Bayar Online</b><small>Online banking melalui Billplz</small><span class="payBadge">Disyorkan</span></button>
-  <button class="paymentOption" data-paymethod="counter" onclick="selectPayment('counter')">🧾<b>Bayar di Counter</b><small>Bayar ketika pickup / ikut arahan outlet</small></button>
+      
+<div id="v7Dine" class="v7box v7hidden">
+ <div class="label">Nombor meja</div>
+ <input id="tableNumber" class="tableInput" inputmode="numeric" placeholder="Contoh: 08" maxlength="4">
+ <div style="font-size:10px;color:#746E68;margin-top:5px">Wajib untuk Dine In • bayaran dibuat di kaunter.</div>
 </div>
-<div id="paymentHint" class="paymentState">Anda akan dibawa ke halaman pembayaran Billplz selepas order dicipta.</div>
+<div id="v7Delivery" class="v7box v7hidden">
+ <div class="label">Delivery details</div>
+ <input id="deliveryAddress" placeholder="Alamat penuh penghantaran">
+ <input id="deliveryContact" placeholder="No. telefon untuk rider">
+ <button type="button" onclick="pinMyLocation()">📍 Pin lokasi saya</button>
+ <div id="v7LocationStatus" class="v7loc">Belum pin lokasi.</div>
+ <div class="label" style="margin-top:12px">Kaedah bayaran</div>
+ <div class="v7choice">
+  <button type="button" class="active" data-dpay="cod" onclick="selectDeliveryPayment('cod')">💵 Cash on Delivery</button>
+  <button type="button" data-dpay="whatsapp" onclick="selectDeliveryPayment('whatsapp')">💬 WhatsApp Payment</button>
+ </div>
+</div>
 <div class="totalBox" id="checkoutSummary"></div>
       <button class="primary" onclick="placeOrder()">TERUSKAN PESANAN</button>
     </div>
@@ -715,9 +737,9 @@ let cart = JSON.parse(localStorage.getItem('ayenas_cart')||'[]');
 let orders = JSON.parse(localStorage.getItem('ayenas_orders')||'[]');
 let points = Number(localStorage.getItem('ayenas_points')||240);
 let selectedCategory = 'Semua';
-let orderMode = 'pickup';
-let paymentMethod='online';
-const PAYMENT_API_BASE='https://REPLACE-WITH-YOUR-WORKER.workers.dev';
+let orderMode=null;
+let deliveryPayment='cod';
+let deliveryLocation=null;
 let selectedOutlet = sessionStorage.getItem('ayenas_session_outlet') || null;
 const outlets = {
   'tanah-merah': {name:'Ayenas Tanah Merah', address:'Tanah Merah, Kelantan'},
@@ -726,11 +748,23 @@ const outlets = {
 let previousPage = 'home';
 
 function money(n){return 'RM'+Number(n).toFixed(2)}
-function selectPayment(method){
-  paymentMethod=method;
-  document.querySelectorAll('[data-paymethod]').forEach(b=>b.classList.toggle('active',b.dataset.paymethod===method));
-  const h=document.getElementById('paymentHint');
-  if(h) h.textContent=method==='online'?'Anda akan dibawa ke halaman pembayaran Billplz selepas order dicipta.':'Order akan dihantar sebagai belum dibayar dan perlu dibayar di counter.';
+
+function showServiceGate(){document.getElementById('serviceGate')?.classList.add('show')}
+function chooseServiceMode(mode){
+ orderMode=mode; document.getElementById('serviceGate')?.classList.remove('show');
+ renderV7Checkout(); if(typeof renderCart==='function')renderCart();
+}
+function renderV7Checkout(){
+ const d=document.getElementById('v7Delivery'),t=document.getElementById('v7Dine');
+ if(d)d.classList.toggle('v7hidden',orderMode!=='delivery');
+ if(t)t.classList.toggle('v7hidden',orderMode!=='dinein');
+}
+function selectDeliveryPayment(v){deliveryPayment=v;document.querySelectorAll('[data-dpay]').forEach(x=>x.classList.toggle('active',x.dataset.dpay===v))}
+function pinMyLocation(){
+ const s=document.getElementById('v7LocationStatus'); if(!navigator.geolocation){if(s)s.textContent='Location tidak disokong.';return}
+ if(s)s.textContent='Mendapatkan lokasi...';
+ navigator.geolocation.getCurrentPosition(p=>{deliveryLocation={lat:p.coords.latitude,lng:p.coords.longitude};if(s)s.textContent=`Lokasi dipin ✓ ${deliveryLocation.lat.toFixed(5)}, ${deliveryLocation.lng.toFixed(5)}`},
+ ()=>{if(s)s.textContent='Tak dapat lokasi. Benarkan location permission dan cuba lagi.'},{enableHighAccuracy:true,timeout:12000});
 }
 
 function syncOutletUI(){
@@ -778,43 +812,56 @@ function qty(i,d){cart[i].qty+=d;if(cart[i].qty<=0)cart.splice(i,1);save();rende
 function clearCart(){cart=[];save();renderCart()}
 function renderCheckout(){syncOutletUI();document.getElementById('checkoutSummary').innerHTML=`<div class="row"><span>Subtotal</span><b>${money(subtotal())}</b></div><div class="row"><span>Delivery</span><span>${orderMode==='delivery'?'RM3.00':'—'}</span></div><div class="row total"><span>Jumlah</span><span>${money(subtotal()+(orderMode==='delivery'?3:0))}</span></div>`;document.getElementById('addressWrap').style.display=orderMode==='delivery'?'block':'none'}
 async function placeOrder(){
-  if(!selectedOutlet){showOutletGate();return toast('Pilih outlet dahulu')}
-  if(!cart.length)return toast('Troli kosong');
-  const name=document.getElementById('custName').value.trim(),phone=document.getElementById('custPhone').value.trim();
-  if(!name||!phone)return toast('Masukkan nama & telefon');
+ const _setting=outletSettings[selectedOutlet]||{};
+ if((_setting.status||'open')==='closed') return toast('Outlet sedang tutup. Order baru tidak diterima.');
 
-  let total=subtotal()+(orderMode==='delivery'?3:0);
-  let earned=Math.max(1,Math.floor(total/2));
-  let order={id:'AY'+Date.now().toString().slice(-7),created:new Date().toISOString(),name,phone,mode:orderMode,outlet:selectedOutlet,outletId:selectedOutlet,total,items:[...cart],status:'new',earned,paymentMethod,paymentStatus:paymentMethod==='online'?'pending':'unpaid'};
+ if(!selectedOutlet){showOutletGate();return toast('Pilih outlet dahulu')}
+ if(!orderMode){showServiceGate();return toast('Pilih Dine In atau Delivery')}
+ if(!cart.length)return toast('Troli kosong');
+ const name=document.getElementById('custName').value.trim(),phone=document.getElementById('custPhone').value.trim();
+ if(!name||!phone)return toast('Masukkan nama & telefon');
+ let tableNumber=null,address=null,deliveryContact=null;
+ if(orderMode==='dinein'){
+   tableNumber=(document.getElementById('tableNumber')?.value||'').trim();
+   if(!tableNumber)return toast('Masukkan nombor meja');
+ }else{
+   address=(document.getElementById('deliveryAddress')?.value||'').trim();
+   deliveryContact=(document.getElementById('deliveryContact')?.value||phone).trim();
+   if(!address)return toast('Masukkan alamat penghantaran');
+   if(!deliveryContact)return toast('Masukkan nombor telefon');
+   if(!deliveryLocation)return toast('Pin lokasi penghantaran dahulu');
+ }
+ let total=subtotal();
+ let earned=Math.max(1,Math.floor(total/2));
+ let order={
+  id:'AY'+Date.now().toString().slice(-7),created:new Date().toISOString(),name,phone,
+  mode:orderMode,orderType:orderMode,outlet:selectedOutlet,outletId:selectedOutlet,total,items:[...cart],
+  status:'new',orderStatus:'new',earned,
+  tableNumber:orderMode==='dinein'?tableNumber:null,
+  deliveryAddress:orderMode==='delivery'?address:null,
+  deliveryContact:orderMode==='delivery'?deliveryContact:null,
+  deliveryLocation:orderMode==='delivery'?deliveryLocation:null,
+  paymentMethod:orderMode==='dinein'?'counter':deliveryPayment,
+  paymentStatus:'unpaid',etaMinutes:Number(_setting.defaultEta||0)
+ };
+ try{
+  if(window.ayenasCreateOrder){const remote=await window.ayenasCreateOrder(order);if(remote?.id)order.firestoreId=remote.id}
+ }catch(err){console.error(err);return toast('Order gagal dihantar. Cuba lagi.')}
+ orders.unshift(order);points+=earned;cart=[];save();
+ if(orderMode==='delivery'&&deliveryPayment==='whatsapp'){
+   const map=`https://maps.google.com/?q=${deliveryLocation.lat},${deliveryLocation.lng}`;
+   const msg=`AYENAS ORDER ${order.id}
+Nama: ${name}
+Telefon: ${deliveryContact}
+Jumlah: ${money(total)}
+Alamat: ${address}
+Lokasi: ${map}
 
-  try{
-    if(window.ayenasCreateOrder){
-      const remote=await window.ayenasCreateOrder(order);
-      if(remote?.id) order.firestoreId=remote.id;
-    }
-  }catch(err){console.error(err);return toast('Order gagal dihantar. Cuba lagi.');}
-
-  orders.unshift(order); save();
-
-  if(paymentMethod==='online'){
-    try{
-      if(PAYMENT_API_BASE.includes('REPLACE-WITH-YOUR-WORKER')) throw new Error('Payment backend belum disetup.');
-      const resp=await fetch(PAYMENT_API_BASE+'/create-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-        orderId:order.firestoreId||order.id,publicOrderId:order.id,amount:Math.round(total*100),name,phone,
-        description:`Ayenas ${order.id}`,outletId:selectedOutlet,
-        returnUrl:location.origin+location.pathname+'?payment_return=1&order='+encodeURIComponent(order.firestoreId||order.id)
-      })});
-      const data=await resp.json();
-      if(!resp.ok||!data.url) throw new Error(data.error||'Gagal cipta pembayaran');
-      cart=[]; save(); location.href=data.url; return;
-    }catch(err){
-      console.error(err);
-      toast('Payment backend belum aktif. Order kekal pending.');
-      showPage('orders'); return;
-    }
-  }
-
-  points+=earned; cart=[]; save(); showPage('orders'); toast('Pesanan diterima!');
+Saya nak buat payment untuk order ini.`;
+   navigator.clipboard?.writeText(msg);
+   toast('Order diterima • detail payment WhatsApp telah disalin');
+ }else toast(orderMode==='dinein'?`Order diterima • Meja ${tableNumber} • bayar di kaunter`:'Order delivery diterima • Cash on Delivery');
+ showPage('orders');
 }
 function renderOrders(){
   const el=document.getElementById('ordersContent');
@@ -867,6 +914,7 @@ function renderOrders(){
         </div>
       </div>
 
+      ${o.etaMinutes?`<div class="etaCard">⏱️ Anggaran siap: <b>${o.etaMinutes} minit</b></div>`:''}
       <div class="orderItemsBox">
         <b>Pesanan</b>
         ${(o.items||[]).map(x=>`
@@ -925,7 +973,7 @@ const { initializeApp } = await import(APP);
 const { getAuth, signInAnonymously, onAuthStateChanged } = await import(AUTH);
 const {
   getFirestore, collection, doc, setDoc, addDoc, onSnapshot, query, where,
-  serverTimestamp, increment
+  serverTimestamp, increment, updateDoc
 } = await import(FS);
 
 const app = initializeApp(firebaseConfig);
@@ -999,6 +1047,29 @@ async function listenCustomerProfile(){
   },err=>console.warn('Customer profile listener unavailable',err));
 }
 
+
+let outletSettings={};
+function listenOutletSettings(){
+  onSnapshot(collection(db,'outletSettings'),snap=>{
+    outletSettings={};
+    snap.docs.forEach(d=>outletSettings[d.id]=d.data());
+    renderOutletState();
+  },e=>console.warn('Outlet settings listener',e));
+}
+function renderOutletState(){
+  const bar=document.getElementById('outletStateBar');
+  if(!bar||!selectedOutlet){if(bar)bar.style.display='none';return}
+  const s=outletSettings[selectedOutlet]||{status:'open'};
+  const status=s.status||'open';
+  bar.style.display='block';bar.className='outletStateBar '+status;
+  bar.textContent=status==='closed'?'🔴 Outlet sedang CLOSED • order baru dihentikan':
+    status==='busy'?`🟡 Outlet BUSY${s.defaultEta?` • anggaran ${s.defaultEta} min`:''}`:
+    `🟢 Outlet OPEN${s.defaultEta?` • anggaran ${s.defaultEta} min`:''}`;
+}
+function productAvailable(p){
+  const sold=p.soldOutByOutlet||{};
+  return !sold[selectedOutlet] && p.active!==false;
+}
 async function listenMyOrders(){
   const user = await ensureAnonymous();
   customerUid=user.uid;
@@ -1016,25 +1087,20 @@ async function listenMyOrders(){
   }, err=>console.warn('Order listener unavailable',err));
 }
 
-onAuthStateChanged(auth, ()=>{ listenMenu(); listenMyOrders(); listenCustomerProfile(); });
+onAuthStateChanged(auth, ()=>{ listenMenu(); listenMyOrders(); listenCustomerProfile(); listenOutletSettings(); });
 ensureAnonymous().catch(()=>{});
 </script>
 
 
-<script>
-async function checkReturnedPayment(){
-  const qs=new URLSearchParams(location.search);
-  if(qs.get('payment_return')!=='1') return;
-  const orderId=qs.get('order')||'';
-  if(!orderId || PAYMENT_API_BASE.includes('REPLACE-WITH-YOUR-WORKER')) return;
-  try{
-    const r=await fetch(PAYMENT_API_BASE+'/payment-status?orderId='+encodeURIComponent(orderId),{cache:'no-store'});
-    const data=await r.json();
-    toast(data.paid?'Pembayaran berjaya ✅':'Status bayaran sedang disahkan');
-    history.replaceState({},'',location.pathname);
-  }catch(e){console.warn(e)}
-}
-window.addEventListener('load',checkReturnedPayment);
-</script>
+<div class="serviceGate" id="serviceGate">
+ <div class="serviceCard">
+  <h2 style="margin:0 0 5px">Nak makan macam mana?</h2>
+  <p style="margin:0 0 16px;color:#746E68;font-size:12px">Pilih cara order untuk outlet ini.</p>
+  <div class="serviceChoices">
+   <button class="serviceChoice" onclick="chooseServiceMode('dinein')"><span class="ico">🍽️</span><b>Dine In</b><small>Makan di outlet • bayar di kaunter</small></button>
+   <button class="serviceChoice" onclick="chooseServiceMode('delivery')"><span class="ico">🛵</span><b>Delivery</b><small>Hantar ke lokasi anda</small></button>
+  </div>
+ </div>
+</div>
 </body>
 </html>

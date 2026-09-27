@@ -87,9 +87,17 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 @media(max-width:500px){.customerGrid{grid-template-columns:1fr}}
 
 
-.payStatus{display:inline-block;margin-top:6px;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:900;background:#fff7db;color:#6f5700}
-.payStatus.paid{background:#edf7ee;color:#287536}
-.payStatus.unpaid{background:#fff0f0;color:#b32121}
+/* V8 operational layer */
+.opsPanel{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.opsCard{background:#fff;border:1px solid var(--line);border-radius:15px;padding:12px}
+.opsCard b{display:block;font-size:12px;margin-bottom:8px}.opsBtns{display:flex;gap:6px;flex-wrap:wrap}
+.opsBtns button{font-size:10px;padding:7px 9px;border-radius:9px;border:1px solid var(--line);background:#fff;font-weight:900}
+.opsBtns button.active{background:#111;color:#fff}.opsBtns button.danger{background:#fff0f0;color:#b32121}
+.etaBtns{display:flex;gap:5px;margin-top:8px}.etaBtns button{flex:1;border:0;border-radius:8px;padding:7px;font-size:10px;font-weight:900}
+.confirmPay{width:100%;margin-top:7px;border:0;border-radius:9px;padding:8px;background:#111;color:#fff;font-weight:900}
+.soldToggle{border:0;border-radius:8px;padding:6px 8px;font-size:10px;font-weight:900;background:#f3efeb}
+.soldToggle.sold{background:#111;color:#fff}
+@media(max-width:700px){.opsPanel{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -117,6 +125,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
     <button class="active" data-panel="orders">🔥 Live Orders</button>
     <button data-panel="menu">🍗 Menu</button>
     <button data-panel="customers">👥 Customers</button>
+    <button data-panel="operations">⚙️ Operations</button>
     <button data-panel="account">👤 Account</button>
   </nav>
   <main class="main">
@@ -147,7 +156,23 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
       <div class="customerGrid" id="customerList"></div>
     </section>
 
-    <section class="panel" id="accountPanel">
+    
+<section class="panel" id="operationsPanel">
+ <div class="toolbar"><h2>Outlet Operations</h2></div>
+ <div class="opsPanel">
+  <div class="opsCard"><b>Status Outlet</b><div class="opsBtns" id="outletStatusBtns">
+   <button onclick="window.setOutletStatus('open')">🟢 Open</button>
+   <button onclick="window.setOutletStatus('busy')">🟡 Busy</button>
+   <button class="danger" onclick="window.setOutletStatus('closed')">🔴 Closed</button>
+  </div></div>
+  <div class="opsCard"><b>Default ETA</b><div class="opsBtns">
+   <button onclick="window.setDefaultEta(15)">15 min</button><button onclick="window.setDefaultEta(30)">30 min</button><button onclick="window.setDefaultEta(45)">45 min</button>
+  </div><small id="defaultEtaText">Belum set</small></div>
+  <div class="opsCard"><b>Nota</b><small>Sold Out diurus terus pada tab Menu. Status dan ETA sync live ke customer app.</small></div>
+ </div>
+</section>
+
+<section class="panel" id="accountPanel">
       <div class="toolbar"><h2>Account</h2></div>
       <div class="stat"><small>Nama</small><strong id="accName" style="font-size:18px">—</strong></div><br>
       <div class="stat"><small>Role</small><strong id="accRole" style="font-size:18px">—</strong></div><br>
@@ -192,6 +217,7 @@ const db=fsMod.getFirestore(app);
 const seed=[{"id": "nasi-korean", "name": "Nasi Ayam Korean Spicy", "category": "Nasi Ayam", "flavour": "Korean Spicy", "price": 8.9, "imageUrl": "korean.jpg", "desc": "Ayam bakar Korean Spicy + nasi basmathi + sos Ayenas.", "badge": "#1 BEST SELLER", "active": true}, {"id": "nasi-madu", "name": "Nasi Ayam Madu", "category": "Nasi Ayam", "flavour": "Madu", "price": 7.9, "imageUrl": "nasi.jpg", "desc": "Ayam bakar madu manis berasap + nasi basmathi.", "badge": "POPULAR", "active": true}, {"id": "nasi-herba", "name": "Nasi Ayam Herba", "category": "Nasi Ayam", "flavour": "Herba", "price": 8.9, "imageUrl": "nasi.jpg", "desc": "Ayam bakar herba aromatik + nasi basmathi.", "badge": "", "active": true}, {"id": "ramen-korean", "name": "Ramen Ayam Korean Spicy", "category": "Ramen", "flavour": "Korean Spicy", "price": 11.5, "imageUrl": "ramen.jpg", "desc": "Ramen spicy dengan ayam bakar signature Ayenas.", "badge": "HOT", "active": true}, {"id": "ramen-madu", "name": "Ramen Ayam Madu", "category": "Ramen", "flavour": "Madu", "price": 9.9, "imageUrl": "ramen.jpg", "desc": "Ramen + ayam bakar madu.", "badge": "", "active": true}, {"id": "aglio-korean", "name": "Aglio Olio Korean Spicy", "category": "Pasta", "flavour": "Korean Spicy", "price": 11.5, "imageUrl": "pasta.jpg", "desc": "Aglio olio + ayam bakar Korean Spicy.", "badge": "", "active": true}, {"id": "mandy-ayam", "name": "Mandy Ayam 1/4", "category": "Mandy", "flavour": "", "price": 13.9, "imageUrl": "mandy.jpg", "desc": "Nasi Arab Mandy Ayenas bersama ayam bakar.", "badge": "FAMILY PICK", "active": true}, {"id": "superbox", "name": "Superbox Ayenas", "category": "Superbox", "flavour": "Mix", "price": 32.9, "imageUrl": "superbox.jpg", "desc": "5 menu dalam 1 box. Sesuai untuk share & enjoy.", "badge": "SHARE", "active": true}, {"id": "chicken-chop", "name": "Chicken Chop Ayenas", "category": "Western", "flavour": "", "price": 17.9, "imageUrl": "chickenchop.jpg", "desc": "Homemade fresh chicken chop lengkap dengan sides.", "badge": "NEW", "active": true}, {"id": "burrito", "name": "Burrito Ayenas", "category": "Snacks", "flavour": "", "price": 7.0, "imageUrl": "snacks.jpg", "desc": "Burrito ringkas untuk snack atau light meal.", "badge": "", "active": true}, {"id": "freshie", "name": "Freshie Sparkling", "category": "Drinks", "flavour": "", "price": 6.0, "imageUrl": "drinks.jpg", "desc": "Pilihan sparkling yang fresh dan ringan.", "badge": "REFRESH", "active": true}];
 let profile=null, products=[], orders=[], customers=[], editingId=null, unsubOrders=null, unsubProducts=null, unsubCustomers=null;
 let knownOrderIds=new Set(), ordersInitialized=false, soundEnabled=true, audioCtx=null;
+let outletSetting={status:'open',defaultEta:0}, unsubOutletSetting=null;
 
 const $=id=>document.getElementById(id);
 const money=n=>'RM'+Number(n||0).toFixed(2);
@@ -277,7 +303,7 @@ authMod.onAuthStateChanged(auth,async user=>{
   $('accName').textContent=profile.name||profile.email;
   $('accRole').textContent=profile.role;
   $('accOutlet').textContent=outletName(profile.outletId||'all');
-  listenProducts(); listenOrders(); listenCustomers();
+  listenProducts(); listenOrders(); listenCustomers(); listenOutletOperations();
 });
 
 document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{
@@ -296,6 +322,38 @@ function listenProducts(){
   });
 }
 
+
+function currentOpsOutlet(){
+  return (profile?.outletId && profile.outletId!=='all') ? profile.outletId : 'lembah-sireh';
+}
+function listenOutletOperations(){
+  if(unsubOutletSetting)unsubOutletSetting();
+  const oid=currentOpsOutlet();
+  unsubOutletSetting=fsMod.onSnapshot(fsMod.doc(db,'outletSettings',oid),snap=>{
+    outletSetting=snap.exists()?snap.data():{status:'open',defaultEta:0};
+    renderOutletOperations();
+  });
+}
+function renderOutletOperations(){
+  document.querySelectorAll('#outletStatusBtns button').forEach(b=>b.classList.toggle('active',b.textContent.toLowerCase().includes(outletSetting.status||'open')));
+  const t=$('defaultEtaText'); if(t)t.textContent=outletSetting.defaultEta?`Current: ${outletSetting.defaultEta} min`:'Belum set';
+}
+window.setOutletStatus=async status=>{
+  await fsMod.setDoc(fsMod.doc(db,'outletSettings',currentOpsOutlet()),{status,updatedAt:fsMod.serverTimestamp()},{merge:true});
+};
+window.setDefaultEta=async mins=>{
+  await fsMod.setDoc(fsMod.doc(db,'outletSettings',currentOpsOutlet()),{defaultEta:mins,updatedAt:fsMod.serverTimestamp()},{merge:true});
+};
+window.setOrderEta=async(id,mins)=>{
+  await fsMod.updateDoc(fsMod.doc(db,'orders',id),{etaMinutes:mins,updatedAt:fsMod.serverTimestamp()});
+};
+window.confirmPayment=async id=>{
+  await fsMod.updateDoc(fsMod.doc(db,'orders',id),{paymentStatus:'paid',paidAt:fsMod.serverTimestamp(),updatedAt:fsMod.serverTimestamp()});
+};
+window.toggleSoldOut=async(id,current)=>{
+  const oid=currentOpsOutlet();
+  await fsMod.updateDoc(fsMod.doc(db,'products',id),{[`soldOutByOutlet.${oid}`]:!current,updatedAt:fsMod.serverTimestamp()});
+};
 function listenOrders(){
   if(unsubOrders)unsubOrders();
   let q;
@@ -346,8 +404,7 @@ function orderCard(o){
       </div>
       <div style="text-align:right">
         <b style="font-size:17px">${money(o.total)}</b><br>
-        <span class="orderType ${o.mode==='delivery'?'delivery':''}">${o.mode==='delivery'?'🛵 DELIVERY':'🛍 PICKUP'}</span><br>
-<span class="payStatus ${o.paymentStatus==='paid'?'paid':o.paymentMethod==='counter'?'unpaid':''}">${o.paymentStatus==='paid'?'✅ PAID':o.paymentMethod==='online'?'⏳ PAYMENT PENDING':'🧾 PAY AT COUNTER'}</span>
+        <span class="orderType ${o.mode==='delivery'?'delivery':''}">${o.mode==='delivery'?'🛵 DELIVERY':`🍽️ DINE IN • TABLE ${o.tableNumber||'-'}`}</span>
       </div>
     </div>
 
@@ -366,6 +423,13 @@ function orderCard(o){
       `).join('')}
     </div>
 
+    <div class="etaBtns">
+      <button onclick="window.setOrderEta('${o.firestoreId}',15)">15m</button>
+      <button onclick="window.setOrderEta('${o.firestoreId}',30)">30m</button>
+      <button onclick="window.setOrderEta('${o.firestoreId}',45)">45m</button>
+    </div>
+    ${o.paymentMethod==='whatsapp'&&o.paymentStatus!=='paid'?`<button class="confirmPay" onclick="window.confirmPayment('${o.firestoreId}')">✓ Confirm Payment</button>`:''}
+    ${o.paymentStatus==='paid'?`<div class="payStatus paid">✅ PAYMENT CONFIRMED</div>`:''}
     ${next?`<button class="action ${next[1]==='ready'?'ready':''}" onclick="window.updateStatus('${o.firestoreId}','${next[1]}')">${next[0]}</button>`:''}
   </div>`;
 }

@@ -59,5 +59,11 @@ service cloud.firestore {
         && (request.auth.uid == uid || isStaff());
       allow delete: if isOwner();
     }
-  }
+  
+    match /outletSettings/{outletId} {
+      allow read: if true;
+      allow create, update: if isStaff();
+      allow delete: if isOwner();
+    }
+}
 }
