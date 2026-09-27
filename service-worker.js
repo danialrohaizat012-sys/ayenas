@@ -1,5 +1,5 @@
-const CACHE='ayenas-v8-operational';
-const STATIC=['./','./index.html','./crew.html','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
+const CACHE='ayenas-v11-2-splash-fix';
+const STATIC=['./','./index.html','./dinein.html','./crew.html','./manifest.webmanifest','./icon-192.png','./icon-512.png'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(STATIC)))});
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{

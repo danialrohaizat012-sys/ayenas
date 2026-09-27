@@ -1,0 +1,15 @@
+AYENAS V11.2 — SPLASH FIX
+
+Fix:
+- Splash has an independent fail-safe and can no longer remain permanently over the app.
+- Splash dismissal does not depend on Firebase/module startup.
+- Fixed an unsafe optional toast call in the table selector.
+- Added a console warning when dinein.html is opened directly with file://.
+
+IMPORTANT TESTING NOTE:
+Your screenshot showed Chrome opening:
+File /Users/.../dinein.html
+
+Firebase ES modules and live Firestore are intended to run from HTTP/HTTPS.
+For the real test, deploy the folder to GitHub Pages or run it from localhost.
+V11.2 still dismisses the splash when opened as a local file so the UI is not trapped.

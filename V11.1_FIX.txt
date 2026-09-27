@@ -1,0 +1,12 @@
+AYENAS V11.1
+Fix for Dine In getting stuck after table selection.
+
+Cause:
+The table selector was added in a separate normal script, while the original index app runs inside a JavaScript module. The selector could not reliably call the module-scoped navigation/order functions.
+
+Fix:
+- Table selection now runs inside the same module as the original index app.
+- Dine In mode is set directly.
+- Selecting Table 1–5 closes the selector immediately.
+- Selected table is attached to the order.
+- Existing index UI/menu/cart remains unchanged.

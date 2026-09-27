@@ -580,6 +580,15 @@ button,input,textarea,select{font:inherit} button{cursor:pointer}
 .outletStateBar.busy{background:#fff7db;color:#725900}.outletStateBar.closed{background:#fff0f0;color:#b32121}
 .soldOutMask{opacity:.52;filter:grayscale(.15)}.soldOutBadge{display:inline-block;padding:4px 7px;border-radius:999px;background:#111;color:#fff;font-size:9px;font-weight:900}
 .etaCard{background:#fff7db;color:#6f5700;padding:10px 12px;border-radius:12px;margin-top:10px;font-size:11px}
+
+/* V11 Dine-In additions: all other visuals come directly from index.html */
+.v11TableGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:100%;margin-top:10px}
+.v11TableBtn{min-height:52px;border:1px solid #e8e1db;background:#fff;border-radius:14px;font-weight:1000;font-size:14px}
+.v11TableBtn.active{background:#F20D12!important;color:#fff!important;border-color:#F20D12!important;box-shadow:0 8px 22px rgba(242,13,18,.22)}
+.v11TableGate{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:9999;display:flex;align-items:flex-end;justify-content:center}
+.v11TableCard{width:min(100%,520px);background:#fff;border-radius:24px 24px 0 0;padding:20px}
+.v11TableCard>b{font-size:20px;display:block}.v11TableCard>small{display:block;color:#777;margin-top:4px}
+.v11TablePill{display:inline-flex;align-items:center;background:#111;color:#fff;border-radius:999px;padding:7px 10px;font-size:10px;font-weight:1000;margin-left:7px}
 </style>
 </head>
 <body>
@@ -589,7 +598,7 @@ button,input,textarea,select{font:inherit} button{cursor:pointer}
   <div class="splash-inner">
     <div class="splash-badge"><img src="icon-512.png" alt="Ayenas"></div>
     <div class="splash-title">AYAM <span>CARA KITA.</span></div>
-    <div class="splash-sub">Pickup • Delivery • Rewards</div>
+    <div class="splash-sub">Dine In • Delivery • Rewards</div>
     <div class="splash-loader"><i></i></div>
   </div>
 
@@ -650,7 +659,8 @@ let cart = JSON.parse(localStorage.getItem('ayenas_cart')||'[]');
 let orders = JSON.parse(localStorage.getItem('ayenas_orders')||'[]');
 
 let selectedCategory = 'Semua';
-let orderMode=null;
+let orderMode='dinein';
+let dineTable=null;
 let deliveryPayment='cod';
 let deliveryLocation=null;
 let selectedOutlet = sessionStorage.getItem('ayenas_session_outlet') || null;
@@ -663,8 +673,30 @@ let previousPage = 'home';
 function money(n){return 'RM'+Number(n).toFixed(2)}
 
 function showServiceGate(){document.getElementById('serviceGate')?.classList.add('show')}
+
+window.chooseDineTable=function(n,btn){
+  dineTable=String(n);
+  window.__AYENAS_DINE_TABLE=dineTable;
+  localStorage.setItem('ayenas_dine_table',dineTable);
+  document.querySelectorAll('.v11TableBtn').forEach(b=>b.classList.toggle('active',b===btn));
+  orderMode='dinein';
+  document.getElementById('serviceGate')?.classList.remove('show');
+  renderV7Checkout();
+  if(typeof renderCart==='function') renderCart();
+
+  let pill=document.getElementById('v11TablePill');
+  if(!pill){
+    pill=document.createElement('span');
+    pill.className='v11TablePill';
+    pill.id='v11TablePill';
+    const head=document.querySelector('header,.topbar,.topBar,.header');
+    if(head) head.appendChild(pill);
+  }
+  if(pill) pill.textContent='DINE IN • TABLE '+dineTable;
+  if(typeof toast==='function') toast('Table '+dineTable+' dipilih');
+};
 function chooseServiceMode(mode){
- orderMode=mode; document.getElementById('serviceGate')?.classList.remove('show');
+ orderMode='dinein'; document.getElementById('serviceGate')?.classList.remove('show');
  renderV7Checkout(); if(typeof renderCart==='function')renderCart();
 }
 function renderV7Checkout(){
@@ -727,7 +759,7 @@ async function placeOrder(){
  const _setting=outletSettings[selectedOutlet]||{};
  if((_setting.status||'open')==='closed') return toast('Outlet sedang tutup. Order baru tidak diterima.');
  if(!selectedOutlet){showOutletGate();return toast('Pilih outlet dahulu')}
- if(!orderMode){showServiceGate();return toast('Pilih Pickup atau Delivery')}
+ if(!dineTable)return toast('Pilih nombor meja dahulu')
  if(!cart.length)return toast('Troli kosong');
 
  const name=document.getElementById('custName').value.trim();
@@ -735,7 +767,7 @@ async function placeOrder(){
  if(!name||!phone)return toast('Masukkan nama & telefon');
 
  let address=null, deliveryContact=null;
- if(orderMode==='delivery'){
+ if(false){
    address=(document.getElementById('deliveryAddress')?.value||'').trim();
    deliveryContact=(document.getElementById('deliveryContact')?.value||phone).trim();
    if(!address)return toast('Masukkan alamat penghantaran');
@@ -748,8 +780,9 @@ async function placeOrder(){
    id:'AY'+Date.now().toString().slice(-7),
    created:new Date().toISOString(),
    name,phone,
-   mode:orderMode,
-   orderType:orderMode,
+   mode:'dinein',
+   tableNumber:dineTable,
+   orderType:'dinein',
    outlet:selectedOutlet,
    outletId:selectedOutlet,
    total,
@@ -757,10 +790,10 @@ async function placeOrder(){
    status:'new',
    orderStatus:'new',
    etaMinutes:Number(_setting.defaultEta||0),
-   deliveryAddress:orderMode==='delivery'?address:null,
-   deliveryContact:orderMode==='delivery'?deliveryContact:null,
-   deliveryLocation:orderMode==='delivery'?deliveryLocation:null,
-   paymentMethod:orderMode==='delivery'?deliveryPayment:'counter',
+   deliveryAddress:null,
+   deliveryContact:null,
+   deliveryLocation:null,
+   paymentMethod:'counter',
    paymentStatus:'unpaid'
  };
 
@@ -778,7 +811,7 @@ async function placeOrder(){
  cart=[];
  save();
 
- if(orderMode==='delivery'&&deliveryPayment==='whatsapp'){
+ if(false){
    const map=`https://maps.google.com/?q=${deliveryLocation.lat},${deliveryLocation.lng}`;
    const itemText=order.items.map(i=>`${i.qty||1}x ${i.name}`).join(', ');
    const msg=`AYENAS ORDER ${order.id}
@@ -794,7 +827,7 @@ Saya nak buat payment untuk order ini.`;
    toast('Order diterima • detail payment WhatsApp telah disalin');
  }else{
    toast(orderMode==='pickup'
-     ? 'Order Pickup diterima • bayar di kaunter semasa ambil'
+     ? 'Order Dine In diterima • bayar di kaunter'
      : 'Order Delivery diterima • Cash on Delivery');
  }
  showPage('orders');
@@ -838,7 +871,7 @@ function renderOrders(){
         </div>
         <div class="trackMetaCard">
           <small>JENIS</small>
-          <b>${o.mode==='delivery'?'🛵 Delivery':'🛍️ Pickup'}</b>
+          <b>${o.mode==='delivery'?'🛵 Delivery':'🛍️ Dine In'}</b>
         </div>
         <div class="trackMetaCard">
           <small>OUTLET</small>
@@ -899,7 +932,33 @@ window.addEventListener('load',()=>{
 });
 </script>
 
+
+<script>
+/* V11.2 startup fail-safe: splash must never trap the customer */
+(function(){
+  function dismissSplash(){
+    var ids=['splash','splashScreen','appSplash','loadingScreen'];
+    ids.forEach(function(id){
+      var el=document.getElementById(id);
+      if(el){ el.classList.remove('show','active'); el.style.opacity='0'; el.style.pointerEvents='none';
+        setTimeout(function(){el.style.display='none'},250); }
+    });
+    document.querySelectorAll('.splash,.splash-screen,.splashScreen,.loading-screen').forEach(function(el){
+      el.classList.remove('show','active'); el.style.opacity='0'; el.style.pointerEvents='none';
+      setTimeout(function(){el.style.display='none'},250);
+    });
+  }
+  window.__dismissAyenasSplash=dismissSplash;
+  window.addEventListener('DOMContentLoaded',function(){ setTimeout(dismissSplash,900); });
+  window.addEventListener('load',function(){ setTimeout(dismissSplash,350); });
+  setTimeout(dismissSplash,1800);
+})();
+</script>
 <script type="module">
+if(location.protocol==='file:'){
+  console.warn('AYENAS: Running via file://. Firebase live data may be blocked by the browser. Use GitHub Pages/localhost for full live functions.');
+}
+
 const firebaseConfig = {"apiKey": "AIzaSyAQdk3ZfMnIGyr7k2UD1HDc3UQWWbxSFFw", "authDomain": "ayenas-1dcd9.firebaseapp.com", "projectId": "ayenas-1dcd9", "storageBucket": "ayenas-1dcd9.firebasestorage.app", "messagingSenderId": "503075108633", "appId": "1:503075108633:web:0a8e912f634dbfbadeb788"};
 const APP = 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
 const AUTH = 'https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js';
@@ -1030,13 +1089,19 @@ ensureAnonymous().catch(()=>{});
 
 <div class="serviceGate" id="serviceGate">
  <div class="serviceCard">
-  <h2 style="margin:0 0 5px">Pilih cara order</h2>
-  <p style="margin:0 0 16px;color:#746E68;font-size:12px">Pickup sendiri atau kami hantar ke lokasi anda.</p>
+  <h2 style="margin:0 0 5px">Pilih meja</h2>
+  <p style="margin:0 0 16px;color:#746E68;font-size:12px">Pilih nombor meja sebelum mula order.</p>
   <div class="serviceChoices">
-   <button class="serviceChoice" onclick="chooseServiceMode('pickup')"><span class="ico">🥡</span><b>Pickup</b><small>Ambil sendiri di outlet • bayar di kaunter</small></button>
-   <button class="serviceChoice" onclick="chooseServiceMode('delivery')"><span class="ico">🛵</span><b>Delivery</b><small>Hantar ke lokasi anda</small></button>
+   <div class="v11TableGrid">
+<button class="v11TableBtn" onclick="chooseDineTable('1',this)">1</button>
+<button class="v11TableBtn" onclick="chooseDineTable('2',this)">2</button>
+<button class="v11TableBtn" onclick="chooseDineTable('3',this)">3</button>
+<button class="v11TableBtn" onclick="chooseDineTable('4',this)">4</button>
+<button class="v11TableBtn" onclick="chooseDineTable('5',this)">5</button>
+</div>
   </div>
  </div>
 </div>
+
 </body>
 </html>
