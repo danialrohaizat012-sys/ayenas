@@ -462,12 +462,14 @@ function orderCard(o){
       ${(o.items||[]).map(i=>`
         <div class="kitchenLine">
           <span class="kitchenQty">${i.qty||1}×</span>
-          <span>${esc(i.name)}${i.extras?` <small>+ Extra</small>`:''}</span>
+          <span>${esc(i.name)}${i.extrasList?.length?` <small>+ ${esc(i.extrasList.join(', '))}</small>`:(i.extras?` <small>+ Extra</small>`:'')}</span>
         </div>
         ${i.note?`<div class="orderNote">📝 ${esc(i.note)}</div>`:''}
       `).join('')}
     </div>
 
+    ${(o.orderType||o.mode)==='delivery'?`<div class="orderNote" style="margin-top:8px">🏠 ${esc(o.deliveryAddress||'-')}${o.deliveryNote?`<br>📝 ${esc(o.deliveryNote)}`:''}${o.deliveryLocation?.lat?`<br><a href="https://maps.google.com/?q=${Number(o.deliveryLocation.lat)},${Number(o.deliveryLocation.lng)}" target="_blank" rel="noopener">📍 Buka Google Maps</a>`:''}</div>`:''}
+    <div style="margin-top:6px;font-size:12px;font-weight:800">${o.paymentMethod==='cod'?'💵 COD — kutip '+money(o.total):o.paymentMethod==='counter'?'🧾 Bayar di kaunter':''}${o.phone?` • <a href="tel:${esc(o.phone)}">📞 Call</a>`:''}</div>
     <div class="etaBtns">
       <button onclick="window.setOrderEta('${o.firestoreId}',15)">15m</button>
       <button onclick="window.setOrderEta('${o.firestoreId}',30)">30m</button>
@@ -480,14 +482,15 @@ function orderCard(o){
 }
 function renderOrders(){
   const groups={new:[],preparing:[],ready:[],completed:[]};
-  orders.forEach(o=>(groups[o.status]||groups.new).push(o));
+  const STATUS_GROUP={'on-the-way':'ready',collected:'completed',delivered:'completed',served:'completed',cancelled:'completed'};
+  orders.forEach(o=>{const s=o.status||'new';(groups[STATUS_GROUP[s]||s]||groups.new).push(o)});
   $('colNew').innerHTML=groups.new.map(orderCard).join('')||'<small>Tiada order</small>';
   $('colPreparing').innerHTML=groups.preparing.map(orderCard).join('')||'<small>Tiada order</small>';
   $('colReady').innerHTML=groups.ready.map(orderCard).join('')||'<small>Tiada order</small>';
   $('colCompleted').innerHTML=groups.completed.slice(0,12).map(orderCard).join('')||'<small>Tiada order</small>';
   $('sNew').textContent=groups.new.length; $('sPrep').textContent=groups.preparing.length; $('sReady').textContent=groups.ready.length;
   const today=new Date(); today.setHours(0,0,0,0);
-  const sales=groups.completed.filter(o=>(o.createdAt?.toDate?.()||new Date(o.created||0))>=today).reduce((s,o)=>s+Number(o.total||0),0);
+  const sales=groups.completed.filter(o=>o.status!=='cancelled').filter(o=>(o.createdAt?.toDate?.()||new Date(o.created||0))>=today).reduce((s,o)=>s+Number(o.total||0),0);
   $('sToday').textContent=money(sales);
 }
 window.updateStatus=async(id,status)=>{
