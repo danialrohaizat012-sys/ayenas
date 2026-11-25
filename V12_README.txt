@@ -54,3 +54,14 @@ AYENAS V14 — BOLD RED UI (ikut mockup rujukan)
 - Navigasi: Home · Menu · Order · Profil.
 - Belum dibuat (perlu data sebenar): rating/sold, saiz S/M/L, Ayenas Rewards/points, batal pesanan oleh customer.
 - Order baru ada field `orderNote`; crew.html paparkan.
+
+AYENAS V16 — OPERASI
+- Delivery: crew set lokasi outlet (Operations > "Guna lokasi semasa" di outlet). Bila diset, customer wajib pin lokasi,
+  had jarak (lalai 7 km) & yuran ikut jarak (lalai RM3 untuk 3 km pertama, +RM1/km). Sebelum diset: yuran tetap seperti dulu.
+- Maksimum 2 pesanan aktif setiap peranti.
+- Nombor pesanan pendek harian: T-001 (Tanah Merah), L-001 (Lembah Sireh). Perlu rules baru (koleksi `counters`);
+  jika gagal, app guna ID penuh (#AY...).
+- Skrin berjaya: "Sahkan di WhatsApp" (hantar butiran penuh ke outlet) + "Simpan resit".
+- Home: kad pesanan aktif (LIVE) atau "Order semula" pesanan terakhir.
+- Crew: Tutup hingga esok (buka semula automatik), editor waktu operasi, lokasi & kawasan delivery,
+  sebab pembatalan (dipapar kepada customer), butang Skrin (kekal hidup), tab Laporan (jualan, menu laku, waktu sibuk).
