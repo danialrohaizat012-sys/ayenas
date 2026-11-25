@@ -44,7 +44,7 @@ Tarikh: 25 Nov 2026. Skop: `index.html` (app customer), `crew.html` (console cre
 
 ## Belum dibuat / perlu tindakan pemilik
 1. **Publish `firestore.rules`** di Firebase Console → Firestore → Rules.
-2. Fail lama `index(2).html` dan `ayenas-ordering-app.html` masih public dan boleh cipta order format lama. Cadangan: padam (rules baru juga akan tolak order format lama).
+2. ~~Fail lama `index(2).html` dan `ayenas-ordering-app.html`~~ — **dipadam**.
 3. `payment-worker.js`, `wrangler.toml`, `PAYMENT_SETUP.txt` (Billplz) tidak digunakan.
 4. Harga masih dikira di peranti customer; rules menghadkan julat, tapi pengesahan harga penuh perlu Cloud Function.
 5. Crew memuatkan semua order sejak awal; bila order banyak, perlu had tarikh (perlu index Firestore).
