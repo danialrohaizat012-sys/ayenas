@@ -469,6 +469,7 @@ function orderCard(o){
     </div>
 
     ${(o.orderType||o.mode)==='delivery'?`<div class="orderNote" style="margin-top:8px">🏠 ${esc(o.deliveryAddress||'-')}${o.deliveryNote?`<br>📝 ${esc(o.deliveryNote)}`:''}${o.deliveryLocation?.lat?`<br><a href="https://maps.google.com/?q=${Number(o.deliveryLocation.lat)},${Number(o.deliveryLocation.lng)}" target="_blank" rel="noopener">📍 Buka Google Maps</a>`:''}</div>`:''}
+    ${o.orderNote?`<div class="orderNote" style="margin-top:8px">📝 ${esc(o.orderNote)}</div>`:''}
     ${o.pickupTime?`<div class="orderNote" style="margin-top:8px;background:#fff7db">⏰ AMBIL PUKUL ${esc(o.pickupTime)}</div>`:''}
     <div style="margin-top:6px;font-size:12px;font-weight:800">${o.paymentMethod==='cod'?'💵 COD — kutip '+money(o.total):o.paymentMethod==='counter'?'🧾 Bayar di kaunter':''}${o.phone?` • <a href="tel:${esc(o.phone)}">📞 Call</a>`:''}</div>
     <div class="etaBtns">

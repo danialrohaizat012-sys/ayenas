@@ -43,3 +43,14 @@ AYENAS V13 — UI/UX PASS
 - Gambar menu dibersihkan: tulisan poster (harga, "BAKAR", senarai menu, lencana) dibuang,
   pinggan/cawan di-trace atas latar studio gelap, semua 800x800.
 - Order baru ada field `pickupTime` ('HH:MM' atau null). crew.html paparkan "AMBIL PUKUL".
+
+AYENAS V14 — BOLD RED UI (ikut mockup rujukan)
+- Home: header merah + logo, butang PICKUP/DELIVERY besar, kad outlet + waktu, banner promo,
+  kategori bulat, Popular Items.
+- Menu: bar hitam, tab kategori bergaris merah, kad menu dengan butang + merah.
+- Halaman produk penuh: gambar besar, Tambah Extra, Catatan (60 aksara), bar hitam "Tambah ke troli".
+- Troli Saya (catatan pesanan) -> Checkout (jenis pesanan, outlet, waktu pickup Sekarang/Jadualkan,
+  butiran, bayaran) -> skrin "Order diterima!" -> tracking stepper mendatar.
+- Navigasi: Home · Menu · Order · Profil.
+- Belum dibuat (perlu data sebenar): rating/sold, saiz S/M/L, Ayenas Rewards/points, batal pesanan oleh customer.
+- Order baru ada field `orderNote`; crew.html paparkan.
