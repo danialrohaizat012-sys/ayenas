@@ -6,9 +6,9 @@
 <meta name="theme-color" content="#F20D12">
 <title>Ayenas Crew Console</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&icon_names=alarm,bar_chart,bedtime,block,call,check,check_circle,close,edit_note,group,history,home,light_mode,location_on,my_location,notifications,notifications_off,payments,person,point_of_sale,receipt_long,restaurant_menu,save,schedule,settings,shopping_bag,two_wheeler,verified&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&icon_names=alarm,bar_chart,bedtime,block,call,check,check_circle,close,edit_note,group,history,home,light_mode,logout,location_on,my_location,notifications,notifications_off,payments,person,point_of_sale,receipt_long,restaurant_menu,save,schedule,settings,shopping_bag,two_wheeler,verified&display=block" rel="stylesheet">
 <style>
-:root{--red:#F20D12;--black:#111;--cream:#FFF8F1;--yellow:#FFC928;--line:#E9E2DA;--muted:#746E68}
+:root{--red:#D10A12;--black:#111;--cream:#FFF8F1;--yellow:#FFC928;--line:#E9E2DA;--muted:#746E68}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f2eee9;color:#111}
 button,input,textarea,select{font:inherit}button{cursor:pointer}
 .shell{max-width:1180px;margin:auto;min-height:100vh;background:var(--cream)}
@@ -17,13 +17,13 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 .header button{border:1px solid #ffffff44;background:#ffffff16;color:white;border-radius:10px;padding:9px 12px}
 .login{min-height:100vh;display:grid;place-items:center;padding:22px;background:linear-gradient(145deg,#FFF8F1,#fde5e1)}
 .loginCard{width:min(410px,100%);background:white;border-radius:24px;padding:25px;box-shadow:0 28px 70px #60131318}
-.loginCard img{width:88px;height:88px;border-radius:50%;display:block;margin:auto}.loginCard h2{text-align:center;margin:14px 0 5px}.loginCard p{text-align:center;color:var(--muted);font-size:13px}
+.loginCard img{width:88px;height:88px;border-radius:50%;display:block;margin:auto}.loginCard h1{text-align:center;margin:14px 0 5px;font-size:24px}.loginCard p{text-align:center;color:var(--muted);font-size:13px}
 .field{margin-top:12px}.field label{display:block;font-size:11px;font-weight:900;margin-bottom:5px}input,textarea,select{width:100%;border:1px solid var(--line);background:white;border-radius:11px;padding:11px}
 .primary{width:100%;border:0;border-radius:12px;padding:13px;background:var(--red);color:white;font-weight:900;margin-top:14px}
 .nav{display:flex;gap:8px;padding:14px 18px;background:white;border-bottom:1px solid var(--line);position:sticky;top:84px;z-index:9;overflow:auto}.nav button{border:0;background:#f6f2ee;border-radius:999px;padding:10px 14px;font-weight:900;white-space:nowrap}.nav button.active{background:#111;color:white}
 .main{padding:18px}.panel{display:none}.panel.active{display:block}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:15px}.stat{background:white;border:1px solid var(--line);border-radius:15px;padding:14px}.stat strong{font-size:24px;display:block}.stat small{color:var(--muted)}
-.orderGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.column{background:#eee9e3;border-radius:16px;padding:10px;min-height:260px}.column h3{font-size:12px;margin:2px 4px 10px;text-transform:uppercase}
+.orderGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.column{background:#eee9e3;border-radius:16px;padding:10px;min-height:260px}.column h2{font-size:12px;margin:2px 4px 10px;text-transform:uppercase}
 .orderCard{background:white;border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:9px}.orderTop{display:flex;justify-content:space-between;gap:8px}.orderCard small{color:var(--muted)}.items{font-size:12px;line-height:1.45;margin:9px 0;padding-top:8px;border-top:1px solid #f2ede8}.action{width:100%;border:0;border-radius:9px;padding:9px;background:#111;color:white;font-weight:800}.action.ready{background:#2b8a3e}.action.done{background:#777}
 .toolbar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:13px}.toolbar h2{margin:0;font-size:18px}.toolbar button{border:0;border-radius:10px;background:var(--red);color:white;padding:10px 12px;font-weight:900}
 .productList{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.product{background:white;border:1px solid var(--line);border-radius:16px;overflow:hidden}.product img{width:100%;height:145px;object-fit:cover}.productBody{padding:12px}.product h3{font-size:14px;margin:0 0 5px}.product .row{display:flex;justify-content:space-between;align-items:center}.pill{display:inline-block;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:900;background:#edf7ee;color:#287536}.pill.off{background:#fff0f0;color:#b32121}
@@ -52,7 +52,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
   display:inline-block;white-space:nowrap;margin-top:7px;border-radius:999px;padding:5px 8px;
   background:#111;color:white;font-size:10px;font-weight:900
 }
-.orderType.delivery{background:#F20D12}
+.orderType.delivery{background:#D10A12}
 .kitchenItems{
   margin:10px 0;background:#faf7f4;border-radius:11px;padding:9px;
 }
@@ -126,29 +126,40 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 .ms{font-family:"Material Symbols Rounded";font-weight:normal;font-style:normal;font-size:1.25em;line-height:1;display:inline-block;vertical-align:-.25em;white-space:nowrap;direction:ltr;text-transform:none;letter-spacing:normal;font-feature-settings:"liga";-webkit-font-feature-settings:"liga";font-variation-settings:"FILL" 0,"wght" 500,"GRAD" 0,"opsz" 20;overflow:hidden;width:1em;user-select:none;margin-right:.25em}
 .dot{display:inline-block;width:.7em;height:.7em;border-radius:50%;margin-right:.45em;vertical-align:.02em;background:#999}
 .dot.red{background:#E30613}.dot.orange{background:#F08A00}.dot.green{background:#1A9A45}.dot.black{background:#111}.dot.yellow{background:#E0A100}
+.brand{min-width:0;flex:1}.brandTxt{min-width:0}.brandName{font-size:17px;font-weight:800;white-space:nowrap}
+#profileLine{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.headerActions button{display:inline-flex;align-items:center;white-space:nowrap}
+.wakeBtn.on{background:#fff;color:#111}
+.lf{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}.lf span{font-size:10.5px;font-weight:800;color:var(--muted);letter-spacing:.3px}
+.opsField{align-items:flex-end}
+@media(max-width:560px){
+  .headerActions .lbl{display:none}.headerActions button{padding:9px 10px}.headerActions .ms{margin-right:0}
+  .brand img{width:40px;height:40px}.brandName{font-size:15px}.header{padding:10px 12px;gap:8px}.nav{top:60px}
+  .column.isEmpty{min-height:0;padding-bottom:12px}
+}
 .tableHero{font-size:22px;font-weight:1000;letter-spacing:.4px;color:#ed111c;margin:5px 0}
 </style>
 </head>
 <body>
-<div id="loginView" class="login">
+<main id="loginView" class="login">
   <div class="loginCard">
     <img src="icon-512.png" alt="Ayenas">
-    <h2>Ayenas Crew</h2>
+    <h1>Ayenas Crew</h1>
     <p>Login crew / owner untuk urus order dan menu.</p>
     <div id="loginMsg" class="notice" style="display:none"></div>
-    <div class="field"><label>EMAIL</label><input id="email" type="email" placeholder="crew@ayenas.my"></div>
-    <div class="field"><label>PASSWORD</label><input id="password" type="password" placeholder="••••••••"></div>
+    <div class="field"><label for="email">EMAIL</label><input id="email" type="email" autocomplete="username" placeholder="crew@ayenas.my"></div>
+    <div class="field"><label for="password">PASSWORD</label><input id="password" type="password" autocomplete="current-password" placeholder="••••••••"></div>
     <button class="primary" id="loginBtn">LOG MASUK</button>
   </div>
-</div>
+</main>
 
 <div id="appView" class="shell" style="display:none">
   <header class="header">
-    <div class="brand"><img src="icon-512.png"><div><h1>AYENAS CREW</h1><small id="profileLine">Loading...</small></div></div>
+    <div class="brand"><img src="icon-512.png" alt="Ayenas"><div class="brandTxt"><h1 class="brandName">AYENAS CREW</h1><small id="profileLine">Loading...</small></div></div>
     <div class="headerActions">
-      <button id="wakeBtn" class="wakeBtn" title="Kekalkan skrin sentiasa hidup"><span class="ms">light_mode</span>Skrin</button>
-      <button id="notifyBtn" class="notifyBtn"><span class="ms">notifications</span>Bunyi ON</button>
-      <button id="logoutBtn">Logout</button>
+      <button id="wakeBtn" class="wakeBtn" title="Kekalkan skrin sentiasa hidup" aria-label="Kekalkan skrin hidup"><span class="ms">light_mode</span><span class="lbl">Skrin</span></button>
+      <button id="notifyBtn" class="notifyBtn" aria-label="Bunyi notifikasi"><span class="ms">notifications</span><span class="lbl">Bunyi ON</span></button>
+      <button id="logoutBtn" aria-label="Log keluar"><span class="ms">logout</span><span class="lbl">Logout</span></button>
     </div>
   </header>
   <nav class="nav">
@@ -180,10 +191,10 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
         <div class="stat"><strong id="sToday">RM0.00</strong><small>Sales Hari Ini</small></div>
       </div>
       <div class="orderGrid">
-        <div class="column"><h3><i class="dot red"></i>New</h3><div id="colNew"></div></div>
-        <div class="column"><h3><i class="dot orange"></i>Preparing</h3><div id="colPreparing"></div></div>
-        <div class="column"><h3><i class="dot green"></i>Ready</h3><div id="colReady"></div></div>
-        <div class="column"><h3><i class="dot black"></i>Completed</h3><div id="colCompleted"></div></div>
+        <div class="column"><h2><i class="dot red"></i>New</h2><div id="colNew"></div></div>
+        <div class="column"><h2><i class="dot orange"></i>Preparing</h2><div id="colPreparing"></div></div>
+        <div class="column"><h2><i class="dot green"></i>Ready</h2><div id="colReady"></div></div>
+        <div class="column"><h2><i class="dot black"></i>Completed</h2><div id="colCompleted"></div></div>
       </div>
     </section>
 
@@ -228,20 +239,20 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
   <div class="opsCard"><b>Delivery (COD)</b><div class="opsBtns" id="deliveryBtns">
    <button onclick="window.setOutletField('deliveryEnabled',true)"><span class="ms">check_circle</span>Buka</button>
    <button class="danger" onclick="window.setOutletField('deliveryEnabled',false)"><span class="ms">block</span>Tutup</button></div>
-   <div class="opsField"><input id="opsFee" type="number" step="0.5" min="0" placeholder="Caj (RM)"><button class="soldToggle" onclick="window.saveOutletNum('deliveryFee','opsFee')">Simpan caj</button></div>
-   <div class="opsField"><input id="opsMin" type="number" step="1" min="0" placeholder="Min. order (RM)"><button class="soldToggle" onclick="window.saveOutletNum('minOrder','opsMin')">Simpan min.</button></div>
+   <div class="opsField"><label class="lf"><span>CAJ ASAS (RM)</span><input id="opsFee" type="number" step="0.5" min="0" placeholder="3"></label><button class="soldToggle" onclick="window.saveOutletNum('deliveryFee','opsFee')">Simpan caj</button></div>
+   <div class="opsField"><label class="lf"><span>MINIMUM ORDER (RM)</span><input id="opsMin" type="number" step="1" min="0" placeholder="Tiada"></label><button class="soldToggle" onclick="window.saveOutletNum('minOrder','opsMin')">Simpan min.</button></div>
    <small id="deliveryText"></small></div>
   <div class="opsCard"><b>Lokasi outlet & kawasan delivery</b>
-   <div class="opsField"><input id="opsLat" type="number" step="any" placeholder="Latitud"><input id="opsLng" type="number" step="any" placeholder="Longitud"></div>
+   <div class="opsField"><label class="lf"><span>LATITUD</span><input id="opsLat" type="number" step="any" placeholder="cth 5.80"></label><label class="lf"><span>LONGITUD</span><input id="opsLng" type="number" step="any" placeholder="cth 102.15"></label></div>
    <div class="opsField"><button class="soldToggle" onclick="window.useMyLocation()"><span class="ms">my_location</span>Guna lokasi semasa</button><button class="soldToggle" onclick="window.saveOutletLoc()">Simpan lokasi</button></div>
-   <div class="opsField"><input id="opsMaxKm" type="number" step="0.5" min="0" placeholder="Maks km (7)"><input id="opsBaseKm" type="number" step="0.5" min="0" placeholder="Km asas (3)"><input id="opsPerKm" type="number" step="0.5" min="0" placeholder="RM/km (1)"></div>
+   <div class="opsField"><label class="lf"><span>MAKS KM</span><input id="opsMaxKm" type="number" step="0.5" min="0" placeholder="7"></label><label class="lf"><span>KM ASAS</span><input id="opsBaseKm" type="number" step="0.5" min="0" placeholder="3"></label><label class="lf"><span>RM / KM</span><input id="opsPerKm" type="number" step="0.5" min="0" placeholder="1"></label></div>
    <div class="opsField"><button class="soldToggle" onclick="window.saveZone()">Simpan kawasan</button></div>
    <small id="zoneText"></small></div>
   <div class="opsCard" style="grid-column:1/-1"><b>Waktu operasi</b>
    <div class="hoursGrid" id="hoursGrid"></div>
    <div class="opsField"><button class="soldToggle" onclick="window.saveHours()"><span class="ms">save</span>Simpan waktu operasi</button><small id="hoursText"></small></div></div>
   <div class="opsCard"><b>No. telefon / WhatsApp outlet</b>
-   <div class="opsField"><input id="opsPhone" type="tel" placeholder="cth: 0146089680"><button class="soldToggle" onclick="window.saveOutletPhone()">Simpan</button></div>
+   <div class="opsField"><label class="lf"><span>NO. TELEFON</span><input id="opsPhone" type="tel" placeholder="cth 0146089680"></label><button class="soldToggle" onclick="window.saveOutletPhone()">Simpan</button></div>
    <small>Dipaparkan pada butang Telefon/WhatsApp di app customer. Sold Out diurus pada tab Menu.</small></div>
  </div>
 </section>
@@ -367,12 +378,13 @@ $('loginBtn').onclick=async()=>{
   }
 };
 $('logoutBtn').onclick=()=>authMod.signOut(auth);
+$('password').addEventListener('keydown',e=>{if(e.key==='Enter')$('loginBtn').click()});
 let wakeLock=null, wakeWanted=false;
-async function reqWake(){try{wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null;$('wakeBtn').classList.toggle('on',false)});$('wakeBtn').classList.add('on');$('wakeBtn').innerHTML='<span class="ms">light_mode</span>Skrin ON'}catch(e){alert('Peranti ini tidak menyokong kekalkan skrin hidup.');wakeWanted=false}}
+async function reqWake(){try{wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null;$('wakeBtn').classList.toggle('on',false)});$('wakeBtn').classList.add('on');$('wakeBtn').innerHTML='<span class="ms">light_mode</span><span class="lbl">Skrin ON</span>'}catch(e){alert('Peranti ini tidak menyokong kekalkan skrin hidup.');wakeWanted=false}}
 $('wakeBtn').onclick=async()=>{
   if(!('wakeLock' in navigator))return alert('Browser ini tidak menyokong kekalkan skrin hidup. Cuba Chrome terkini.');
   wakeWanted=!wakeWanted;
-  if(wakeWanted)await reqWake(); else{try{await wakeLock?.release()}catch{} wakeLock=null;$('wakeBtn').classList.remove('on');$('wakeBtn').innerHTML='<span class="ms">light_mode</span>Skrin'}
+  if(wakeWanted)await reqWake(); else{try{await wakeLock?.release()}catch{} wakeLock=null;$('wakeBtn').classList.remove('on');$('wakeBtn').innerHTML='<span class="ms">light_mode</span><span class="lbl">Skrin</span>'}
 };
 document.addEventListener('visibilitychange',()=>{if(wakeWanted&&!wakeLock&&document.visibilityState==='visible')reqWake()});
 
@@ -407,7 +419,7 @@ function renderReport(){
 $('notifyBtn').onclick=async()=>{
   unlockAudio();
   soundEnabled=!soundEnabled;
-  $('notifyBtn').innerHTML=soundEnabled?'<span class="ms">notifications</span>Bunyi ON':'<span class="ms">notifications_off</span>Bunyi OFF';
+  $('notifyBtn').innerHTML=soundEnabled?'<span class="ms">notifications</span><span class="lbl">Bunyi ON</span>':'<span class="ms">notifications_off</span><span class="lbl">Bunyi OFF</span>';
   $('notifyBtn').classList.toggle('enabled',soundEnabled);
   if(soundEnabled && 'Notification' in window && Notification.permission==='default'){
     try{await Notification.requestPermission()}catch(e){}
@@ -692,6 +704,9 @@ function renderOrders(){
   const groups={new:[],preparing:[],ready:[],completed:[]};
   const STATUS_GROUP={'on-the-way':'ready',collected:'completed',delivered:'completed',served:'completed',cancelled:'completed'};
   orders.filter(orderMatchesV9).forEach(o=>{const s=o.status||'new';(groups[STATUS_GROUP[s]||s]||groups.new).push(o)});
+  const oldestFirst=a=>a.slice().sort((x,y)=>(x.createdAt?.seconds||0)-(y.createdAt?.seconds||0));
+  groups.new=oldestFirst(groups.new);groups.preparing=oldestFirst(groups.preparing);groups.ready=oldestFirst(groups.ready);
+  [['colNew','new'],['colPreparing','preparing'],['colReady','ready'],['colCompleted','completed']].forEach(([c,g])=>$(c).parentElement.classList.toggle('isEmpty',!groups[g].length));
   $('colNew').innerHTML=groups.new.map(orderCard).join('')||'<small>Tiada order</small>';
   $('colPreparing').innerHTML=groups.preparing.map(orderCard).join('')||'<small>Tiada order</small>';
   $('colReady').innerHTML=groups.ready.map(orderCard).join('')||'<small>Tiada order</small>';
@@ -723,7 +738,7 @@ window.updateStatus=async(id,status)=>{
 
 function renderProducts(){
   $('productList').innerHTML=products.map(p=>`<div class="product">
-    <img src="${esc(p.imageUrl||'nasi.jpg')}" onerror="this.src='nasi.jpg'">
+    <img src="${esc(p.imageUrl||'nasi.jpg')}" alt="" loading="lazy" onerror="this.src='nasi.jpg'">
     <div class="productBody">
       <div class="row"><h3>${esc(p.name)}</h3><span class="pill ${p.active===false?'off':''}">${p.active===false?'Tidak aktif':'Aktif'}</span></div>
       <small>${esc(p.category)} • ${money(p.price)}</small>

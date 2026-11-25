@@ -129,7 +129,8 @@ h1[tabindex]{outline:none}
 .promo .t .k{font-weight:900;font-size:28px;line-height:.98;text-transform:uppercase;letter-spacing:.3px}
 .promo .t .k span{color:var(--red)}
 .promo .t .d{font-size:12px;opacity:.85;margin:6px 0 12px}
-.cta-y{align-self:flex-start;background:var(--yellow);color:#1b1300;border-radius:10px;padding:8px 12px;font-weight:800;font-size:11px;letter-spacing:.4px;display:inline-flex;align-items:center;gap:4px}
+@media(max-width:360px){.promo .t{max-width:68%;padding:16px 14px}.promo .t .k{font-size:23px}.cta-y{font-size:10px;padding:7px 10px}}
+.cta-y{white-space:nowrap;align-self:flex-start;background:var(--yellow);color:#1b1300;border-radius:10px;padding:8px 12px;font-weight:800;font-size:11px;letter-spacing:.4px;display:inline-flex;align-items:center;gap:4px}
 .dots{display:flex;justify-content:center;gap:6px;margin-top:10px}
 .dots i{width:6px;height:6px;border-radius:3px;background:var(--line2);transition:all .25s}
 .dots i.on{width:18px;background:var(--red)}
@@ -404,6 +405,7 @@ html.ov #app,html.ov .bnav,html.ov .fcart,html.ov .actbar{visibility:hidden}
       <div class="hh-row">
         <img class="hh-logo" src="icon-192.png" alt="">
         <h1 class="hh-brand" style="flex:1" tabindex="-1">AYENAS</h1>
+        <button class="circ-btn press" id="homeSearch" aria-label="Cari menu"><span class="ms">search</span></button>
         <button class="circ-btn press" data-go="cart" aria-label="Troli"><span class="ms f">shopping_bag</span><span class="badge-n" data-cart-n data-n="0"></span></button>
       </div>
       <div class="hh-greet"><b id="greet">Hi! 👋</b><div>Ayam bakar sedap, sedia bila anda lapar.</div></div>
@@ -752,7 +754,8 @@ function rHome(){
   const P=S.profile;
   $('#greet').textContent=P.name?`Hi ${P.name.split(' ')[0]} 👋`:'Hi! Selamat datang 👋';
   $$('.mode').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.mode===S.mode);if(b.dataset.mode==='delivery')b.disabled=!deliveryEnabled()});
-  $('#delSub').textContent=zoneOn()?`COD · yuran dari ${money(delCfg().base)}`:`COD · yuran ${money(delCfg().base)}`;
+  const rmShort=v=>'RM'+(Number.isInteger(v)?v:v.toFixed(2));
+  $('#delSub').textContent=zoneOn()?`COD · dari ${rmShort(delCfg().base)}`:`COD · ${rmShort(delCfg().base)}`;
   const[nm,cls,txt]=outletLine();$('[data-outlet-name]').textContent=nm;const st=$('[data-outlet-st]');st.className='st '+cls;st.textContent=txt;
   const o=outletInfo(S.outlet),hs=hoursState(),os=outletStatus();
   $('#homeNotice').innerHTML=!o?'':os==='closed'?`<div class="notice err"><span class="ms s">block</span><div><b>Outlet sedang tutup.</b> Order baru tidak diterima buat masa ini.</div></div>`
@@ -831,6 +834,7 @@ function mcard(p){
       <div class="f"><span class="price">${money(p.price)}</span>${ctrl}</div></div></div>`;
 }
 $('#searchBtn').onclick=()=>{$('#searchBox').classList.remove('hidden');$('#search').focus()};
+$('#homeSearch').onclick=()=>{S.cat='Semua';go('menu');$('#searchBox').classList.remove('hidden');setTimeout(()=>$('#search').focus(),80)};
 $('#searchClose').onclick=()=>{$('#searchBox').classList.add('hidden');$('#search').value='';S.query='';rMenu()};
 let sT;$('#search').oninput=e=>{clearTimeout(sT);sT=setTimeout(()=>{S.query=e.target.value;rMenu()},120)};
 
