@@ -37,8 +37,8 @@ service cloud.firestore {
       allow delete: if isOwner();
     }
     match /orders/{id} {
-      // Customer mesti log masuk (Google), bukan tanpa nama
-      allow create: if signedIn() && request.auth.token.firebase.sign_in_provider != 'anonymous' && validNewOrder(request.resource.data);
+      // Customer log masuk Google atau tetamu (tanpa nama)
+      allow create: if signedIn() && validNewOrder(request.resource.data);
       allow read: if signedIn() && (
         resource.data.customerUid == request.auth.uid ||
         (isStaff() && sameOutlet(resource.data))

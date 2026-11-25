@@ -358,6 +358,8 @@ html.ov,html.ov body{background:var(--red)!important}
 .gbtn svg{width:22px;height:22px;flex:none}
 .login .err{background:#fff;color:#8B0009;border-radius:12px;padding:11px 13px;font-size:13px;line-height:18px;margin-top:12px;display:none}
 .login .err.show{display:block}
+.guestbtn{height:50px;border:1.5px solid rgba(255,255,255,.7);border-radius:14px;background:transparent;color:#fff;font-weight:700;font-size:14.5px;width:100%;margin-top:10px}
+.guestbtn:disabled{opacity:.6}
 .login small{display:block;font-size:11.5px;line-height:16px;text-align:center;margin-top:14px}
 html.ov #app,html.ov .bnav,html.ov .fcart,html.ov .actbar{visibility:hidden}
 .gate.show{display:block;animation:in .3s var(--ease-out)}
@@ -517,7 +519,8 @@ html.ov #app,html.ov .bnav,html.ov .fcart,html.ov .actbar{visibility:hidden}
     <div style="flex:1"></div>
     <div class="err" id="loginErr" role="alert"></div>
     <button class="gbtn press" id="gLogin"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span id="gLoginT">Teruskan dengan Google</span></button>
-    <small>Dengan log masuk, anda bersetuju maklumat anda (nama, e-mel, no. telefon, alamat) digunakan untuk memproses pesanan Ayenas sahaja.</small>
+    <button class="guestbtn press" id="guestLogin">Teruskan sebagai tetamu</button>
+    <small>Tetamu boleh order seperti biasa, tetapi sejarah pesanan hanya disimpan pada telefon ini.<br><br>Dengan log masuk, anda bersetuju maklumat anda (nama, e-mel, no. telefon, alamat) digunakan untuk memproses pesanan Ayenas sahaja.</small>
   </div>
 </div>
 
@@ -588,7 +591,7 @@ const FINAL=['collected','delivered','completed','served'];
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
 const S={products:FALLBACK_PRODUCTS.slice(),outlet:store.get('ay_outlet',null),mode:store.get('ay_mode','pickup'),cart:store.get('ay_cart',[]),
   orders:store.get('ay_orders',[]),profile:Object.assign({name:'',phone:'',address:'',addressNote:''},store.get('ay_profile',{})),
-  orderNote:store.get('ay_note',''),settings:{},bootAt:Date.now(),fbReady:false,user:null,authReady:false,cat:'Semua',query:'',pickupAt:'asap',location:store.get('ay_loc',null),placing:false,fb:null,view:'home',param:null};
+  orderNote:store.get('ay_note',''),settings:{},bootAt:Date.now(),fbReady:false,user:null,authReady:false,guest:store.get('ay_guest',false),cat:'Semua',query:'',pickupAt:'asap',location:store.get('ay_loc',null),placing:false,fb:null,view:'home',param:null};
 if(S.outlet&&!OUTLETS[S.outlet])S.outlet=null;
 
 /* ================= HELPERS ================= */
@@ -1128,13 +1131,17 @@ function rProfile(){
         <a class="btn-g press" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Ayenas '+oi.address)}"><span class="ms s">directions</span>Arah</a>
         ${oi.phone?`<a class="btn-g press" href="tel:+${esc(oi.phone)}"><span class="ms s">call</span>Call</a><a class="btn-g press" target="_blank" rel="noopener" href="${esc(wa(oi.phone))}"><span class="ms s">chat</span>WhatsApp</a>`:''}</div></div>`:''}
     ${installEvt?`<div class="box"><button class="citem press" id="inst" style="width:100%;border:0;background:none;text-align:left"><span class="ms f" style="color:var(--red);font-size:30px">install_mobile</span><span class="m"><b>Pasang app Ayenas</b><div class="x">Buka terus dari skrin utama telefon</div></span><span class="ms muted">chevron_right</span></button></div>`:''}
-    ${S.user?`<div class="box box-p"><div class="sec-t">Akaun</div>
+    ${S.user?.guest?`<div class="box box-p"><div class="sec-t">Akaun</div>
+      <div style="display:flex;gap:12px;align-items:center"><span class="ms f" style="color:var(--muted)">person</span><div style="flex:1"><b>Tetamu</b><div class="muted" style="font-size:12px;line-height:16px">Sejarah pesanan hanya disimpan pada telefon ini. Log masuk untuk simpan ke akaun anda — pesanan sedia ada kekal.</div></div></div>
+      <button class="gbtn press" id="upgrade" style="margin-top:12px;height:50px;box-shadow:none;border:1px solid var(--line2)"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>Log masuk dengan Google</button></div>`
+    :S.user?`<div class="box box-p"><div class="sec-t">Akaun</div>
       <div style="display:flex;gap:12px;align-items:center"><span class="ms f" style="color:var(--red)">person</span><div style="flex:1;min-width:0"><b class="ell" style="display:block">${esc(S.user.name||'Pengguna Google')}</b><span class="muted ell" style="display:block;font-size:12px">${esc(S.user.email||'')}</span></div></div>
       <button class="btn-o press" id="logout" style="margin-top:12px">LOG KELUAR</button></div>`:''}
     <div class="muted" style="text-align:center;font-size:11px;padding:14px">Ayenas · v17</div>`;
   const sv=()=>{S.profile.name=$('#pN').value.trim();S.profile.phone=$('#pP').value.trim();S.profile.address=$('#pA').value.trim();persist();$('#pfS').textContent='✓ Disimpan';setTimeout(()=>{const x=$('#pfS');if(x)x.textContent=''},1800)};
   ['#pN','#pP','#pA'].forEach(s=>$(s).addEventListener('change',sv));
   $('#inst')&&($('#inst').onclick=async()=>{installEvt.prompt();await installEvt.userChoice;installEvt=null;rProfile()});
+  $('#upgrade')&&($('#upgrade').onclick=async()=>{try{await S.fb.login();toast('Akaun Google disambungkan.')}catch(e){if(!/popup-closed|cancelled-popup/.test(e?.code||''))toast('Log masuk gagal. Sila cuba lagi.')}});
   $('#logout')&&($('#logout').onclick=async()=>{if(await dialog({title:'Log keluar?',body:'Anda perlu log masuk semula untuk membuat pesanan.',ok:'Log keluar',cancel:'Batal'}))S.fb?.logout()});
 }
 
@@ -1192,6 +1199,15 @@ $('#gLogin').onclick=async()=>{
   }finally{b.disabled=false;$('#gLoginT').textContent='Teruskan dengan Google'}
 };
 
+$('#guestLogin').onclick=async()=>{
+  if(!S.fb){loginErr('Tidak dapat sambung ke server. Semak internet anda dan cuba lagi.');return}
+  const b=$('#guestLogin');b.disabled=true;b.textContent='Sebentar…';loginErr('');
+  try{S.guest=true;store.set('ay_guest',true);await S.fb.guest()}
+  catch(e){S.guest=false;store.set('ay_guest',false);console.warn('guest',e);
+    loginErr(e?.code==='auth/operation-not-allowed'?'Mod tetamu belum diaktifkan. Sila log masuk dengan Google.':e?.code==='auth/network-request-failed'?'Tiada sambungan internet. Cuba lagi.':'Tidak dapat masuk sebagai tetamu. Sila cuba lagi.')}
+  finally{b.disabled=false;b.textContent='Teruskan sebagai tetamu'}
+};
+
 /* ================= BOOT ================= */
 const hideSplash=()=>$('#splash').classList.add('hide');
 go(location.hash.replace(/^#\//,'')||'home',{replace:true});
@@ -1204,11 +1220,11 @@ setTimeout(()=>{if(!S.authReady){hideSplash();showLogin()}},6000);
     const[{initializeApp},A,fs]=await Promise.all([import(FB+'firebase-app.js'),import(FB+'firebase-auth.js'),import(FB+'firebase-firestore.js')]);
     const{getFirestore,collection,doc,setDoc,addDoc,onSnapshot,query,where,serverTimestamp,increment,runTransaction}=fs;
     const app=initializeApp(firebaseConfig),auth=A.getAuth(app),db=getFirestore(app);
-    const{onAuthStateChanged,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,linkWithPopup,signOut,browserLocalPersistence,setPersistence}=A;
+    const{onAuthStateChanged,signInAnonymously,GoogleAuthProvider,signInWithPopup,signInWithRedirect,getRedirectResult,linkWithPopup,signOut,browserLocalPersistence,setPersistence}=A;
     try{await setPersistence(auth,browserLocalPersistence)}catch{}
     getRedirectResult(auth).catch(e=>{console.warn('redirect',e);loginErr('Log masuk gagal. Sila cuba lagi.')});
     const provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});
-    const user=async()=>{const u=auth.currentUser;if(!u||u.isAnonymous)throw Object.assign(new Error('not-signed-in'),{code:'not-signed-in'});return u};
+    const user=async()=>{const u=auth.currentUser;if(!u||(u.isAnonymous&&!S.guest))throw Object.assign(new Error('not-signed-in'),{code:'not-signed-in'});return u};
     S.fbReady=true;
     S.fb={
     async login(){
@@ -1224,7 +1240,8 @@ setTimeout(()=>{if(!S.authReady){hideSplash();showLogin()}},6000);
         throw e;
       }
     },
-    async logout(){await signOut(auth);S.orders=[];store.set('ay_orders',[]);go('home',{replace:true});toast('Anda telah log keluar.')},
+    async guest(){const u=auth.currentUser;if(u&&u.isAnonymous){handleAuth(u);return}return signInAnonymously(auth)},
+    async logout(){S.guest=false;store.set('ay_guest',false);await signOut(auth);S.orders=[];store.set('ay_orders',[]);go('home',{replace:true});toast('Anda telah log keluar.')},
     async createOrder(order){
       const u=await user();
       try{
@@ -1256,19 +1273,23 @@ setTimeout(()=>{if(!S.authReady){hideSplash();showLogin()}},6000);
       if($('#gate').classList.contains('show'))showGate(!!S.outlet);
     },e=>console.warn('outletSettings',e));
     let un=null;const prev={};
-    onAuthStateChanged(auth,u=>{
+    const afterAuth=(u,first)=>{
+      const wasLogin=$('#login').classList.contains('show');
+      S.user={uid:u.uid,name:u.displayName||'',email:u.email||'',guest:!!u.isAnonymous};
+      if(!u.isAnonymous){S.guest=false;store.set('ay_guest',false)}
+      if(!S.profile.name&&u.displayName){S.profile.name=u.displayName;persist()}
+      if(wasLogin||first)afterLogin();
+      if(wasLogin)toast(u.isAnonymous?'Anda masuk sebagai tetamu.':`Selamat datang${u.displayName?', '+u.displayName.split(' ')[0]:''}!`);
+      render();
+    };
+    const handleAuth=u=>{
       const first=!S.authReady;S.authReady=true;hideSplash();
-      if(!u||u.isAnonymous){
+      if(!u||(u.isAnonymous&&!S.guest)){
         un?.();un=null;S.user=null;
         if(S.orders.length){S.orders=[];store.set('ay_orders',[]);}
         showLogin();render();return;
       }
-      S.user={uid:u.uid,name:u.displayName||'',email:u.email||''};
-      if(!S.profile.name&&u.displayName){S.profile.name=u.displayName;persist()}
-      const wasLogin=$('#login').classList.contains('show');
-      if(wasLogin||first)afterLogin();
-      if(wasLogin)toast(`Selamat datang${u.displayName?', '+u.displayName.split(' ')[0]:''}!`);
-      render();
+      afterAuth(u,first);
       un?.();
       un=onSnapshot(query(collection(db,'orders'),where('customerUid','==',u.uid)),snap=>{
         const r=snap.docs.map(d=>({firestoreId:d.id,...d.data()})).sort((a,b)=>tsMs(b)-tsMs(a));
@@ -1277,7 +1298,8 @@ setTimeout(()=>{if(!S.authReady){hideSplash();showLogin()}},6000);
         const typing=document.activeElement&&/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
         if(['orders','track'].includes(S.view)||(S.view==='profile'&&!typing))render();else chrome();
       },e=>console.warn('orders',e));
-    });
+    };
+    onAuthStateChanged(auth,handleAuth);
   }catch(e){console.error('Firebase gagal dimuatkan',e);S.authReady=true;hideSplash();showLogin();loginErr('Tidak dapat sambung ke server. Semak internet anda, kemudian <a href="" style="color:inherit;font-weight:700">muat semula</a>.')}
 })();
 </script>
