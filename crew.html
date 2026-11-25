@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#F20D12">
 <title>Ayenas Crew Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&icon_names=alarm,bar_chart,bedtime,block,call,check,check_circle,close,edit_note,group,history,home,light_mode,location_on,my_location,notifications,notifications_off,payments,person,point_of_sale,receipt_long,restaurant_menu,save,schedule,settings,shopping_bag,two_wheeler,verified&display=block" rel="stylesheet">
 <style>
 :root{--red:#F20D12;--black:#111;--cream:#FFF8F1;--yellow:#FFC928;--line:#E9E2DA;--muted:#746E68}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f2eee9;color:#111}
@@ -47,7 +49,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 }
 .elapsed.late{background:#fff0f0;color:#bf1f24}
 .orderType{
-  display:inline-block;margin-top:7px;border-radius:999px;padding:5px 8px;
+  display:inline-block;white-space:nowrap;margin-top:7px;border-radius:999px;padding:5px 8px;
   background:#111;color:white;font-size:10px;font-weight:900
 }
 .orderType.delivery{background:#F20D12}
@@ -121,6 +123,9 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 .opsField{display:flex;gap:6px;align-items:center;margin-top:6px}.opsField input{padding:8px;font-size:13px}
 .opsField button{white-space:nowrap}
 .filterBar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:6px}
+.ms{font-family:"Material Symbols Rounded";font-weight:normal;font-style:normal;font-size:1.25em;line-height:1;display:inline-block;vertical-align:-.25em;white-space:nowrap;direction:ltr;text-transform:none;letter-spacing:normal;font-feature-settings:"liga";-webkit-font-feature-settings:"liga";font-variation-settings:"FILL" 0,"wght" 500,"GRAD" 0,"opsz" 20;overflow:hidden;width:1em;user-select:none;margin-right:.25em}
+.dot{display:inline-block;width:.7em;height:.7em;border-radius:50%;margin-right:.45em;vertical-align:.02em;background:#999}
+.dot.red{background:#E30613}.dot.orange{background:#F08A00}.dot.green{background:#1A9A45}.dot.black{background:#111}.dot.yellow{background:#E0A100}
 .tableHero{font-size:22px;font-weight:1000;letter-spacing:.4px;color:#ed111c;margin:5px 0}
 </style>
 </head>
@@ -141,26 +146,26 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
   <header class="header">
     <div class="brand"><img src="icon-512.png"><div><h1>AYENAS CREW</h1><small id="profileLine">Loading...</small></div></div>
     <div class="headerActions">
-      <button id="wakeBtn" class="wakeBtn" title="Kekalkan skrin sentiasa hidup">🔆 Skrin</button>
-      <button id="notifyBtn" class="notifyBtn">🔔 Bunyi ON</button>
+      <button id="wakeBtn" class="wakeBtn" title="Kekalkan skrin sentiasa hidup"><span class="ms">light_mode</span>Skrin</button>
+      <button id="notifyBtn" class="notifyBtn"><span class="ms">notifications</span>Bunyi ON</button>
       <button id="logoutBtn">Logout</button>
     </div>
   </header>
   <nav class="nav">
-    <button class="active" data-panel="orders">🔥 Live Orders</button>
-    <button data-panel="menu">🍗 Menu</button>
-    <button data-panel="report">📊 Laporan</button>
-    <button data-panel="customers">👥 Customers</button>
-    <button data-panel="operations">⚙️ Operations</button>
-    <button data-panel="account">👤 Account</button>
+    <button class="active" data-panel="orders"><span class="ms">receipt_long</span>Live Orders</button>
+    <button data-panel="menu"><span class="ms">restaurant_menu</span>Menu</button>
+    <button data-panel="report"><span class="ms">bar_chart</span>Laporan</button>
+    <button data-panel="customers"><span class="ms">group</span>Customers</button>
+    <button data-panel="operations"><span class="ms">settings</span>Operations</button>
+    <button data-panel="account"><span class="ms">person</span>Account</button>
   </nav>
   <main class="main">
     <section class="panel active" id="ordersPanel">
       <div class="filterBar">
         <div class="typeTabs" id="typeTabs">
           <button class="active" onclick="window.setOrderTypeFilter('all',this)">Semua</button>
-          <button onclick="window.setOrderTypeFilter('pickup',this)">🥡 Pickup</button>
-          <button onclick="window.setOrderTypeFilter('delivery',this)">🛵 Delivery</button>
+          <button onclick="window.setOrderTypeFilter('pickup',this)"><span class="ms">shopping_bag</span>Pickup</button>
+          <button onclick="window.setOrderTypeFilter('delivery',this)"><span class="ms">two_wheeler</span>Delivery</button>
         </div>
         <select id="ownerBranchSelect" class="branchSelect" style="display:none;width:auto" onchange="window.changeOwnerBranch(this.value)" aria-label="Pilih cawangan">
           <option value="all">Semua cawangan</option>
@@ -175,10 +180,10 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
         <div class="stat"><strong id="sToday">RM0.00</strong><small>Sales Hari Ini</small></div>
       </div>
       <div class="orderGrid">
-        <div class="column"><h3>🔴 New</h3><div id="colNew"></div></div>
-        <div class="column"><h3>🟠 Preparing</h3><div id="colPreparing"></div></div>
-        <div class="column"><h3>🟢 Ready</h3><div id="colReady"></div></div>
-        <div class="column"><h3>⚫ Completed</h3><div id="colCompleted"></div></div>
+        <div class="column"><h3><i class="dot red"></i>New</h3><div id="colNew"></div></div>
+        <div class="column"><h3><i class="dot orange"></i>Preparing</h3><div id="colPreparing"></div></div>
+        <div class="column"><h3><i class="dot green"></i>Ready</h3><div id="colReady"></div></div>
+        <div class="column"><h3><i class="dot black"></i>Completed</h3><div id="colCompleted"></div></div>
       </div>
     </section>
 
@@ -212,29 +217,29 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
  <div class="notice" id="opsOutletLabel">Mengurus outlet: —</div>
  <div class="opsPanel">
   <div class="opsCard"><b>Status Outlet</b><div class="opsBtns" id="outletStatusBtns">
-   <button onclick="window.setOutletStatus('open')">🟢 Open</button>
-   <button onclick="window.setOutletStatus('busy')">🟡 Busy</button>
-   <button class="danger" onclick="window.setOutletStatus('closed')">🔴 Closed</button>
-   <button class="danger" onclick="window.closeUntilTomorrow()">🌙 Tutup hingga esok</button>
+   <button onclick="window.setOutletStatus('open')"><i class="dot green"></i>Open</button>
+   <button onclick="window.setOutletStatus('busy')"><i class="dot yellow"></i>Busy</button>
+   <button class="danger" onclick="window.setOutletStatus('closed')"><i class="dot red"></i>Closed</button>
+   <button class="danger" onclick="window.closeUntilTomorrow()"><span class="ms">bedtime</span>Tutup hingga esok</button>
   </div><small id="statusText"></small></div>
   <div class="opsCard"><b>Default ETA</b><div class="opsBtns">
    <button onclick="window.setDefaultEta(15)">15 min</button><button onclick="window.setDefaultEta(30)">30 min</button><button onclick="window.setDefaultEta(45)">45 min</button>
   </div><small id="defaultEtaText">Belum set</small></div>
   <div class="opsCard"><b>Delivery (COD)</b><div class="opsBtns" id="deliveryBtns">
-   <button onclick="window.setOutletField('deliveryEnabled',true)">✅ Buka</button>
-   <button class="danger" onclick="window.setOutletField('deliveryEnabled',false)">⛔ Tutup</button></div>
+   <button onclick="window.setOutletField('deliveryEnabled',true)"><span class="ms">check_circle</span>Buka</button>
+   <button class="danger" onclick="window.setOutletField('deliveryEnabled',false)"><span class="ms">block</span>Tutup</button></div>
    <div class="opsField"><input id="opsFee" type="number" step="0.5" min="0" placeholder="Caj (RM)"><button class="soldToggle" onclick="window.saveOutletNum('deliveryFee','opsFee')">Simpan caj</button></div>
    <div class="opsField"><input id="opsMin" type="number" step="1" min="0" placeholder="Min. order (RM)"><button class="soldToggle" onclick="window.saveOutletNum('minOrder','opsMin')">Simpan min.</button></div>
    <small id="deliveryText"></small></div>
   <div class="opsCard"><b>Lokasi outlet & kawasan delivery</b>
    <div class="opsField"><input id="opsLat" type="number" step="any" placeholder="Latitud"><input id="opsLng" type="number" step="any" placeholder="Longitud"></div>
-   <div class="opsField"><button class="soldToggle" onclick="window.useMyLocation()">📍 Guna lokasi semasa</button><button class="soldToggle" onclick="window.saveOutletLoc()">Simpan lokasi</button></div>
+   <div class="opsField"><button class="soldToggle" onclick="window.useMyLocation()"><span class="ms">my_location</span>Guna lokasi semasa</button><button class="soldToggle" onclick="window.saveOutletLoc()">Simpan lokasi</button></div>
    <div class="opsField"><input id="opsMaxKm" type="number" step="0.5" min="0" placeholder="Maks km (7)"><input id="opsBaseKm" type="number" step="0.5" min="0" placeholder="Km asas (3)"><input id="opsPerKm" type="number" step="0.5" min="0" placeholder="RM/km (1)"></div>
    <div class="opsField"><button class="soldToggle" onclick="window.saveZone()">Simpan kawasan</button></div>
    <small id="zoneText"></small></div>
   <div class="opsCard" style="grid-column:1/-1"><b>Waktu operasi</b>
    <div class="hoursGrid" id="hoursGrid"></div>
-   <div class="opsField"><button class="soldToggle" onclick="window.saveHours()">💾 Simpan waktu operasi</button><small id="hoursText"></small></div></div>
+   <div class="opsField"><button class="soldToggle" onclick="window.saveHours()"><span class="ms">save</span>Simpan waktu operasi</button><small id="hoursText"></small></div></div>
   <div class="opsCard"><b>No. telefon / WhatsApp outlet</b>
    <div class="opsField"><input id="opsPhone" type="tel" placeholder="cth: 0146089680"><button class="soldToggle" onclick="window.saveOutletPhone()">Simpan</button></div>
    <small>Dipaparkan pada butang Telefon/WhatsApp di app customer. Sold Out diurus pada tab Menu.</small></div>
@@ -338,7 +343,7 @@ function flashTitle(order){
   const base='Ayenas Crew Console';
   let n=0;
   const timer=setInterval(()=>{
-    document.title=(n++%2===0?'🔴 ORDER BARU!':base);
+    document.title=(n++%2===0?'(BARU) ORDER BARU!':base);
     if(n>7){clearInterval(timer);document.title=base}
   },650);
   if('Notification' in window && Notification.permission==='granted'){
@@ -363,11 +368,11 @@ $('loginBtn').onclick=async()=>{
 };
 $('logoutBtn').onclick=()=>authMod.signOut(auth);
 let wakeLock=null, wakeWanted=false;
-async function reqWake(){try{wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null;$('wakeBtn').classList.toggle('on',false)});$('wakeBtn').classList.add('on');$('wakeBtn').textContent='🔆 Skrin ON'}catch(e){alert('Peranti ini tidak menyokong kekalkan skrin hidup.');wakeWanted=false}}
+async function reqWake(){try{wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null;$('wakeBtn').classList.toggle('on',false)});$('wakeBtn').classList.add('on');$('wakeBtn').innerHTML='<span class="ms">light_mode</span>Skrin ON'}catch(e){alert('Peranti ini tidak menyokong kekalkan skrin hidup.');wakeWanted=false}}
 $('wakeBtn').onclick=async()=>{
   if(!('wakeLock' in navigator))return alert('Browser ini tidak menyokong kekalkan skrin hidup. Cuba Chrome terkini.');
   wakeWanted=!wakeWanted;
-  if(wakeWanted)await reqWake(); else{try{await wakeLock?.release()}catch{} wakeLock=null;$('wakeBtn').classList.remove('on');$('wakeBtn').textContent='🔆 Skrin'}
+  if(wakeWanted)await reqWake(); else{try{await wakeLock?.release()}catch{} wakeLock=null;$('wakeBtn').classList.remove('on');$('wakeBtn').innerHTML='<span class="ms">light_mode</span>Skrin'}
 };
 document.addEventListener('visibilitychange',()=>{if(wakeWanted&&!wakeLock&&document.visibilityState==='visible')reqWake()});
 
@@ -392,9 +397,9 @@ function renderReport(){
     <div class="stat"><strong>${money(ok.length?sum(ok)/ok.length:0)}</strong><small>Purata setiap order</small></div>
     <div class="stat"><strong>${cancelled}</strong><small>Dibatalkan</small></div></div>
     <div class="repBox"><b>Pickup vs Delivery</b>
-      <div class="repRow"><span>🥡 Pickup</span><span>${pk.length} order • ${money(sum(pk))}</span></div>
-      <div class="repRow"><span>🛵 Delivery</span><span>${dl.length} order • ${money(sum(dl))}</span></div>
-      ${peak?`<div class="repRow"><span>⏰ Waktu paling sibuk</span><span>${String(peak[0]).padStart(2,'0')}:00 – ${String((+peak[0]+1)%24).padStart(2,'0')}:00 (${peak[1]} order)</span></div>`:''}</div>
+      <div class="repRow"><span><span class="ms">shopping_bag</span>Pickup</span><span>${pk.length} order • ${money(sum(pk))}</span></div>
+      <div class="repRow"><span><span class="ms">two_wheeler</span>Delivery</span><span>${dl.length} order • ${money(sum(dl))}</span></div>
+      ${peak?`<div class="repRow"><span><span class="ms">schedule</span>Waktu paling sibuk</span><span>${String(peak[0]).padStart(2,'0')}:00 – ${String((+peak[0]+1)%24).padStart(2,'0')}:00 (${peak[1]} order)</span></div>`:''}</div>
     <div class="repBox"><b>Menu paling laku</b>${top.length?top.map(([n,v])=>`<div class="repRow" style="display:block"><div style="display:flex;justify-content:space-between"><span>${esc(n)}</span><span>${v.q} • ${money(v.r)}</span></div><div class="bar2" style="width:${Math.max(4,v.q/maxQ*100)}%"></div></div>`).join(''):'<div class="emptyState">Tiada data</div>'}</div>
     ${repDays>1?`<div class="repBox"><b>Jualan harian</b>${Object.entries(byDay).map(([d,v])=>`<div class="repRow"><span>${esc(d)}</span><span>${money(v)}</span></div>`).join('')||'<div class="emptyState">Tiada data</div>'}</div>`:''}`;
 }
@@ -402,7 +407,7 @@ function renderReport(){
 $('notifyBtn').onclick=async()=>{
   unlockAudio();
   soundEnabled=!soundEnabled;
-  $('notifyBtn').textContent=soundEnabled?'🔔 Bunyi ON':'🔕 Bunyi OFF';
+  $('notifyBtn').innerHTML=soundEnabled?'<span class="ms">notifications</span>Bunyi ON':'<span class="ms">notifications_off</span>Bunyi OFF';
   $('notifyBtn').classList.toggle('enabled',soundEnabled);
   if(soundEnabled && 'Notification' in window && Notification.permission==='default'){
     try{await Notification.requestPermission()}catch(e){}
@@ -506,7 +511,7 @@ window.saveHours=async()=>{
     if(!/^\d{2}:\d{2}$/.test(a)||!/^\d{2}:\d{2}$/.test(b)||a===b)return alert(`Waktu ${DAYS[i]} tidak sah.`);
     out.push(`${a}-${b}`);
   }
-  await window.setOutletField('hours',out); $('hoursText').textContent='✓ Disimpan';
+  await window.setOutletField('hours',out); $('hoursText').textContent='Disimpan';
 };
 window.useMyLocation=()=>{
   if(!navigator.geolocation)return alert('Peranti tidak menyokong lokasi.');
@@ -581,9 +586,9 @@ function orderMatchesV9(o){
 }
 function v9OrderLabel(o){
  const type=o.orderType||o.mode||'pickup';
- if(type==='dinein')return `🍽️ DINE IN • TABLE ${o.tableNumber||'-'}`;
- if(type==='delivery')return '🛵 DELIVERY';
- return '🥡 PICKUP';
+ if(type==='dinein')return `DINE IN • TABLE ${o.tableNumber||'-'}`;
+ if(type==='delivery')return '<span class="ms">two_wheeler</span>DELIVERY';
+ return '<span class="ms">shopping_bag</span>PICKUP';
 }
 function v9NextStatus(o){
  const type=o.orderType||o.mode||'pickup', s=o.orderStatus||o.status||'new';
@@ -643,8 +648,8 @@ function orderCard(o){
     <div class="orderTop">
       <div>
         <div class="orderNo">${o.shortNo?'':'#'}${esc(orderNo)}</div>${o.shortNo?`<small style="font-size:10px">${esc(o.id||'')}</small>`:''}
-        <div class="elapsed ${late?'late':''}">⏱ ${mins<1?'BARU':mins+' min'}</div>
-        ${o.pickupTime?`<div class="schedTag">⏰ ${esc(o.pickupTime)}</div>`:''}
+        <div class="elapsed ${late?'late':''}">${'<span class="ms">schedule</span>'}${mins<1?'BARU':mins+' min'}</div>
+        ${o.pickupTime?`<div class="schedTag"><span class="ms">alarm</span>${esc(o.pickupTime)}</div>`:''}
       </div>
       <div style="text-align:right">
         <b style="font-size:17px">${money(o.total)}</b><br>
@@ -654,7 +659,7 @@ function orderCard(o){
 
     <div style="margin-top:9px;font-size:12px">
       <b>${esc(o.name)}</b> • ${esc(o.phone)}<br>
-      <small>📍 ${outletName(o.outletId)} • ${o.createdAt?.toDate?.().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})||''}</small>
+      <small><span class="ms">location_on</span>${outletName(o.outletId)} • ${o.createdAt?.toDate?.().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})||''}</small>
     </div>
 
     <div class="kitchenItems">
@@ -663,24 +668,24 @@ function orderCard(o){
           <span class="kitchenQty">${i.qty||1}×</span>
           <span>${esc(i.name)}${i.extrasList?.length?` <small>+ ${esc(i.extrasList.join(', '))}</small>`:(i.extras?` <small>+ Extra</small>`:'')}</span>
         </div>
-        ${i.note?`<div class="orderNote">📝 ${esc(i.note)}</div>`:''}
+        ${i.note?`<div class="orderNote"><span class="ms">edit_note</span>${esc(i.note)}</div>`:''}
       `).join('')}
     </div>
 
-    ${(o.orderType||o.mode)==='delivery'?`<div class="orderNote" style="margin-top:8px">🏠 ${o.deliveryDistanceKm?`<b>±${esc(o.deliveryDistanceKm)} km</b> • `:''}${esc(o.deliveryAddress||'-')}${o.deliveryNote?`<br>📝 ${esc(o.deliveryNote)}`:''}${o.deliveryLocation?.lat?`<br><a href="https://maps.google.com/?q=${Number(o.deliveryLocation.lat)},${Number(o.deliveryLocation.lng)}" target="_blank" rel="noopener">📍 Buka Google Maps</a>`:''}</div>`:''}
-    ${o.orderNote?`<div class="orderNote" style="margin-top:8px">📝 ${esc(o.orderNote)}</div>`:''}
-    ${o.pickupTime?`<div class="orderNote" style="margin-top:8px;background:#fff7db">⏰ AMBIL PUKUL ${esc(o.pickupTime)}</div>`:''}
-    <div style="margin-top:6px;font-size:12px;font-weight:800">${o.paymentMethod==='cod'?'💵 COD — kutip '+money(o.total):o.paymentMethod==='counter'?'🧾 Bayar di kaunter':''}${o.phone?` • <a href="tel:${esc(o.phone)}">📞 Call</a>`:''}</div>
+    ${(o.orderType||o.mode)==='delivery'?`<div class="orderNote" style="margin-top:8px"><span class="ms">home</span>${o.deliveryDistanceKm?`<b>±${esc(o.deliveryDistanceKm)} km</b> • `:''}${esc(o.deliveryAddress||'-')}${o.deliveryNote?`<br><span class="ms">edit_note</span>${esc(o.deliveryNote)}`:''}${o.deliveryLocation?.lat?`<br><a href="https://maps.google.com/?q=${Number(o.deliveryLocation.lat)},${Number(o.deliveryLocation.lng)}" target="_blank" rel="noopener"><span class="ms">location_on</span>Buka Google Maps</a>`:''}</div>`:''}
+    ${o.orderNote?`<div class="orderNote" style="margin-top:8px"><span class="ms">edit_note</span>${esc(o.orderNote)}</div>`:''}
+    ${o.pickupTime?`<div class="orderNote" style="margin-top:8px;background:#fff7db"><span class="ms">alarm</span>AMBIL PUKUL ${esc(o.pickupTime)}</div>`:''}
+    <div style="margin-top:6px;font-size:12px;font-weight:800">${o.paymentMethod==='cod'?'<span class="ms">payments</span>COD — kutip '+money(o.total):o.paymentMethod==='counter'?'<span class="ms">point_of_sale</span>Bayar di kaunter':''}${o.phone?` • <a href="tel:${esc(o.phone)}"><span class="ms">call</span>Call</a>`:''}</div>
     ${['new','preparing'].includes(o.status||'new')?`<div class="etaBtns">
       <button onclick="window.setOrderEta('${o.firestoreId}',15)">15m</button>
       <button onclick="window.setOrderEta('${o.firestoreId}',30)">30m</button>
       <button onclick="window.setOrderEta('${o.firestoreId}',45)">45m</button>
     </div>`:''}
-    ${o.paymentMethod==='whatsapp'&&o.paymentStatus!=='paid'?`<button class="confirmPay" onclick="window.confirmPayment('${o.firestoreId}')">✓ Confirm Payment</button>`:''}
-    ${o.paymentStatus==='paid'?`<div class="payStatus paid">✅ PAYMENT CONFIRMED</div>`:''}
+    ${o.paymentMethod==='whatsapp'&&o.paymentStatus!=='paid'?`<button class="confirmPay" onclick="window.confirmPayment('${o.firestoreId}')"><span class="ms">check</span>Confirm Payment</button>`:''}
+    ${o.paymentStatus==='paid'?`<div class="payStatus paid"><span class="ms">verified</span>PAYMENT CONFIRMED</div>`:''}
     ${next?`<button class="action ${next[1]==='ready'?'ready':''}" onclick="window.updateStatus('${o.firestoreId}','${next[1]}')">${next[0]}</button>`:''}
-    ${['new','preparing'].includes(o.status||'new')?`<button class="cancelBtn" onclick="window.cancelOrder('${o.firestoreId}','${esc(orderNo)}')">✕ BATALKAN ORDER</button>`:''}
-    ${o.status==='cancelled'?`<div class="orderNote" style="background:#fff0f0;color:#b32121;margin-top:8px">✕ DIBATALKAN${o.cancelReason?` — ${esc(o.cancelReason)}`:''}</div>`:''}
+    ${['new','preparing'].includes(o.status||'new')?`<button class="cancelBtn" onclick="window.cancelOrder('${o.firestoreId}','${esc(orderNo)}')"><span class="ms">close</span>BATALKAN ORDER</button>`:''}
+    ${o.status==='cancelled'?`<div class="orderNote" style="background:#fff0f0;color:#b32121;margin-top:8px"><span class="ms">close</span>DIBATALKAN${o.cancelReason?` — ${esc(o.cancelReason)}`:''}</div>`:''}
   </div>`;
 }
 function renderOrders(){
@@ -723,7 +728,7 @@ function renderProducts(){
       <div class="row"><h3>${esc(p.name)}</h3><span class="pill ${p.active===false?'off':''}">${p.active===false?'Tidak aktif':'Aktif'}</span></div>
       <small>${esc(p.category)} • ${money(p.price)}</small>
       <div class="soldRow">${(()=>{const oid=currentOpsOutlet();const so=!!(p.soldOutByOutlet&&p.soldOutByOutlet[oid]);
-        return `<button class="soldToggle ${so?'sold':''}" onclick="window.toggleSoldOut('${esc(p.id)}',${so})">${so?'⛔ HABIS':'✅ ADA'} • ${outletName(oid)}</button>`})()}</div>
+        return `<button class="soldToggle ${so?'sold':''}" onclick="window.toggleSoldOut('${esc(p.id)}',${so})">${so?'<span class="ms">block</span>HABIS':'<span class="ms">check_circle</span>ADA'} • ${outletName(oid)}</button>`})()}</div>
       <button class="primary" style="margin-top:10px" onclick="window.editProduct('${esc(p.id)}')">EDIT</button>
     </div></div>`).join('');
 }
@@ -748,8 +753,8 @@ function renderCustomers(){
         
       </div>
       <div style="font-size:11px;color:#746E68;margin-top:10px">
-        📍 Last: ${outletName(c.lastOutletId)}<br>
-        🕒 ${last?last.toLocaleDateString('ms-MY'):'—'}
+        <span class="ms">location_on</span>Last: ${outletName(c.lastOutletId)}<br>
+        <span class="ms">history</span>${last?last.toLocaleDateString('ms-MY'):'—'}
       </div>
       <div class="customerStats">
         <div class="customerMetric"><b>${Number(c.orderCount||0)}</b><small>Orders</small></div>
