@@ -3,9 +3,24 @@ service cloud.firestore {
   match /databases/{database}/documents {
     function signedIn(){ return request.auth != null; }
     function userDoc(){ return get(/databases/$(database)/documents/users/$(request.auth.uid)); }
-    function isStaff(){ return signedIn() && userDoc().data.active == true && userDoc().data.role in ['owner','admin','manager','crew']; }
+    function isStaff(){ return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)) && userDoc().data.active == true && userDoc().data.role in ['owner','admin','manager','crew']; }
     function isOwner(){ return isStaff() && userDoc().data.role == 'owner'; }
     function sameOutlet(data){ return isOwner() || userDoc().data.outletId == 'all' || data.outletId == userDoc().data.outletId; }
+
+    // Order baru dari customer: mesti status 'new', belum bayar, outlet & jenis sah, saiz munasabah.
+    function validNewOrder(d){
+      return d.customerUid == request.auth.uid
+        && d.status == 'new'
+        && d.paymentStatus == 'unpaid'
+        && d.paymentMethod in ['counter','cod']
+        && d.outletId in ['tanah-merah','lembah-sireh']
+        && d.orderType in ['pickup','delivery']
+        && d.items is list && d.items.size() > 0 && d.items.size() <= 50
+        && d.total is number && d.total > 0 && d.total < 3000
+        && d.name is string && d.name.size() > 0 && d.name.size() <= 80
+        && d.phone is string && d.phone.size() >= 9 && d.phone.size() <= 16
+        && (d.orderType == 'pickup' || (d.deliveryAddress is string && d.deliveryAddress.size() >= 5 && d.deliveryAddress.size() <= 400));
+    }
 
     match /users/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || isStaff());
@@ -22,7 +37,7 @@ service cloud.firestore {
       allow delete: if isOwner();
     }
     match /orders/{id} {
-      allow create: if signedIn() && request.resource.data.customerUid == request.auth.uid;
+      allow create: if signedIn() && validNewOrder(request.resource.data);
       allow read: if signedIn() && (
         resource.data.customerUid == request.auth.uid ||
         (isStaff() && sameOutlet(resource.data))
