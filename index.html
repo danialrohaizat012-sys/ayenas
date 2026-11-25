@@ -5,7 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#E30613">
 <meta name="description" content="Order Ayenas Ayam Bakar — Pickup atau Delivery COD.">
-<meta name="ayenas-build" content="v14-red">
+<meta name="ayenas-build" content="v15">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Ayenas Ayam Bakar — Order Online">
+<meta property="og:description" content="Order ayam bakar Ayenas untuk Pickup atau Delivery (COD) di Tanah Merah & Lembah Sireh.">
+<meta property="og:image" content="https://ayenas.vercel.app/korean.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,16 +20,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&icon_names=add,add_circle,add_shopping_cart,arrow_back_ios_new,arrow_forward,block,call,cancel,chat,check,check_circle,chevron_right,close,cloud_off,delete,directions,error,expand_more,home,hourglass_top,info,install_mobile,inventory_2,location_on,my_location,payments,person,point_of_sale,receipt_long,remove,replay,restaurant_menu,schedule,search,search_off,shopping_bag,skillet,task_alt,two_wheeler,where_to_vote&display=block" rel="stylesheet">
 <style>
 /* =========================================================
    AYENAS v14 — Bold red brand UI
    ========================================================= */
 :root{
   --red:#E30613; --red-d:#B8040E; --red-l:#FFECEC;
-  --yellow:#FFC928; --black:#121212; --ink:#1B1B1B; --muted:#77706B;
-  --bg:#F6F3F0; --card:#FFFFFF; --line:#ECE6E1; --line2:#E2DBD5;
-  --green:#22A447; --green-l:#E7F6EB;
+  --yellow:#FFC928; --black:#121212; --ink:#1B1B1B; --muted:#625A55;
+  --bg:#F6F3F0; --card:#FFFFFF; --line:#ECE6E1; --line2:#D9D0C9;
+  --green:#1A7F3A; --green-l:#E7F6EB;
   --shadow:0 2px 10px rgba(30,15,10,.07);
   --shadow2:0 10px 30px rgba(30,15,10,.18);
   --ease:cubic-bezier(.2,0,0,1); --ease-out:cubic-bezier(.05,.7,.1,1);
@@ -52,6 +57,18 @@ a{color:inherit;text-decoration:none}
 .view.nonav{padding-bottom:calc(110px + env(safe-area-inset-bottom))}
 @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 body.nonav .bnav{transform:translateY(110%)}
+body.has-fcart .view:not(.nonav){padding-bottom:calc(152px + env(safe-area-inset-bottom))}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.offline{position:fixed;top:0;left:0;right:0;z-index:95;max-width:520px;margin:0 auto;background:var(--black);color:#fff;font-size:12.5px;font-weight:600;display:none;align-items:center;justify-content:center;gap:6px;padding:calc(6px + env(safe-area-inset-top)) 12px 6px}
+body.is-offline .offline{display:flex}
+h1.t,h1.hh-brand{margin:0}
+h1[tabindex]{outline:none}
+.open-btn{position:absolute;inset:0;z-index:1;border:0;background:transparent;border-radius:inherit;padding:0;cursor:pointer}
+.open-btn:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.pcard .plus,.mcard .plus,.mcard .qmini,.ord .re{position:relative;z-index:2}
+.ord{position:relative}
+.re{border:0;background:none;color:#C4040F;font-weight:800;font-size:12px;letter-spacing:.3px;padding:8px;margin:-8px;border-radius:8px}
+.citem .warn{display:inline-block;margin-top:4px;font-size:10.5px;font-weight:800;color:var(--red-d);background:var(--red-l);padding:2px 7px;border-radius:6px}
 
 /* Press feedback */
 .press{transition:transform .12s var(--ease),filter .12s}
@@ -78,7 +95,8 @@ body.nonav .bnav{transform:translateY(110%)}
 .mode{border:0;border-radius:14px;background:transparent;display:flex;align-items:center;gap:10px;padding:10px 12px;text-align:left;color:var(--ink);transition:background .2s,color .2s}
 .mode .ms{font-size:28px;color:var(--red)}
 .mode b{display:block;font-size:14px;font-weight:800;letter-spacing:.3px}
-.mode small{display:block;font-size:11px;opacity:.75}
+.mode small{display:block;font-size:11px;color:var(--muted)}
+.mode[aria-pressed="true"] small{color:#fff}
 .mode[aria-pressed="true"]{background:var(--red);color:#fff}
 .mode[aria-pressed="true"] .ms{color:#fff}
 .mode:disabled{opacity:.4}
@@ -86,7 +104,7 @@ body.nonav .bnav{transform:translateY(110%)}
 .lbl-row{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 8px}
 .lbl{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--ink)}
 .lbl.sm{font-size:11px;color:var(--muted)}
-.link{border:0;background:none;color:var(--red);font-weight:700;font-size:12px;padding:4px}
+.link{border:0;background:none;color:#C4040F;font-weight:700;font-size:12.5px;padding:8px 6px;min-height:36px;margin:-6px -6px;border-radius:8px}
 
 .outlet-card{display:flex;align-items:center;gap:12px;width:100%;border:1px solid var(--line);background:#fff;border-radius:16px;padding:12px 14px;text-align:left}
 .outlet-card .pin{color:var(--red)}
@@ -155,7 +173,7 @@ body.nonav .bnav{transform:translateY(110%)}
 .utab[aria-selected="true"]{color:var(--red);border-bottom-color:var(--red)}
 
 .searchbox{display:flex;align-items:center;gap:8px;background:#fff;border-bottom:1px solid var(--line);padding:8px 14px}
-.searchbox input{flex:1;border:0;outline:none;background:var(--bg);border-radius:12px;height:42px;padding:0 14px;font-size:15px}
+.searchbox input{flex:1;border:0;outline:none;background:var(--bg);border-radius:12px;height:42px;padding:0 14px;font-size:16px}
 
 /* Menu list cards */
 .mlist{padding:12px 14px;display:grid;gap:12px}
@@ -179,20 +197,21 @@ body.nonav .bnav{transform:translateY(110%)}
 .pd-hero .top{position:absolute;left:0;right:0;top:0;padding:calc(10px + env(safe-area-inset-top)) 12px;display:flex;justify-content:space-between;background:linear-gradient(180deg,rgba(0,0,0,.4),transparent)}
 .pd-hero .ibtn{background:rgba(0,0,0,.38);color:#fff;backdrop-filter:blur(6px)}
 .pd-body{background:#fff;border-radius:24px 24px 0 0;margin-top:-26px;position:relative;padding:20px 18px 12px}
-.pd-name{font-size:21px;font-weight:800;line-height:28px;margin:10px 0 6px}
+.pd-name{font-size:21px;font-weight:800;line-height:28px;margin:10px 0 6px;outline:none}
 .pd-desc{font-size:13px;line-height:20px;color:var(--muted)}
 .hr{height:1px;background:var(--line);margin:16px 0}
 .sec-t{font-size:12px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .sec-t small{font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted)}
 .chk{display:flex;align-items:center;gap:12px;padding:10px 0;font-size:14px;cursor:pointer}
-.chk input{position:absolute;opacity:0;pointer-events:none}
+.chk{position:relative}
+.chk input{position:absolute;opacity:0;width:20px;height:20px;margin:0;pointer-events:none}
 .chk .bx{width:20px;height:20px;border-radius:5px;border:2px solid #BDB4AE;display:grid;place-items:center;flex:none;transition:all .15s}
 .chk .bx .ms{font-size:16px;color:#fff;opacity:0;font-variation-settings:"FILL" 0,"wght" 800,"GRAD" 0,"opsz" 20}
 .chk input:checked+.bx{background:var(--red);border-color:var(--red)}
 .chk input:checked+.bx .ms{opacity:1}
 .chk input:focus-visible+.bx{outline:2px solid var(--red);outline-offset:2px}
 .chk .p{margin-left:auto;font-weight:600}
-textarea.ta,input.in{width:100%;border:1px solid var(--line2);border-radius:12px;padding:12px 14px;font-size:14px;outline:none;background:#fff;resize:none;transition:border-color .15s}
+textarea.ta,input.in{width:100%;border:1px solid var(--line2);border-radius:12px;padding:12px 14px;font-size:16px;outline:none;background:#fff;resize:none;transition:border-color .15s}
 textarea.ta:focus,input.in:focus{border-color:var(--red)}
 .cnt{text-align:right;font-size:11px;color:var(--muted);margin-top:4px}
 .qty{display:flex;align-items:center;border:1px solid var(--line2);border-radius:12px;height:40px;background:#fff}
@@ -291,7 +310,7 @@ textarea.ta:focus,input.in:focus{border-color:var(--red)}
 
 /* Bottom nav */
 .bnav{position:fixed;left:0;right:0;bottom:0;z-index:30;max-width:520px;margin:0 auto;background:#fff;border-top:1px solid var(--line);display:flex;height:calc(68px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);transition:transform .25s var(--ease)}
-.bnav button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:600;color:#9A928C;position:relative}
+.bnav button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:600;color:#6B635E;position:relative}
 .bnav button[aria-current="page"]{color:var(--red)}
 .bnav button[aria-current="page"] .ms{font-variation-settings:"FILL" 1,"wght" 600,"GRAD" 0,"opsz" 24}
 .bnav .badge-n{top:6px;right:calc(50% - 22px);border-color:#fff;background:var(--red)}
@@ -309,11 +328,12 @@ textarea.ta:focus,input.in:focus{border-color:var(--red)}
 .toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom));transform:translate(-50%,10px);z-index:90;background:var(--black);color:#fff;padding:11px 16px;border-radius:12px;font-size:13px;font-weight:500;opacity:0;pointer-events:none;transition:all .22s var(--ease-out);max-width:calc(100% - 32px);display:flex;align-items:center;gap:12px;box-shadow:var(--shadow2)}
 .toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
 .toast.low{bottom:calc(96px + env(safe-area-inset-bottom))}
+body.nonav .toast{bottom:calc(104px + env(safe-area-inset-bottom))}
 .toast button{border:0;background:none;color:var(--yellow);font-weight:800;font-size:12px;padding:4px}
 .scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
 .scrim.show{opacity:1;pointer-events:auto}
-.dialog{position:fixed;z-index:61;left:50%;top:50%;width:min(360px,calc(100% - 36px));background:#fff;border-radius:22px;padding:22px;transform:translate(-50%,-46%) scale(.96);opacity:0;pointer-events:none;transition:all .22s var(--ease-out)}
-.dialog.show{transform:translate(-50%,-50%);opacity:1;pointer-events:auto}
+.dialog{position:fixed;z-index:61;left:50%;top:50%;width:min(360px,calc(100% - 36px));background:#fff;border-radius:22px;padding:22px;transform:translate(-50%,-46%) scale(.96);opacity:0;pointer-events:none;visibility:hidden;transition:all .22s var(--ease-out),visibility 0s .22s}
+.dialog.show{transform:translate(-50%,-50%);opacity:1;pointer-events:auto;visibility:visible;transition:all .22s var(--ease-out)}
 .dialog h3{margin:0 0 10px;font-size:18px}
 .dialog .acts{display:flex;gap:10px;margin-top:20px}
 .dialog .acts button{flex:1}
@@ -352,13 +372,14 @@ textarea.ta:focus,input.in:focus{border-color:var(--red)}
 <body>
 <div id="splash" aria-hidden="true"><img src="icon-512.png" alt=""></div>
 
-<div id="app">
+<div class="offline" role="status"><span class="ms s">cloud_off</span>Tiada sambungan internet</div>
+<main id="app">
   <!-- HOME -->
   <section class="view" id="v-home" aria-label="Utama">
     <div class="hero-head">
       <div class="hh-row">
         <img class="hh-logo" src="icon-192.png" alt="">
-        <div class="hh-brand" style="flex:1">AYENAS</div>
+        <h1 class="hh-brand" style="flex:1" tabindex="-1">AYENAS</h1>
         <button class="circ-btn press" data-go="cart" aria-label="Troli"><span class="ms f">shopping_bag</span><span class="badge-n" data-cart-n data-n="0"></span></button>
       </div>
       <div class="hh-greet"><b id="greet">Hi! 👋</b><div>Ayam bakar sedap, sedia bila anda lapar.</div></div>
@@ -393,12 +414,12 @@ textarea.ta:focus,input.in:focus{border-color:var(--red)}
   <section class="view" id="v-menu" aria-label="Menu">
     <div class="bar dark">
       <button class="ibtn" data-back aria-label="Kembali"><span class="ms">arrow_back_ios_new</span></button>
-      <div class="t" id="menuTitle">Menu</div>
+      <h1 class="t" id="menuTitle" tabindex="-1">Menu</h1>
       <button class="ibtn" id="searchBtn" aria-label="Cari"><span class="ms">search</span></button>
       <button class="ibtn" data-go="cart" aria-label="Troli"><span class="ms">shopping_bag</span><span class="badge-n" data-cart-n data-n="0"></span></button>
     </div>
     <div class="searchbox hidden" id="searchBox"><input id="search" type="search" placeholder="Cari menu…" autocomplete="off" aria-label="Cari menu"><button class="ibtn" id="searchClose" aria-label="Tutup carian" style="width:40px;height:40px"><span class="ms">close</span></button></div>
-    <nav class="utabs" id="utabs" aria-label="Kategori"></nav>
+    <div class="utabs" id="utabs" role="tablist" aria-label="Kategori"></div>
     <div class="mlist" id="mlist"></div>
   </section>
 
@@ -409,7 +430,7 @@ textarea.ta:focus,input.in:focus{border-color:var(--red)}
   <section class="view nonav" id="v-cart" aria-label="Troli">
     <div class="bar white">
       <button class="ibtn" data-back aria-label="Kembali"><span class="ms">arrow_back_ios_new</span></button>
-      <div class="t">Troli Saya</div>
+      <h1 class="t" tabindex="-1">Troli Saya</h1>
       <button class="link" id="clearCart" style="width:64px">Kosongkan</button>
     </div>
     <div id="cartBody"></div>
@@ -419,14 +440,14 @@ textarea.ta:focus,input.in:focus{border-color:var(--red)}
   <section class="view nonav" id="v-checkout" aria-label="Checkout">
     <div class="bar white">
       <button class="ibtn" data-back aria-label="Kembali"><span class="ms">arrow_back_ios_new</span></button>
-      <div class="t">Checkout</div><span class="spacer"></span>
+      <h1 class="t" tabindex="-1">Checkout</h1><span class="spacer"></span>
     </div>
     <div id="ckBody"></div>
   </section>
 
   <!-- ORDERS -->
   <section class="view" id="v-orders" aria-label="Pesanan">
-    <div class="bar red"><span class="spacer"></span><div class="t">Pesanan Saya</div><span class="spacer"></span></div>
+    <div class="bar red"><span class="spacer"></span><h1 class="t" tabindex="-1">Pesanan Saya</h1><span class="spacer"></span></div>
     <div id="ordersBody"></div>
   </section>
 
@@ -434,20 +455,20 @@ textarea.ta:focus,input.in:focus{border-color:var(--red)}
   <section class="view" id="v-track" aria-label="Status pesanan">
     <div class="trk-head"><div class="bar red">
       <button class="ibtn" data-back aria-label="Kembali"><span class="ms">arrow_back_ios_new</span></button>
-      <div class="t">Pesanan Saya</div><span class="spacer"></span>
+      <h1 class="t" tabindex="-1">Status Pesanan</h1><span class="spacer"></span>
     </div></div>
     <div id="trackBody"></div>
   </section>
 
   <!-- PROFILE -->
   <section class="view" id="v-profile" aria-label="Profil">
-    <div class="prof-head"><div style="font-weight:700;font-size:16px">Profil Saya</div></div>
+    <div class="prof-head"><h1 tabindex="-1" style="font-weight:700;font-size:16px;margin:0">Profil Saya</h1></div>
     <div id="profileBody"></div>
   </section>
-</div>
+</main>
 
-<div class="actbar hidden" id="actbar"></div>
-<div class="fcart" id="fcart"><button class="press" data-go="cart"><span class="c" id="fcN">0</span><span style="flex:1;text-align:left">Lihat troli</span><span class="r"><span id="fcT">RM0.00</span><span class="ms s">chevron_right</span></span></button></div>
+<div class="actbar hidden" id="actbar" role="region" aria-label="Tindakan"></div>
+<div class="fcart" id="fcart"><button class="press" data-go="cart" aria-label="Lihat troli"><span class="c" id="fcN">0</span><span style="flex:1;text-align:left">Lihat troli</span><span class="r"><span id="fcT">RM0.00</span><span class="ms s">chevron_right</span></span></button></div>
 
 <nav class="bnav" aria-label="Navigasi utama">
   <button data-nav="home"><span class="ms">home</span>Home</button>
@@ -458,7 +479,7 @@ textarea.ta:focus,input.in:focus{border-color:var(--red)}
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="scrim" id="scrim"></div>
-<div class="dialog" id="dialog" role="alertdialog" aria-modal="true"></div>
+<div class="dialog" id="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dlgT"></div>
 
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateT">
   <div class="gate-in">
@@ -525,7 +546,7 @@ const FINAL=['collected','delivered','completed','served'];
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
 const S={products:FALLBACK_PRODUCTS.slice(),outlet:store.get('ay_outlet',null),mode:store.get('ay_mode','pickup'),cart:store.get('ay_cart',[]),
   orders:store.get('ay_orders',[]),profile:Object.assign({name:'',phone:'',address:'',addressNote:''},store.get('ay_profile',{})),
-  orderNote:store.get('ay_note',''),settings:{},cat:'Semua',query:'',pickupAt:'asap',location:null,placing:false,fb:null,view:'home',param:null};
+  orderNote:store.get('ay_note',''),settings:{},bootAt:Date.now(),fbReady:false,cat:'Semua',query:'',pickupAt:'asap',location:null,placing:false,fb:null,view:'home',param:null};
 if(S.outlet&&!OUTLETS[S.outlet])S.outlet=null;
 
 /* ================= HELPERS ================= */
@@ -561,14 +582,20 @@ const hhmm=m=>`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padSta
 const t12=m=>{const d=new Date();d.setHours(Math.floor(m/60),m%60,0,0);return fmtTime(d.getTime())};
 const wa=(p,msg)=>`https://wa.me/${p}${msg?'?text='+encodeURIComponent(msg):''}`;
 const spicy=p=>/spicy|pedas|hot/i.test(p.name+' '+(p.flavour||''));
+const span=h=>{if(!h)return null;const a=toMin(h[0]);let b=toMin(h[1]);if(b<=a)b+=1440;return[a,b]};
 function hoursState(id=S.outlet){
   const o=outletInfo(id);if(!o?.hours)return{open:true,text:''};
   const now=new Date(),d=now.getDay(),m=now.getHours()*60+now.getMinutes(),h=o.hours[d];
-  if(h&&m>=toMin(h[0])&&m<toMin(h[1]))return{open:true,text:`${t12(toMin(h[0]))} – ${t12(toMin(h[1]))}`,close:toMin(h[1])};
-  if(h&&m<toMin(h[0]))return{open:false,text:`Buka ${t12(toMin(h[0]))}`,openAt:toMin(h[0]),close:toMin(h[1])};
+  const y=span(o.hours[(d+6)%7]);
+  if(y&&y[1]>1440&&m<y[1]-1440)return{open:true,text:`${t12(y[0])} – ${t12(y[1]-1440)}`,close:y[1]-1440};
+  const sp=span(h);
+  if(sp&&m>=sp[0]&&m<sp[1])return{open:true,text:`${t12(sp[0])} – ${t12(sp[1]%1440)}`,close:Math.min(sp[1],1439)};
+  if(sp&&m<sp[0])return{open:false,text:`Buka ${t12(sp[0])}`,openAt:sp[0],close:Math.min(sp[1],1439)};
   for(let i=1;i<=7;i++){const n=o.hours[(d+i)%7];if(n)return{open:false,text:`Buka ${i===1?'esok':DAYS[(d+i)%7]} ${t12(toMin(n[0]))}`}}
   return{open:false,text:''};
 }
+const nowMin=()=>{const n=new Date();return n.getHours()*60+n.getMinutes()};
+const asapOk=()=>{const hs=hoursState();return hs.open&&(hs.close==null||nowMin()+prepMin()<=hs.close)};
 function slots(){
   const hs=hoursState(),n=new Date(),now=n.getHours()*60+n.getMinutes();
   if(!hs.open&&!hs.openAt)return[];
@@ -588,7 +615,7 @@ function toast(msg,action){
 function dialog({title,body,ok='OK',cancel,danger}){
   return new Promise(res=>{
     const d=$('#dialog'),sc=$('#scrim');
-    d.innerHTML=`<h3>${esc(title)}</h3>${body?`<div style="font-size:13.5px;line-height:20px;color:var(--muted)">${body}</div>`:''}
+    d.innerHTML=`<h3 id="dlgT">${esc(title)}</h3>${body?`<div style="font-size:13.5px;line-height:20px;color:var(--muted)">${body}</div>`:''}
       <div class="acts">${cancel?`<button class="btn-g" data-r="0">${esc(cancel)}</button>`:''}<button class="btn-r" style="height:48px" data-r="1" ${danger?'':''}>${esc(ok)}</button></div>`;
     const close=v=>{d.classList.remove('show');sc.classList.remove('show');res(v)};
     d.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>close(b.dataset.r==='1'));sc.onclick=()=>close(false);
@@ -609,7 +636,9 @@ function go(route,opt={}){
   document.body.classList.toggle('nonav',NONAV.includes(v));
   $$('.bnav [data-nav]').forEach(b=>b.setAttribute('aria-current',b.dataset.nav===({track:'orders',product:'menu'}[v]||v)?'page':'false'));
   if(!opt.keepScroll)window.scrollTo(0,0);
+  $('#toast').classList.remove('show');
   render();
+  if(!opt.replace)setTimeout(()=>$('#v-'+v+' h1')?.focus({preventScroll:true}),60);
 }
 const back=()=>depth>0?history.back():go(S.view==='track'?'orders':S.view==='checkout'?'cart':'home');
 window.addEventListener('popstate',()=>{depth=Math.max(0,depth-1);$('#success').classList.remove('show');go(location.hash.replace(/^#\//,'')||'home',{replace:true})});
@@ -627,7 +656,8 @@ function chrome(){
   $$('[data-cart-n]').forEach(b=>{b.textContent=n;b.dataset.n=n});
   const a=S.orders.filter(active).length;$('#ordN').textContent=a;$('#ordN').dataset.n=a;
   $('#fcN').textContent=n;$('#fcT').textContent=money(subtotal());
-  $('#fcart').classList.toggle('show',n>0&&['home','menu'].includes(S.view));
+  const fc=n>0&&['home','menu'].includes(S.view);
+  $('#fcart').classList.toggle('show',fc);document.body.classList.toggle('has-fcart',fc);
   const ab=$('#actbar');ab.classList.toggle('hidden',!['product','cart','checkout'].includes(S.view));
   if(S.mode==='delivery'&&!deliveryEnabled()){S.mode='pickup';persist()}
 }
@@ -660,14 +690,16 @@ function rHome(){
   $('#promos').innerHTML=feat.map(p=>`<button class="promo press" data-p="${esc(p.id)}"><img src="${esc(imgSrc(p))}" alt=""><div class="t"><div class="k">${words(p)}</div><div class="d">${esc(tag[p.badge]||p.desc||'')}</div><span class="cta-y">ORDER SEKARANG <span class="ms xs">arrow_forward</span></span></div></button>`).join('');
   $('#dots').innerHTML=feat.map((_,i)=>`<i class="${i===promoIdx?'on':''}"></i>`).join('');
   const pr=$('#promos');pr.onscroll=()=>{const i=Math.round(pr.scrollLeft/pr.clientWidth);if(i!==promoIdx){promoIdx=i;$$('#dots i').forEach((d,j)=>d.classList.toggle('on',j===i))}};
-  clearInterval(promoTimer);promoTimer=setInterval(()=>{if(S.view!=='home'||!feat.length)return;const i=(promoIdx+1)%feat.length;pr.scrollTo({left:i*pr.clientWidth,behavior:'smooth'})},4500);
+  let hold=0;pr.onpointerdown=pr.onfocusin=()=>{hold=Date.now()};
+  const rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  clearInterval(promoTimer);if(!rm&&feat.length>1)promoTimer=setInterval(()=>{if(S.view!=='home'||document.hidden||Date.now()-hold<8000)return;const i=(promoIdx+1)%feat.length;pr.scrollTo({left:i*pr.clientWidth,behavior:'smooth'})},4500);
 
   // categories
   const cats=[...new Set(ap.map(p=>p.category||'Lain-lain'))];
   $('#cats').innerHTML=`<button class="cat press" data-cat="Popular"><span class="c hot">🔥</span>Popular</button>`+cats.map(c=>{const p=ap.find(x=>(x.category||'Lain-lain')===c);return `<button class="cat press" data-cat="${esc(c)}"><span class="c"><img src="${esc(imgSrc(p))}" alt="" loading="lazy"></span>${esc(c)}</button>`}).join('');
   // popular
   const pop=[...ap.filter(p=>p.badge),...ap.filter(p=>!p.badge)].slice(0,8);
-  $('#popular').innerHTML=pop.map(p=>{const q=qtyOf(p.id);return `<div class="pcard press" data-p="${esc(p.id)}" role="button" tabindex="0" aria-label="${esc(p.name)}">
+  $('#popular').innerHTML=pop.map(p=>{const q=qtyOf(p.id);return `<div class="pcard press" data-p="${esc(p.id)}"><button class="open-btn" data-open aria-label="${esc(p.name)}, ${money(p.price)}"></button>
     <div class="im"><img src="${esc(imgSrc(p))}" alt="" loading="lazy">${p.badge?`<span class="tag-r">${esc(p.badge)}</span>`:''}</div>
     <div class="b"><div class="n clamp2">${esc(p.name)}</div><div class="pr"><span class="price">${money(p.price)}</span><button class="plus ${q?'has':''}" data-add="${esc(p.id)}" aria-label="Tambah ${esc(p.name)}">${q||'<span class="ms">add</span>'}</button></div></div></div>`}).join('');
   bindProducts($('#v-home'));
@@ -679,7 +711,6 @@ function setMode(m){if(m==='delivery'&&!deliveryEnabled())return toast('Delivery
 function bindProducts(root){
   root.querySelectorAll('[data-p]').forEach(c=>{
     c.onclick=e=>{if(e.target.closest('[data-add],[data-inc],[data-dec]'))return;go('product/'+encodeURIComponent(c.dataset.p))};
-    c.onkeydown=e=>{if(e.target===c&&(e.key==='Enter'||e.key===' ')){e.preventDefault();c.click()}};
   });
   root.querySelectorAll('[data-add]').forEach(b=>b.onclick=e=>{e.stopPropagation();quickAdd(b.dataset.add)});
   root.querySelectorAll('[data-inc]').forEach(b=>b.onclick=e=>{e.stopPropagation();quickAdd(b.dataset.inc)});
@@ -692,9 +723,9 @@ function rMenu(){
   const cats=['Semua','Popular',...new Set(ap.map(p=>p.category||'Lain-lain'))];
   if(!cats.includes(S.cat))S.cat='Semua';
   $('#menuTitle').textContent=S.cat==='Semua'?'Menu':S.cat;
-  $('#utabs').innerHTML=cats.map(c=>`<button class="utab" data-c="${esc(c)}" aria-selected="${c===S.cat}">${c==='Popular'?'🔥 ':''}${esc(c)}</button>`).join('');
+  $('#utabs').innerHTML=cats.map(c=>`<button class="utab" role="tab" data-c="${esc(c)}" aria-selected="${c===S.cat}">${c==='Popular'?'🔥 ':''}${esc(c)}</button>`).join('');
   $$('#utabs [data-c]').forEach(b=>b.onclick=()=>{S.cat=b.dataset.c;rMenu();window.scrollTo(0,0)});
-  $('#utabs [aria-selected="true"]')?.scrollIntoView({inline:'center',block:'nearest'});
+  {const t=$('#utabs [aria-selected="true"]'),u=$('#utabs');if(t)u.scrollLeft=t.offsetLeft-u.clientWidth/2+t.clientWidth/2}
   const q=S.query.trim().toLowerCase();
   let list=ap.filter(p=>!q||(p.name+' '+(p.desc||'')+' '+(p.category||'')).toLowerCase().includes(q));
   if(S.cat==='Popular')list=list.filter(p=>p.badge);else if(S.cat!=='Semua')list=list.filter(p=>(p.category||'Lain-lain')===S.cat);
@@ -705,7 +736,7 @@ function mcard(p){
   const so=soldOut(p),q=qtyOf(p.id),simple=S.cart.find(l=>l.key===lineKey(p.id,[],''));
   const ctrl=so?'':(simple&&q===simple.qty?`<div class="qmini"><button data-dec="${esc(p.id)}" aria-label="Kurang"><span class="ms s">${q===1?'delete':'remove'}</span></button><b>${q}</b><button data-inc="${esc(p.id)}" aria-label="Tambah"><span class="ms s">add</span></button></div>`
     :`<button class="plus ${q?'has':''}" data-add="${esc(p.id)}" aria-label="Tambah ${esc(p.name)}">${q||'<span class="ms">add</span>'}</button>`);
-  return `<div class="mcard press ${so?'so':''}" data-p="${esc(p.id)}" role="button" tabindex="0" aria-label="${esc(p.name)}">
+  return `<div class="mcard press ${so?'so':''}" data-p="${esc(p.id)}"><button class="open-btn" data-open aria-label="${esc(p.name)}, ${money(p.price)}${so?', habis':''}"></button>
     <div class="im"><img src="${esc(imgSrc(p))}" alt="" loading="lazy">${so?'<span class="so-tag">HABIS</span>':''}</div>
     <div class="b">${p.badge&&!so?`<span><span class="tag-y" style="font-size:9.5px;padding:2px 7px;margin-bottom:4px">${esc(p.badge)}</span></span>`:''}
       <div class="n">${esc(p.name)}${spicy(p)?' 🔥':''}</div><div class="d clamp2">${esc(p.desc||'')}</div>
@@ -724,7 +755,7 @@ function rProduct(){
     <div class="top"><button class="ibtn" data-back aria-label="Kembali"><span class="ms">arrow_back_ios_new</span></button><button class="ibtn" data-go="cart" aria-label="Troli"><span class="ms">shopping_bag</span><span class="badge-n" data-cart-n data-n="${count()}">${count()}</span></button></div></div>
     <div class="pd-body">
       ${p.badge?`<span class="tag-y">${esc(p.badge)}</span>`:''}
-      <div class="pd-name">${esc(p.name)}${spicy(p)?' 🔥':''}</div>
+      <h1 class="pd-name" tabindex="-1">${esc(p.name)}${spicy(p)?' 🔥':''}</h1>
       <div class="pd-desc">${esc(p.desc||'')}</div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px"><span class="price" style="font-size:22px">${money(p.price)}</span>
       ${so?'<span class="chip cancelled">HABIS HARI INI</span>':`<div class="qty"><button id="qd" aria-label="Kurang"><span class="ms s">remove</span></button><b id="qv">1</b><button id="qi" aria-label="Tambah"><span class="ms s">add</span></button></div>`}</div>
@@ -770,7 +801,7 @@ function rCart(){
   const sub=subtotal(),f=fee();
   el.innerHTML=`<div class="box">${S.cart.map(l=>`<div class="citem">
       <img src="${esc(cartImg(l))}" alt="">
-      <div class="m"><div class="n">${esc(l.name)}</div>${l.extrasList?.length?`<div class="x">+ ${esc(l.extrasList.join(', '))}</div>`:''}${l.note?`<div class="x" style="font-style:italic">“${esc(l.note)}”</div>`:''}<div class="price" style="margin-top:4px">${money(unit(l)*l.qty)}</div></div>
+      <div class="m"><div class="n">${esc(l.name)}</div>${(()=>{const p=S.products.find(x=>x.id===l.id);return !p||p.active===false||soldOut(p)?'<span class="warn">Tidak tersedia di outlet ini</span>':''})()}${l.extrasList?.length?`<div class="x">+ ${esc(l.extrasList.join(', '))}</div>`:''}${l.note?`<div class="x" style="font-style:italic">“${esc(l.note)}”</div>`:''}<div class="price" style="margin-top:4px">${money(unit(l)*l.qty)}</div></div>
       <div class="qty"><button data-q="${esc(l.key)}" data-d="-1" aria-label="Kurang"><span class="ms s">${l.qty===1?'delete':'remove'}</span></button><b>${l.qty}</b><button data-q="${esc(l.key)}" data-d="1" aria-label="Tambah"><span class="ms s">add</span></button></div>
     </div>`).join('')}
     <div style="padding:4px 14px 14px"><button class="link" data-go="menu" style="padding:8px 0;display:flex;align-items:center;gap:4px"><span class="ms s">add_circle</span>Tambah menu lain</button></div></div>
@@ -793,10 +824,11 @@ function rCheckout(){
   const el=$('#ckBody'),ab=$('#actbar');
   if(!S.cart.length){go('cart',{replace:true});return}
   const o=outletInfo(S.outlet),os=outletStatus(),hs=hoursState(),P=S.profile,del=S.mode==='delivery';
-  const sl=del?[]:slots(),asap=hs.open;
+  const sl=del?[]:slots(),asap=asapOk();
   if(S.pickupAt!=='asap'&&!sl.includes(Number(S.pickupAt)))S.pickupAt='asap';
   if(!asap&&S.pickupAt==='asap'&&sl.length&&!del)S.pickupAt=sl[0];
   const sched=S.pickupAt!=='asap';
+  const delClosed=del&&!asap;
   const sub=subtotal(),f=fee(),total=sub+f,minO=num(setting().minOrder);
   el.innerHTML=`<div class="ck">
     <span class="lbl">Pilih jenis pesanan</span>
@@ -809,21 +841,22 @@ function rCheckout(){
     <span class="lbl">Outlet</span>
     <button class="outlet-card press" data-gate><span class="ms f pin">location_on</span><span style="flex:1;min-width:0"><b style="display:block">${esc(o?.name||'Pilih outlet')}</b><span class="muted" style="font-size:12px;line-height:16px;display:block">${esc(o?.address||'')}</span></span><span class="link">Tukar</span></button>
 
+    ${delClosed&&os!=='closed'?`<div class="notice err"><span class="ms s">schedule</span><div><b>Delivery tidak tersedia sekarang.</b> Delivery hanya diterima semasa outlet buka${hs.text?` (${esc(hs.text)})`:''}. Anda boleh pilih Pickup dan jadualkan masa.</div></div>`:''}
     ${del?`<span class="lbl">Alamat penghantaran</span>
-      <div class="field" id="fA"><textarea class="ta" id="cA" rows="3" maxlength="300" placeholder="No. rumah, jalan, taman / kampung" autocomplete="street-address">${esc(P.address)}</textarea><div class="er">Masukkan alamat yang lengkap</div></div>
-      <div class="field"><input class="in" id="cAN" maxlength="120" placeholder="Nota untuk rider (opsyenal)" value="${esc(P.addressNote)}"></div>
+      <div class="field" id="fA"><textarea class="ta" id="cA" rows="3" maxlength="300" placeholder="No. rumah, jalan, taman / kampung" autocomplete="street-address" aria-label="Alamat penghantaran">${esc(P.address)}</textarea><div class="er">Masukkan alamat yang lengkap</div></div>
+      <div class="field"><input class="in" id="cAN" maxlength="120" aria-label="Nota untuk rider" placeholder="Nota untuk rider (opsyenal)" value="${esc(P.addressNote)}"></div>
       <button class="pinrow press ${S.location?'ok':''}" id="pinB"><span class="ms" style="color:${S.location?'var(--green)':'var(--red)'}">${S.location?'where_to_vote':'my_location'}</span><span style="flex:1"><b>${S.location?'Lokasi dipin':'Kongsi lokasi semasa'}</b><br><span class="muted" style="font-size:11.5px" id="pinT">${S.location?`Ketepatan ±${Math.round(S.location.accuracy||0)} m`:'Disyorkan — rider sampai lebih cepat'}</span></span></button>`
     :`<span class="lbl">Waktu pickup</span>
       <div class="opt2">
-        <button class="ocard press" data-w="asap" aria-pressed="${!sched}" ${asap?'':'disabled'}><b>Sekarang</b><small>${asap?`${prepMin()} – ${prepMin()+5} minit`:'Outlet belum buka'}</small></button>
+        <button class="ocard press" data-w="asap" aria-pressed="${!sched}" ${asap?'':'disabled'}><b>Sekarang</b><small>${asap?`${prepMin()} – ${prepMin()+5} minit`:(hs.open?'Hampir tutup':'Outlet belum buka')}</small></button>
         <button class="ocard press" data-w="later" aria-pressed="${sched}" ${sl.length?'':'disabled'}><b>Jadualkan</b><small>${sched?`Ambil pukul ${t12(Number(S.pickupAt))}`:'Pilih masa'}</small></button>
       </div>
       ${sched?`<div class="slots">${sl.map(m=>`<button class="slot" data-s="${m}" aria-pressed="${String(S.pickupAt)===String(m)}">${t12(m)}</button>`).join('')}</div>`:''}
       ${!asap&&!sl.length?`<div class="notice info"><span class="ms s">schedule</span><div>Tiada slot pickup hari ini. ${esc(hs.text)}.</div></div>`:''}`}
 
     <span class="lbl">Butiran anda</span>
-    <div class="field" id="fN"><label for="cN">Nama penuh</label><input class="in" id="cN" maxlength="60" autocomplete="name" value="${esc(P.name)}" placeholder="Nama anda"><div class="er">Masukkan nama anda</div></div>
-    <div class="field" id="fP"><label for="cP">No. telefon</label><input class="in" id="cP" type="tel" inputmode="tel" maxlength="14" autocomplete="tel" value="${esc(P.phone)}" placeholder="012-345 6789"><div class="er">Nombor tidak sah. Contoh: 012-345 6789</div></div>
+    <div class="field" id="fN"><label for="cN">Nama penuh *</label><input class="in" id="cN" maxlength="60" autocomplete="name" autocapitalize="words" enterkeyhint="next" value="${esc(P.name)}" placeholder="Nama anda"><div class="er">Masukkan nama anda</div></div>
+    <div class="field" id="fP"><label for="cP">No. telefon *</label><input class="in" id="cP" type="tel" inputmode="tel" maxlength="16" autocomplete="tel" enterkeyhint="done" value="${esc(P.phone)}" placeholder="012-345 6789"><div class="er">Nombor tidak sah. Contoh: 012-345 6789</div></div>
 
     <span class="lbl">Bayaran</span>
     <div class="payc"><span class="ms f" style="color:var(--red)">${del?'payments':'point_of_sale'}</span><span style="flex:1"><b>${del?'Tunai semasa terima (COD)':'Bayar di kaunter'}</b><br><span class="muted" style="font-size:12px">${del?`Sediakan ${money(total)} tunai untuk rider`:'Tunai atau QR semasa ambil pesanan'}</span></span><span class="ms f" style="color:var(--red)">check_circle</span></div>
@@ -837,7 +870,7 @@ function rCheckout(){
     </div>
     ${minO&&sub<minO?`<div class="notice warn"><span class="ms s">info</span><div>Minimum order ${money(minO)}. Tambah ${money(minO-sub)} lagi.</div></div>`:''}
   </div>`;
-  const blocked=os==='closed'||!o||(minO&&sub<minO)||(!del&&!asap&&!sl.length);
+  const blocked=os==='closed'||!o||(minO&&sub<minO)||(!del&&!asap&&!sl.length)||delClosed;
   ab.innerHTML=`<div class="tot"><small>Jumlah</small><b>${money(total)}</b></div><button class="btn-r press" id="place" ${blocked||S.placing?'disabled':''}>${S.placing?'<span class="spin"></span> Menghantar…':'Hantar pesanan'}</button>`;
   ab.querySelector('#place').onclick=place;
   el.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{save();setMode(b.dataset.m)});
@@ -868,6 +901,10 @@ async function place(){
   if(first){const i=document.getElementById(first);i.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>i.focus({preventScroll:true}),300);vib([20,40,20]);return}
   if(!S.outlet)return showGate(true);
   if(outletStatus()==='closed')return toast('Outlet sedang tutup.');
+  if(del&&!asapOk()){rCheckout();return toast('Delivery hanya diterima semasa outlet buka.')}
+  if(!del&&S.pickupAt==='asap'&&!asapOk()){rCheckout();return toast('Sila pilih masa pickup.')}
+  if(!del&&S.pickupAt!=='asap'&&!slots().includes(Number(S.pickupAt))){S.pickupAt='asap';rCheckout();return toast('Masa dipilih sudah lepas. Sila pilih semula.')}
+  if(!navigator.onLine)return dialog({title:'Tiada sambungan internet',body:'Sila sambung ke internet dan cuba lagi. Troli anda masih disimpan.'});
   const na=S.cart.filter(l=>{const p=S.products.find(x=>x.id===l.id);return!p||p.active===false||soldOut(p)});
   if(na.length)return dialog({title:'Ada item tidak tersedia',body:`${na.map(l=>esc(l.name)).join(', ')} tidak tersedia di outlet ini. Sila buang dari troli.`});
   if(!S.fb)return dialog({title:'Tiada sambungan',body:'App tidak dapat sambung ke server. Semak internet anda dan cuba lagi.'});
@@ -881,7 +918,7 @@ async function place(){
   if(!ok)return;
   S.placing=true;rCheckout();
   const phone=normPhone(P.phone);
-  const order={id:'AY'+Date.now().toString().slice(-7),created:new Date().toISOString(),name:P.name,phone,mode:S.mode,orderType:S.mode,outlet:S.outlet,outletId:S.outlet,
+  const order={id:'AY'+Date.now().toString().slice(-5)+String(Math.floor(Math.random()*100)).padStart(2,'0'),created:new Date().toISOString(),name:P.name,phone,mode:S.mode,orderType:S.mode,outlet:S.outlet,outletId:S.outlet,
     items:S.cart.map(l=>({id:l.id,name:l.name,price:l.price,qty:l.qty,extras:l.extras,extrasList:l.extrasList||[],note:l.note||'',category:l.category||'',imageUrl:l.imageUrl||''})),
     itemCount:count(),subtotal:Math.round(sub*100)/100,deliveryFee:f,total,status:'new',orderStatus:'new',etaMinutes:num(setting().defaultEta),
     pickupTime:!del&&S.pickupAt!=='asap'?hhmm(Number(S.pickupAt)):null,orderNote:S.orderNote.trim(),
@@ -907,11 +944,11 @@ function chip(o){const s=o.status||'new',m=modeOf(o);const t=s==='ready'?(m==='p
 function rOrders(){
   const el=$('#ordersBody');
   if(!S.orders.length){el.innerHTML=`<div class="empty"><div class="ic"><span class="ms">receipt_long</span></div><b style="font-size:16px">Belum ada pesanan</b><div class="muted" style="margin:4px 0 20px">Status pesanan anda akan dipaparkan di sini.</div><button class="btn-o" data-go="menu" style="max-width:220px;margin:auto">MULA ORDER</button></div>`;return}
-  const card=o=>{const t=tsMs(o),m=modeOf(o);return `<button class="ord press" data-t="${esc(o.firestoreId||'')}">
+  const card=o=>{const t=tsMs(o),m=modeOf(o);return `<div class="ord press" data-t="${esc(o.firestoreId||'')}"><button class="open-btn" aria-label="Pesanan #${esc(o.id||'')}, ${money(o.total)}"></button>
     <div class="h"><b>#${esc(o.id||'')}</b>${chip(o)}</div>
     <div class="muted" style="font-size:12px;margin-top:4px;display:flex;align-items:center;gap:4px"><span class="ms xs">${m==='delivery'?'two_wheeler':'shopping_bag'}</span>${m==='delivery'?'Delivery':'Pickup'} · ${esc(OUTLETS[o.outletId]?.short||'')} · ${fmtTime(t)}, ${fmtDate(t)}</div>
     <div class="ell" style="font-size:13px;margin-top:8px">${(o.items||[]).map(i=>`${num(i.qty)||1}× ${esc(i.name)}`).join(', ')}</div>
-    <div class="h" style="margin-top:10px"><span class="price">${money(o.total)}</span>${active(o)?'<span class="live"><i></i>LIVE</span>':`<span class="link" data-re="${esc(o.firestoreId||o.id)}">ORDER SEMULA</span>`}</div></button>`};
+    <div class="h" style="margin-top:10px"><span class="price">${money(o.total)}</span>${active(o)?'<span class="live"><i></i>LIVE</span>':`<button class="re" data-re="${esc(o.firestoreId||o.id)}">ORDER SEMULA</button>`}</div></div>`};
   const a=S.orders.filter(active),p=S.orders.filter(o=>!active(o));
   el.innerHTML=`<div class="olist">${a.length?`<div class="lbl">Sedang berjalan</div>${a.map(card).join('')}`:''}${p.length?`<div class="lbl" style="margin-top:6px">Sejarah</div>${p.slice(0,20).map(card).join('')}`:''}</div>`;
   el.querySelectorAll('[data-t]').forEach(b=>b.onclick=e=>{const r=e.target.closest('[data-re]');if(r){e.stopPropagation();return reorder(r.dataset.re)}if(b.dataset.t)go('track/'+b.dataset.t)});
@@ -929,7 +966,12 @@ function reorder(id){
 /* ---------- TRACK ---------- */
 function rTrack(){
   const el=$('#trackBody'),o=S.orders.find(x=>x.firestoreId===S.param);
-  if(!o){el.innerHTML=`<div class="trk-card" style="text-align:center;padding:40px"><span class="spin" style="color:var(--red);width:28px;height:28px"></span><div class="muted" style="margin-top:10px">Memuatkan pesanan…</div></div>`;return}
+  if(!o){
+    const late=S.fbReady&&Date.now()-S.bootAt>5000;
+    el.innerHTML=late?`<div class="trk-card" style="text-align:center;padding:32px 20px"><div class="empty" style="padding:0"><div class="ic"><span class="ms">search_off</span></div><b>Pesanan tidak dijumpai</b><div class="muted" style="margin:6px 0 18px;font-size:13px">Pesanan ini mungkin dibuat di peranti lain.</div><button class="btn-o" data-go="orders">LIHAT PESANAN SAYA</button></div></div>`
+      :`<div class="trk-card" style="text-align:center;padding:40px"><span class="spin" style="color:var(--red);width:28px;height:28px"></span><div class="muted" style="margin-top:10px">Memuatkan pesanan…</div></div>`;
+    if(!late)setTimeout(()=>{if(S.view==='track')rTrack()},5200);
+    return}
   const m=modeOf(o),fl=FLOW[m],s=o.status||'new';
   let idx=FINAL.includes(s)?fl.length-1:fl.findIndex(f=>f[0]===s);if(idx<0)idx=s==='ready'?(m==='pickup'?2:1):s==='on-the-way'?2:0;
   const can=s==='cancelled',done=!can&&idx===fl.length-1,c=COPY[s]||COPY.new,cp=Array.isArray(c)?c:c[m];
@@ -1000,6 +1042,10 @@ function showGate(dismiss){
 }
 function pick(id){const ch=S.outlet&&S.outlet!==id;S.outlet=id;persist();$('#gate').classList.remove('show');vib(10);render();if(ch)toast(`Outlet ditukar ke ${OUTLETS[id].short}`)}
 
+/* ---------- Online/offline ---------- */
+const net=()=>document.body.classList.toggle('is-offline',!navigator.onLine);
+addEventListener('online',()=>{net();toast('Sambungan internet kembali.')});addEventListener('offline',net);net();
+
 /* ---------- PWA ---------- */
 let installEvt=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e});
@@ -1017,6 +1063,7 @@ setTimeout(()=>{hideSplash();if(!S.outlet)showGate(false)},600);
     const{getFirestore,collection,doc,setDoc,addDoc,onSnapshot,query,where,serverTimestamp,increment}=fs;
     const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
     const user=async()=>auth.currentUser||(await signInAnonymously(auth)).user;
+    S.fbReady=true;
     S.fb={async createOrder(order){
       const u=await user();
       const ref=await addDoc(collection(db,'orders'),{...order,customerUid:u.uid,createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
@@ -1044,7 +1091,8 @@ setTimeout(()=>{hideSplash();if(!S.outlet)showGate(false)},600);
         const r=snap.docs.map(d=>({firestoreId:d.id,...d.data()})).sort((a,b)=>tsMs(b)-tsMs(a));
         r.forEach(o=>{const p=prev[o.firestoreId];if(p&&p!==o.status){vib([40,60,40]);const c=COPY[o.status],t=Array.isArray(c)?c[0]:c?.[modeOf(o)]?.[0];if(t&&!(S.view==='track'&&S.param===o.firestoreId))toast(`#${o.id}: ${t}`,{label:'LIHAT',fn:()=>go('track/'+o.firestoreId)})}prev[o.firestoreId]=o.status});
         S.orders=r;store.set('ay_orders',r.slice(0,30).map(o=>({...o,createdAt:o.createdAt?{seconds:o.createdAt.seconds}:null,updatedAt:null})));
-        if(['orders','track','profile'].includes(S.view))render();else chrome();
+        const typing=document.activeElement&&/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
+        if(['orders','track'].includes(S.view)||(S.view==='profile'&&!typing))render();else chrome();
       },e=>console.warn('orders',e));
     });
   }catch(e){console.error('Firebase gagal dimuatkan',e);toast('Mod luar talian — menu mungkin tidak terkini.')}

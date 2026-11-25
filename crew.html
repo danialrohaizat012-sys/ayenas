@@ -104,6 +104,12 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 .typeTabs button{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;font-size:10px;font-weight:900}
 .typeTabs button.active{background:#111;color:#fff}
 .branchSelect{border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff;font-weight:800}
+.cancelBtn{width:100%;margin-top:7px;border:1px solid #f1c4c4;border-radius:9px;padding:8px;background:#fff;color:#b32121;font-weight:900;font-size:11px}
+.schedTag{display:inline-block;margin-top:6px;background:#FFC928;color:#111;border-radius:7px;padding:4px 8px;font-size:11px;font-weight:1000}
+.soldRow{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.opsField{display:flex;gap:6px;align-items:center;margin-top:6px}.opsField input{padding:8px;font-size:13px}
+.opsField button{white-space:nowrap}
+.filterBar{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:6px}
 .tableHero{font-size:22px;font-weight:1000;letter-spacing:.4px;color:#ed111c;margin:5px 0}
 </style>
 </head>
@@ -137,6 +143,18 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
   </nav>
   <main class="main">
     <section class="panel active" id="ordersPanel">
+      <div class="filterBar">
+        <div class="typeTabs" id="typeTabs">
+          <button class="active" onclick="window.setOrderTypeFilter('all',this)">Semua</button>
+          <button onclick="window.setOrderTypeFilter('pickup',this)">🥡 Pickup</button>
+          <button onclick="window.setOrderTypeFilter('delivery',this)">🛵 Delivery</button>
+        </div>
+        <select id="ownerBranchSelect" class="branchSelect" style="display:none;width:auto" onchange="window.changeOwnerBranch(this.value)" aria-label="Pilih cawangan">
+          <option value="all">Semua cawangan</option>
+          <option value="tanah-merah">Tanah Merah</option>
+          <option value="lembah-sireh">Lembah Sireh</option>
+        </select>
+      </div>
       <div class="stats">
         <div class="stat"><strong id="sNew">0</strong><small>Order Baru</small></div>
         <div class="stat"><strong id="sPrep">0</strong><small>Preparing</small></div>
@@ -165,7 +183,11 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 
     
 <section class="panel" id="operationsPanel">
- <div class="toolbar"><h2>Outlet Operations</h2></div>
+ <div class="toolbar"><h2>Outlet Operations</h2>
+  <select id="opsBranchSelect" class="branchSelect" style="display:none;width:auto" onchange="window.changeOwnerBranch(this.value)" aria-label="Cawangan untuk diurus">
+   <option value="tanah-merah">Tanah Merah</option><option value="lembah-sireh">Lembah Sireh</option>
+  </select></div>
+ <div class="notice" id="opsOutletLabel">Mengurus outlet: —</div>
  <div class="opsPanel">
   <div class="opsCard"><b>Status Outlet</b><div class="opsBtns" id="outletStatusBtns">
    <button onclick="window.setOutletStatus('open')">🟢 Open</button>
@@ -175,7 +197,15 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
   <div class="opsCard"><b>Default ETA</b><div class="opsBtns">
    <button onclick="window.setDefaultEta(15)">15 min</button><button onclick="window.setDefaultEta(30)">30 min</button><button onclick="window.setDefaultEta(45)">45 min</button>
   </div><small id="defaultEtaText">Belum set</small></div>
-  <div class="opsCard"><b>Nota</b><small>Sold Out diurus terus pada tab Menu. Status dan ETA sync live ke customer app.</small></div>
+  <div class="opsCard"><b>Delivery (COD)</b><div class="opsBtns" id="deliveryBtns">
+   <button onclick="window.setOutletField('deliveryEnabled',true)">✅ Buka</button>
+   <button class="danger" onclick="window.setOutletField('deliveryEnabled',false)">⛔ Tutup</button></div>
+   <div class="opsField"><input id="opsFee" type="number" step="0.5" min="0" placeholder="Caj (RM)"><button class="soldToggle" onclick="window.saveOutletNum('deliveryFee','opsFee')">Simpan caj</button></div>
+   <div class="opsField"><input id="opsMin" type="number" step="1" min="0" placeholder="Min. order (RM)"><button class="soldToggle" onclick="window.saveOutletNum('minOrder','opsMin')">Simpan min.</button></div>
+   <small id="deliveryText"></small></div>
+  <div class="opsCard"><b>No. telefon / WhatsApp outlet</b>
+   <div class="opsField"><input id="opsPhone" type="tel" placeholder="cth: 0146089680"><button class="soldToggle" onclick="window.saveOutletPhone()">Simpan</button></div>
+   <small>Dipaparkan pada butang Telefon/WhatsApp di app customer. Sold Out diurus pada tab Menu.</small></div>
  </div>
 </section>
 
@@ -225,7 +255,7 @@ const seed=[{"id": "nasi-korean", "name": "Nasi Ayam Korean Spicy", "category": 
 let profile=null, products=[], orders=[], customers=[], editingId=null, unsubOrders=null, unsubProducts=null, unsubCustomers=null;
 let knownOrderIds=new Set(), ordersInitialized=false, soundEnabled=true, audioCtx=null;
 let outletSetting={status:'open',defaultEta:0}, unsubOutletSetting=null;
-let orderTypeFilter='all', ownerBranch='all';
+let orderTypeFilter='all', ownerBranch='all', opsBranch=null;
 
 const $=id=>document.getElementById(id);
 const money=n=>'RM'+Number(n||0).toFixed(2);
@@ -311,8 +341,9 @@ authMod.onAuthStateChanged(auth,async user=>{
   $('accName').textContent=profile.name||profile.email;
   $('accRole').textContent=profile.role;
   $('accOutlet').textContent=outletName(profile.outletId||'all');
-  const _bs=document.getElementById('ownerBranchSelect');
- if(_bs && profile?.role==='owner')_bs.style.display='block';
+  const isOwnerAll=profile?.role==='owner'||profile?.outletId==='all'||!profile?.outletId;
+ ['ownerBranchSelect','opsBranchSelect'].forEach(i=>{const el=document.getElementById(i);if(el&&isOwnerAll)el.style.display='block'});
+ if(isOwnerAll&&ownerBranch==='all')opsBranch='tanah-merah';
  listenProducts(); listenOrders(); listenCustomers(); listenOutletOperations();
 });
 
@@ -334,8 +365,9 @@ function listenProducts(){
 
 
 function currentOpsOutlet(){
-  if(profile?.role==='owner' && ownerBranch!=='all') return ownerBranch;
-  return (profile?.outletId && profile.outletId!=='all') ? profile.outletId : 'lembah-sireh';
+  if(profile?.outletId && profile.outletId!=='all' && profile.role!=='owner') return profile.outletId;
+  if(ownerBranch!=='all') return ownerBranch;
+  return opsBranch||'tanah-merah';
 }
 function listenOutletOperations(){
   if(unsubOutletSetting)unsubOutletSetting();
@@ -346,11 +378,32 @@ function listenOutletOperations(){
   });
 }
 function renderOutletOperations(){
+  const lbl=$('opsOutletLabel'); if(lbl) lbl.textContent='Mengurus outlet: '+outletName(currentOpsOutlet());
   document.querySelectorAll('#outletStatusBtns button').forEach(b=>b.classList.toggle('active',b.textContent.toLowerCase().includes(outletSetting.status||'open')));
+  const de=outletSetting.deliveryEnabled!==false;
+  document.querySelectorAll('#deliveryBtns button').forEach((b,i)=>b.classList.toggle('active',i===0?de:!de));
+  const dt=$('deliveryText'); if(dt) dt.textContent=`Delivery ${de?'BUKA':'TUTUP'} • caj ${money(outletSetting.deliveryFee??3)} • min. ${outletSetting.minOrder?money(outletSetting.minOrder):'tiada'}`;
+  if($('opsFee')&&document.activeElement!==$('opsFee')) $('opsFee').value=outletSetting.deliveryFee??'';
+  if($('opsMin')&&document.activeElement!==$('opsMin')) $('opsMin').value=outletSetting.minOrder??'';
+  if($('opsPhone')&&document.activeElement!==$('opsPhone')) $('opsPhone').value=outletSetting.phone||'';
   const t=$('defaultEtaText'); if(t)t.textContent=outletSetting.defaultEta?`Current: ${outletSetting.defaultEta} min`:'Belum set';
 }
 window.setOutletStatus=async status=>{
   await fsMod.setDoc(fsMod.doc(db,'outletSettings',currentOpsOutlet()),{status,updatedAt:fsMod.serverTimestamp()},{merge:true});
+};
+window.setOutletField=async(field,value)=>{
+  try{await fsMod.setDoc(fsMod.doc(db,'outletSettings',currentOpsOutlet()),{[field]:value,updatedAt:fsMod.serverTimestamp()},{merge:true})}
+  catch(e){alert('Gagal simpan: '+(e?.message||e))}
+};
+window.saveOutletNum=async(field,inputId)=>{
+  const raw=$(inputId).value.trim(); const v=raw===''?null:Number(raw);
+  if(v!==null&&(!Number.isFinite(v)||v<0)) return alert('Nombor tidak sah.');
+  await window.setOutletField(field,v===null?fsMod.deleteField():v);
+};
+window.saveOutletPhone=async()=>{
+  let d=$('opsPhone').value.replace(/\D/g,''); if(d.startsWith('0')) d='6'+d;
+  if(d && !/^601\d{7,9}$/.test(d)) return alert('No. telefon tidak sah. Contoh: 0146089680');
+  await window.setOutletField('phone',d||fsMod.deleteField());
 };
 window.setDefaultEta=async mins=>{
   await fsMod.setDoc(fsMod.doc(db,'outletSettings',currentOpsOutlet()),{defaultEta:mins,updatedAt:fsMod.serverTimestamp()},{merge:true});
@@ -363,7 +416,8 @@ window.confirmPayment=async id=>{
 };
 window.toggleSoldOut=async(id,current)=>{
   const oid=currentOpsOutlet();
-  await fsMod.updateDoc(fsMod.doc(db,'products',id),{[`soldOutByOutlet.${oid}`]:!current,updatedAt:fsMod.serverTimestamp()});
+  try{await fsMod.updateDoc(fsMod.doc(db,'products',id),{[`soldOutByOutlet.${oid}`]:!current,updatedAt:fsMod.serverTimestamp()})}
+  catch(e){alert('Gagal kemas kini: '+(e?.message||e))}
 };
 
 window.setOrderTypeFilter=(type,btn)=>{
@@ -373,8 +427,12 @@ window.setOrderTypeFilter=(type,btn)=>{
 };
 window.changeOwnerBranch=value=>{
  ownerBranch=value;
- if(value!=='all') listenOutletOperations();
+ if(value!=='all') opsBranch=value;
+ const a=document.getElementById('ownerBranchSelect'), b=document.getElementById('opsBranchSelect');
+ if(a) a.value=value; if(b && value!=='all') b.value=value;
+ listenOutletOperations();
  if(typeof renderOrders==='function')renderOrders();
+ if(typeof renderProducts==='function')renderProducts();
 };
 function orderMatchesV9(o){
  const type=o.orderType||o.mode||'pickup';
@@ -437,7 +495,7 @@ function listenCustomers(){
 
 function orderCard(o){
   const mins=minutesAgo(o);
-  const late=mins>=12 && (o.status||'new')!=='completed';
+  const late=mins>=12 && !['completed','collected','delivered','served','cancelled'].includes(o.status||'new');
   const next=v9NextStatus(o);
   const orderNo=o.id||String(o.firestoreId||'').slice(0,7).toUpperCase();
 
@@ -446,6 +504,7 @@ function orderCard(o){
       <div>
         <div class="orderNo">#${esc(orderNo)}</div>
         <div class="elapsed ${late?'late':''}">⏱ ${mins<1?'BARU':mins+' min'}</div>
+        ${o.pickupTime?`<div class="schedTag">⏰ ${esc(o.pickupTime)}</div>`:''}
       </div>
       <div style="text-align:right">
         <b style="font-size:17px">${money(o.total)}</b><br>
@@ -472,20 +531,22 @@ function orderCard(o){
     ${o.orderNote?`<div class="orderNote" style="margin-top:8px">📝 ${esc(o.orderNote)}</div>`:''}
     ${o.pickupTime?`<div class="orderNote" style="margin-top:8px;background:#fff7db">⏰ AMBIL PUKUL ${esc(o.pickupTime)}</div>`:''}
     <div style="margin-top:6px;font-size:12px;font-weight:800">${o.paymentMethod==='cod'?'💵 COD — kutip '+money(o.total):o.paymentMethod==='counter'?'🧾 Bayar di kaunter':''}${o.phone?` • <a href="tel:${esc(o.phone)}">📞 Call</a>`:''}</div>
-    <div class="etaBtns">
+    ${['new','preparing'].includes(o.status||'new')?`<div class="etaBtns">
       <button onclick="window.setOrderEta('${o.firestoreId}',15)">15m</button>
       <button onclick="window.setOrderEta('${o.firestoreId}',30)">30m</button>
       <button onclick="window.setOrderEta('${o.firestoreId}',45)">45m</button>
-    </div>
+    </div>`:''}
     ${o.paymentMethod==='whatsapp'&&o.paymentStatus!=='paid'?`<button class="confirmPay" onclick="window.confirmPayment('${o.firestoreId}')">✓ Confirm Payment</button>`:''}
     ${o.paymentStatus==='paid'?`<div class="payStatus paid">✅ PAYMENT CONFIRMED</div>`:''}
     ${next?`<button class="action ${next[1]==='ready'?'ready':''}" onclick="window.updateStatus('${o.firestoreId}','${next[1]}')">${next[0]}</button>`:''}
+    ${['new','preparing'].includes(o.status||'new')?`<button class="cancelBtn" onclick="window.cancelOrder('${o.firestoreId}','${esc(orderNo)}')">✕ BATALKAN ORDER</button>`:''}
+    ${o.status==='cancelled'?`<div class="orderNote" style="background:#fff0f0;color:#b32121;margin-top:8px">✕ DIBATALKAN</div>`:''}
   </div>`;
 }
 function renderOrders(){
   const groups={new:[],preparing:[],ready:[],completed:[]};
   const STATUS_GROUP={'on-the-way':'ready',collected:'completed',delivered:'completed',served:'completed',cancelled:'completed'};
-  orders.forEach(o=>{const s=o.status||'new';(groups[STATUS_GROUP[s]||s]||groups.new).push(o)});
+  orders.filter(orderMatchesV9).forEach(o=>{const s=o.status||'new';(groups[STATUS_GROUP[s]||s]||groups.new).push(o)});
   $('colNew').innerHTML=groups.new.map(orderCard).join('')||'<small>Tiada order</small>';
   $('colPreparing').innerHTML=groups.preparing.map(orderCard).join('')||'<small>Tiada order</small>';
   $('colReady').innerHTML=groups.ready.map(orderCard).join('')||'<small>Tiada order</small>';
@@ -495,17 +556,25 @@ function renderOrders(){
   const sales=groups.completed.filter(o=>o.status!=='cancelled').filter(o=>(o.createdAt?.toDate?.()||new Date(o.created||0))>=today).reduce((s,o)=>s+Number(o.total||0),0);
   $('sToday').textContent=money(sales);
 }
+window.cancelOrder=async(id,no)=>{
+  if(!confirm(`Batalkan order #${no}? Customer akan nampak status DIBATALKAN.`)) return;
+  try{await fsMod.updateDoc(fsMod.doc(db,'orders',id),{status:'cancelled',orderStatus:'cancelled',cancelledAt:fsMod.serverTimestamp(),cancelledBy:profile.uid,updatedAt:fsMod.serverTimestamp()})}
+  catch(e){alert('Gagal batalkan: '+(e?.message||e))}
+};
 window.updateStatus=async(id,status)=>{
-  await fsMod.updateDoc(fsMod.doc(db,'orders',id),{status,updatedAt:fsMod.serverTimestamp()});
+  try{await fsMod.updateDoc(fsMod.doc(db,'orders',id),{status,orderStatus:status,updatedAt:fsMod.serverTimestamp()})}
+  catch(e){alert('Gagal kemas kini status: '+(e?.message||e))}
 };
 
 function renderProducts(){
   $('productList').innerHTML=products.map(p=>`<div class="product">
     <img src="${esc(p.imageUrl||'nasi.jpg')}" onerror="this.src='nasi.jpg'">
     <div class="productBody">
-      <div class="row"><h3>${esc(p.name)}</h3><span class="pill ${p.active===false?'off':''}">${p.active===false?'Sold Out':'Available'}</span></div>
+      <div class="row"><h3>${esc(p.name)}</h3><span class="pill ${p.active===false?'off':''}">${p.active===false?'Tidak aktif':'Aktif'}</span></div>
       <small>${esc(p.category)} • ${money(p.price)}</small>
-      <button class="primary" style="margin-top:10px" onclick="window.editProduct('${p.id}')">EDIT</button>
+      <div class="soldRow">${(()=>{const oid=currentOpsOutlet();const so=!!(p.soldOutByOutlet&&p.soldOutByOutlet[oid]);
+        return `<button class="soldToggle ${so?'sold':''}" onclick="window.toggleSoldOut('${esc(p.id)}',${so})">${so?'⛔ HABIS':'✅ ADA'} • ${outletName(oid)}</button>`})()}</div>
+      <button class="primary" style="margin-top:10px" onclick="window.editProduct('${esc(p.id)}')">EDIT</button>
     </div></div>`).join('');
 }
 
