@@ -743,7 +743,7 @@ function renderCustomers(){
       <div class="customerTop">
         <div>
           <h3>${esc(c.name||'Customer')}</h3>
-          <small>${esc(c.phone||'—')}</small>
+          <small>${esc(c.phone||'—')}</small>${c.email?`<br><small>${esc(c.email)}</small>`:''}
         </div>
         
       </div>

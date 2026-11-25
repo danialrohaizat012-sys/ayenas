@@ -37,6 +37,7 @@ service cloud.firestore {
       allow delete: if isOwner();
     }
     match /orders/{id} {
+      // Customer log masuk Google atau tetamu (tanpa nama)
       allow create: if signedIn() && validNewOrder(request.resource.data);
       allow read: if signedIn() && (
         resource.data.customerUid == request.auth.uid ||
