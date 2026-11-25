@@ -43,7 +43,7 @@ button,input,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 img{display:block}
 a{color:inherit;text-decoration:none}
-.ms{font-family:"Material Symbols Rounded";font-weight:normal;font-style:normal;font-size:24px;line-height:1;display:inline-block;white-space:nowrap;direction:ltr;font-feature-settings:"liga";-webkit-font-feature-settings:"liga";font-variation-settings:"FILL" 0,"wght" 500,"GRAD" 0,"opsz" 24;user-select:none;flex:none;overflow:hidden;width:1em}
+.ms{font-family:"Material Symbols Rounded";font-weight:normal;font-style:normal;text-transform:none;letter-spacing:normal;font-size:24px;line-height:1;display:inline-block;white-space:nowrap;direction:ltr;font-feature-settings:"liga";-webkit-font-feature-settings:"liga";font-variation-settings:"FILL" 0,"wght" 500,"GRAD" 0,"opsz" 24;user-select:none;flex:none;overflow:hidden;width:1em}
 .ms.f{font-variation-settings:"FILL" 1,"wght" 500,"GRAD" 0,"opsz" 24}
 .ms.s{font-size:20px}.ms.xs{font-size:17px}
 .ell{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -117,6 +117,10 @@ h1[tabindex]{outline:none}
 .notice.info{background:#fff;border:1px solid var(--line);color:var(--ink)}
 
 /* Promo banner */
+.hocard{display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;padding:12px;box-shadow:var(--shadow);margin-top:12px;position:relative;width:100%;border:0;text-align:left}
+.hocard.live{border:1.5px solid var(--red)}
+.hocard img{width:56px;height:56px;border-radius:12px;object-fit:cover;flex:none}
+.hocard .act{position:relative;z-index:2;flex:none;border:0;background:var(--red);color:#fff;font-weight:800;font-size:11.5px;letter-spacing:.3px;border-radius:10px;padding:10px 12px}
 .promos{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:16px -16px 0;padding:0 16px}
 .promos::-webkit-scrollbar{display:none}
 .promo{flex:0 0 100%;scroll-snap-align:center;height:172px;border-radius:20px;overflow:hidden;position:relative;background:#141010;color:#fff;border:0;padding:0;text-align:left}
@@ -387,7 +391,7 @@ body.nonav .toast{bottom:calc(104px + env(safe-area-inset-bottom))}
     <div class="sheet-up">
       <div class="modes" role="group" aria-label="Cara terima order">
         <button class="mode press" data-mode="pickup"><span class="ms f">shopping_bag</span><span><b>PICKUP</b><small>Ambil sendiri</small></span></button>
-        <button class="mode press" data-mode="delivery"><span class="ms f">two_wheeler</span><span><b>DELIVERY</b><small>Bayar tunai (COD)</small></span></button>
+        <button class="mode press" data-mode="delivery"><span class="ms f">two_wheeler</span><span><b>DELIVERY</b><small id="delSub">Bayar tunai (COD)</small></span></button>
       </div>
 
       <div class="lbl-row"><span class="lbl sm">Outlet</span><button class="link" data-gate>Tukar Outlet</button></div>
@@ -397,6 +401,7 @@ body.nonav .toast{bottom:calc(104px + env(safe-area-inset-bottom))}
         <span class="ms muted">expand_more</span>
       </button>
       <div id="homeNotice"></div>
+      <div id="homeOrder"></div>
 
       <div class="promos" id="promos"></div>
       <div class="dots" id="dots"></div>
@@ -496,9 +501,11 @@ body.nonav .toast{bottom:calc(104px + env(safe-area-inset-bottom))}
   <div id="sucSub" style="opacity:.9;max-width:320px;line-height:20px"></div>
   <div style="margin-top:26px;font-size:11px;font-weight:700;letter-spacing:1px;opacity:.8">NO. PESANAN</div>
   <div class="no" id="sucNo"></div>
-  <div style="width:100%;max-width:360px;display:grid;gap:10px;margin-top:30px">
-    <button class="btn-w press" id="sucTrack">Lihat status pesanan</button>
-    <button class="btn-wo press" id="sucHome">Kembali ke Home</button>
+  <div id="sucWaNote" style="font-size:12.5px;opacity:.9;margin-top:18px;max-width:320px;line-height:18px"></div>
+  <div style="width:100%;max-width:360px;display:grid;gap:10px;margin-top:18px">
+    <button class="btn-w press" id="sucWa"><span class="ms s" style="vertical-align:-4px">chat</span> Sahkan di WhatsApp</button>
+    <button class="btn-wo press" id="sucTrack">Lihat status pesanan</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><button class="btn-wo press" id="sucShare">Simpan resit</button><button class="btn-wo press" id="sucHome">Ke Home</button></div>
   </div>
 </div>
 
@@ -546,7 +553,7 @@ const FINAL=['collected','delivered','completed','served'];
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
 const S={products:FALLBACK_PRODUCTS.slice(),outlet:store.get('ay_outlet',null),mode:store.get('ay_mode','pickup'),cart:store.get('ay_cart',[]),
   orders:store.get('ay_orders',[]),profile:Object.assign({name:'',phone:'',address:'',addressNote:''},store.get('ay_profile',{})),
-  orderNote:store.get('ay_note',''),settings:{},bootAt:Date.now(),fbReady:false,cat:'Semua',query:'',pickupAt:'asap',location:null,placing:false,fb:null,view:'home',param:null};
+  orderNote:store.get('ay_note',''),settings:{},bootAt:Date.now(),fbReady:false,cat:'Semua',query:'',pickupAt:'asap',location:store.get('ay_loc',null),placing:false,fb:null,view:'home',param:null};
 if(S.outlet&&!OUTLETS[S.outlet])S.outlet=null;
 
 /* ================= HELPERS ================= */
@@ -557,9 +564,20 @@ const num=v=>Number.isFinite(Number(v))?Number(v):0;
 const imgSrc=p=>{const u=p?.imageUrl||p?.image||'nasi.jpg';return /^(data:image\/|https?:\/\/|[\w.\-\/]+\.(jpe?g|png|webp|gif)$)/i.test(u)?u:'nasi.jpg'};
 const vib=ms=>{try{navigator.vibrate?.(ms)}catch{}};
 const setting=(id=S.outlet)=>S.settings[id]||{};
-const outletStatus=(id=S.outlet)=>setting(id).status||'open';
+const outletStatus=(id=S.outlet)=>{const s=setting(id);if(s.status==='closed'&&Number(s.closedUntil)>0&&Date.now()>=Number(s.closedUntil))return'open';return s.status||'open'};
 const deliveryEnabled=()=>setting().deliveryEnabled!==false;
-const feeVal=()=>Number.isFinite(Number(setting().deliveryFee))?Number(setting().deliveryFee):DEFAULT_DELIVERY_FEE;
+const nOr=(v,d)=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v):d;
+const delCfg=()=>{const s=setting();return{maxKm:nOr(s.deliveryMaxKm,7),baseKm:nOr(s.deliveryBaseKm,3),base:nOr(s.deliveryFee,DEFAULT_DELIVERY_FEE),perKm:nOr(s.deliveryPerKm,1)}};
+const outletLoc=(id=S.outlet)=>{const s=setting(id);return typeof s.lat==='number'&&typeof s.lng==='number'?{lat:s.lat,lng:s.lng}:null};
+const zoneOn=()=>!!outletLoc();
+const haversine=(a,b)=>{const R=6371,r=x=>x*Math.PI/180,dLa=r(b.lat-a.lat),dLo=r(b.lng-a.lng);const h=Math.sin(dLa/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dLo/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
+const distKm=()=>{const o=outletLoc();return o&&S.location?Math.round(haversine(o,S.location)*10)/10:null};
+const needPin=()=>zoneOn()&&!S.location;
+const outOfZone=()=>{const d=distKm();return d!==null&&d>delCfg().maxKm};
+const feeVal=()=>{const c=delCfg(),d=distKm();return d===null?c.base:Math.round((c.base+Math.max(0,Math.ceil(d-c.baseKm))*c.perKm)*100)/100};
+const MAX_ACTIVE=2;
+const ono=o=>o?.shortNo||o?.id||'';
+const OUT_PREFIX={'tanah-merah':'T','lembah-sireh':'L'};
 const fee=()=>S.mode==='delivery'?feeVal():0;
 const prepMin=()=>num(setting().defaultEta)||DEFAULT_PREP_MIN;
 const soldOut=p=>!!(p.soldOutByOutlet&&S.outlet&&p.soldOutByOutlet[S.outlet]);
@@ -576,11 +594,31 @@ const fmtTime=ms=>ms?new Date(ms).toLocaleTimeString('ms-MY',{hour:'numeric',min
 const fmtDate=ms=>ms?new Date(ms).toLocaleDateString('ms-MY',{day:'numeric',month:'short',year:'numeric'}):'';
 const modeOf=o=>(o.orderType||o.mode)==='delivery'?'delivery':'pickup';
 const active=o=>!FINAL.includes(o.status||'new')&&o.status!=='cancelled';
-const outletInfo=id=>{const o=OUTLETS[id];if(!o)return null;const st=S.settings[id]||{};return {...o,phone:String(st.phone||o.phone||'').replace(/\D/g,''),hours:Array.isArray(st.hours)&&st.hours.length===7?st.hours:o.hours,address:st.address||o.address}};
+const parseHours=h=>Array.isArray(h)&&h.length===7?h.map(x=>Array.isArray(x)&&x.length===2?x:(typeof x==='string'&&/^\d{1,2}:\d{2}-\d{1,2}:\d{2}$/.test(x)?x.split('-'):null)):null;
+const outletInfo=id=>{const o=OUTLETS[id];if(!o)return null;const st=S.settings[id]||{};return {...o,phone:String(st.phone||o.phone||'').replace(/\D/g,''),hours:parseHours(st.hours)||o.hours,address:st.address||o.address}};
 const toMin=t=>{const[h,m]=String(t).split(':').map(Number);return h*60+(m||0)};
 const hhmm=m=>`${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`;
 const t12=m=>{const d=new Date();d.setHours(Math.floor(m/60),m%60,0,0);return fmtTime(d.getTime())};
 const wa=(p,msg)=>`https://wa.me/${p}${msg?'?text='+encodeURIComponent(msg):''}`;
+function receipt(o){
+  const oi=outletInfo(o.outletId),del=modeOf(o)==='delivery',L=[];
+  L.push(`*PESANAN AYENAS ${ono(o).startsWith('AY')?'#':''}${ono(o)}*`);
+  L.push(oi?.name||'Ayenas');
+  L.push(del?'Delivery (COD)':`Pickup${o.pickupTime?` pukul ${t12(toMin(o.pickupTime))}`:' (secepat mungkin)'}`);
+  L.push(`Nama: ${o.name||''}`,`Tel: ${o.phone||''}`,'');
+  (o.items||[]).forEach(i=>L.push(`${num(i.qty)||1}x ${i.name}${i.extrasList?.length?` (+${i.extrasList.join(', ')})`:''}${i.note?` [${i.note}]`:''} — ${money((num(i.price)+num(i.extras))*(num(i.qty)||1))}`));
+  if(num(o.deliveryFee))L.push(`Yuran penghantaran${o.deliveryDistanceKm?` (±${o.deliveryDistanceKm} km)`:''}: ${money(o.deliveryFee)}`);
+  L.push(`*Jumlah: ${money(o.total)}*`);
+  if(del){L.push('',`Alamat: ${o.deliveryAddress||''}`);if(o.deliveryNote)L.push(`Nota rider: ${o.deliveryNote}`);if(o.deliveryLocation?.lat)L.push(`Lokasi: https://maps.google.com/?q=${o.deliveryLocation.lat},${o.deliveryLocation.lng}`)}
+  if(o.orderNote)L.push(`Catatan: ${o.orderNote}`);
+  if(o.shortNo)L.push('',`Rujukan: ${o.id}`);
+  return L.join('\n');
+}
+async function shareReceipt(o){
+  const text=receipt(o);
+  try{if(navigator.share){await navigator.share({title:`Pesanan Ayenas ${ono(o)}`,text});return}}catch(e){if(e?.name==='AbortError')return}
+  open(wa('',text),'_blank','noopener');
+}
 const spicy=p=>/spicy|pedas|hot/i.test(p.name+' '+(p.flavour||''));
 const span=h=>{if(!h)return null;const a=toMin(h[0]);let b=toMin(h[1]);if(b<=a)b+=1440;return[a,b]};
 function hoursState(id=S.outlet){
@@ -602,7 +640,7 @@ function slots(){
   let s=Math.max(now+prepMin()+15,hs.openAt?hs.openAt+prepMin():0);s=Math.ceil(s/15)*15;
   const e=(hs.close??now+180)-15,out=[];for(let m=s;m<=e&&out.length<24;m+=15)out.push(m);return out;
 }
-function persist(){store.set('ay_cart',S.cart);store.set('ay_mode',S.mode);store.set('ay_outlet',S.outlet);store.set('ay_profile',S.profile);store.set('ay_note',S.orderNote)}
+function persist(){store.set('ay_loc',S.location);store.set('ay_cart',S.cart);store.set('ay_mode',S.mode);store.set('ay_outlet',S.outlet);store.set('ay_profile',S.profile);store.set('ay_note',S.orderNote)}
 
 /* Toast & dialog */
 let toastT;
@@ -676,11 +714,23 @@ function rHome(){
   const P=S.profile;
   $('#greet').textContent=P.name?`Hi ${P.name.split(' ')[0]} 👋`:'Hi! Selamat datang 👋';
   $$('.mode').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.mode===S.mode);if(b.dataset.mode==='delivery')b.disabled=!deliveryEnabled()});
+  $('#delSub').textContent=zoneOn()?`COD · yuran dari ${money(delCfg().base)}`:`COD · yuran ${money(delCfg().base)}`;
   const[nm,cls,txt]=outletLine();$('[data-outlet-name]').textContent=nm;const st=$('[data-outlet-st]');st.className='st '+cls;st.textContent=txt;
   const o=outletInfo(S.outlet),hs=hoursState(),os=outletStatus();
   $('#homeNotice').innerHTML=!o?'':os==='closed'?`<div class="notice err"><span class="ms s">block</span><div><b>Outlet sedang tutup.</b> Order baru tidak diterima buat masa ini.</div></div>`
     :!hs.open?`<div class="notice info"><span class="ms s">schedule</span><div><b>Di luar waktu operasi.</b> ${esc(hs.text)}. ${hs.openAt?'Anda boleh pre-order untuk pickup.':''}</div></div>`
     :os==='busy'?`<div class="notice warn"><span class="ms s">hourglass_top</span><div><b>Outlet sibuk.</b> Masa menunggu mungkin lebih lama.</div></div>`:'';
+
+  // active / last order
+  const act=S.orders.find(active),last=S.orders.find(x=>!active(x)&&x.status!=='cancelled');
+  const ho=$('#homeOrder');
+  if(act){const c=COPY[act.status||'new'],cp=Array.isArray(c)?c:c[modeOf(act)];
+    ho.innerHTML=`<div class="hocard live press"><button class="open-btn" data-track="${esc(act.firestoreId||'')}" aria-label="Lihat pesanan ${esc(ono(act))}"></button><span class="trk-ico" style="width:48px;height:48px"><span class="ms f">${cp[2]}</span></span><span style="flex:1;min-width:0"><span class="live"><i></i>PESANAN ${esc(ono(act))}</span><b style="display:block;font-size:14px">${esc(cp[0])}</b><span class="muted ell" style="display:block;font-size:12px">${(act.items||[]).map(i=>`${num(i.qty)||1}× ${esc(i.name)}`).join(', ')}</span></span><span class="ms muted">chevron_right</span></div>`;
+  }else if(last){const p0=S.products.find(x=>x.id===last.items?.[0]?.id);
+    ho.innerHTML=`<div class="lbl-row" style="margin-top:16px;margin-bottom:0"><span class="lbl">Order lagi?</span></div><div class="hocard press"><button class="open-btn" data-track="${esc(last.firestoreId||'')}" aria-label="Lihat pesanan terakhir"></button><img src="${esc(imgSrc(p0||last.items?.[0]))}" alt=""><span style="flex:1;min-width:0"><span class="muted" style="font-size:11px;font-weight:700;letter-spacing:.4px">PESANAN TERAKHIR · ${new Date(tsMs(last)).toLocaleDateString('ms-MY',{day:'numeric',month:'short'})}</span><b class="ell" style="display:block;font-size:13.5px">${(last.items||[]).map(i=>`${num(i.qty)||1}× ${esc(i.name)}`).join(', ')}</b><span class="price" style="font-size:13px">${money(last.total)}</span></span><button class="act press" data-re="${esc(last.firestoreId||last.id)}">ORDER SEMULA</button></div>`;
+  }else ho.innerHTML='';
+  ho.querySelectorAll('[data-track]').forEach(b=>b.onclick=()=>b.dataset.track&&go('track/'+b.dataset.track));
+  ho.querySelectorAll('[data-re]').forEach(b=>b.onclick=e=>{e.stopPropagation();reorder(b.dataset.re)});
 
   // promos
   const ap=S.products.filter(p=>p.active!==false&&!soldOut(p));
@@ -809,8 +859,9 @@ function rCart(){
       <textarea class="ta" id="onote" rows="2" maxlength="60" placeholder="Contoh: Tak nak bawang, extra sos...">${esc(S.orderNote)}</textarea><div class="cnt"><span id="onc">${S.orderNote.length}</span>/60</div></div>
     <div class="box box-p">
       <div class="row"><span class="muted">Subtotal</span><span>${money(sub)}</span></div>
-      <div class="row"><span class="muted">Yuran penghantaran</span><span>${S.mode==='delivery'?money(f):'—'}</span></div>
+      <div class="row"><span class="muted">Yuran penghantaran</span><span>${S.mode!=='delivery'?'—':needPin()?`Dari ${money(delCfg().base)}`:money(f)}</span></div>
       <div class="row tot"><span>Jumlah</span><span>${money(sub+f)}</span></div>
+      ${S.mode==='delivery'&&needPin()?`<div class="muted" style="font-size:11.5px;margin-top:6px">Yuran penghantaran dikira ikut jarak di checkout.</div>`:''}
     </div>`;
   ab.innerHTML=`<button class="btn-r full press" id="toCk">TERUSKAN <span class="ms s">arrow_forward</span></button>`;
   ab.querySelector('#toCk').onclick=()=>go('checkout');
@@ -829,6 +880,7 @@ function rCheckout(){
   if(!asap&&S.pickupAt==='asap'&&sl.length&&!del)S.pickupAt=sl[0];
   const sched=S.pickupAt!=='asap';
   const delClosed=del&&!asap;
+  const zone=del&&zoneOn(),dk=distKm(),cfg=delCfg(),far=del&&outOfZone(),pinReq=del&&needPin();
   const sub=subtotal(),f=fee(),total=sub+f,minO=num(setting().minOrder);
   el.innerHTML=`<div class="ck">
     <span class="lbl">Pilih jenis pesanan</span>
@@ -845,7 +897,9 @@ function rCheckout(){
     ${del?`<span class="lbl">Alamat penghantaran</span>
       <div class="field" id="fA"><textarea class="ta" id="cA" rows="3" maxlength="300" placeholder="No. rumah, jalan, taman / kampung" autocomplete="street-address" aria-label="Alamat penghantaran">${esc(P.address)}</textarea><div class="er">Masukkan alamat yang lengkap</div></div>
       <div class="field"><input class="in" id="cAN" maxlength="120" aria-label="Nota untuk rider" placeholder="Nota untuk rider (opsyenal)" value="${esc(P.addressNote)}"></div>
-      <button class="pinrow press ${S.location?'ok':''}" id="pinB"><span class="ms" style="color:${S.location?'var(--green)':'var(--red)'}">${S.location?'where_to_vote':'my_location'}</span><span style="flex:1"><b>${S.location?'Lokasi dipin':'Kongsi lokasi semasa'}</b><br><span class="muted" style="font-size:11.5px" id="pinT">${S.location?`Ketepatan ±${Math.round(S.location.accuracy||0)} m`:'Disyorkan — rider sampai lebih cepat'}</span></span></button>`
+      <button class="pinrow press ${S.location&&!far?'ok':''}" id="pinB" ${far?'style="border-color:var(--red);background:#FFF7F7;border-style:solid"':''}><span class="ms" style="color:${S.location&&!far?'var(--green)':'var(--red)'}">${S.location?'where_to_vote':'my_location'}</span><span style="flex:1"><b>${S.location?(zone&&dk!==null?`Lokasi dipin · ±${dk} km dari outlet`:'Lokasi dipin'):(zone?'Pin lokasi anda *':'Kongsi lokasi semasa')}</b><br><span class="muted" style="font-size:11.5px" id="pinT">${S.location?'Ketik untuk kemas kini lokasi':(zone?'Wajib untuk kira jarak & yuran penghantaran':'Disyorkan — rider sampai lebih cepat')}</span></span></button>
+      ${zone?`<div class="muted" style="font-size:11.5px;margin:8px 2px 0;line-height:16px">Kawasan delivery sehingga ${cfg.maxKm} km. Yuran ${money(cfg.base)} untuk ${cfg.baseKm} km pertama${cfg.perKm?`, +${money(cfg.perKm)} setiap km seterusnya`:''}.</div>`:''}
+      ${far?`<div class="notice err"><span class="ms s">block</span><div><b>Di luar kawasan delivery.</b> Lokasi anda ±${dk} km dari ${esc(o?.short||'outlet')} (maksimum ${cfg.maxKm} km). Sila pilih Pickup atau outlet lain.</div></div>`:''}`
     :`<span class="lbl">Waktu pickup</span>
       <div class="opt2">
         <button class="ocard press" data-w="asap" aria-pressed="${!sched}" ${asap?'':'disabled'}><b>Sekarang</b><small>${asap?`${prepMin()} – ${prepMin()+5} minit`:(hs.open?'Hampir tutup':'Outlet belum buka')}</small></button>
@@ -865,14 +919,14 @@ function rCheckout(){
     <div class="box box-p" style="margin:0 0 12px">
       ${S.cart.map(l=>`<div class="row" style="align-items:flex-start"><span>${l.qty}× ${esc(l.name)}${l.extrasList?.length?`<br><span class="muted" style="font-size:11.5px">+ ${esc(l.extrasList.join(', '))}</span>`:''}</span><span>${money(unit(l)*l.qty)}</span></div>`).join('')}
       <div class="row" style="border-top:1px solid var(--line);margin-top:6px;padding-top:8px"><span class="muted">Subtotal</span><span>${money(sub)}</span></div>
-      ${del?`<div class="row"><span class="muted">Yuran penghantaran</span><span>${money(f)}</span></div>`:''}
+      ${del?`<div class="row"><span class="muted">Yuran penghantaran${dk!==null&&zone?` (±${dk} km)`:''}</span><span>${pinReq?'Pin lokasi dahulu':money(f)}</span></div>`:''}
       <div class="row tot"><span>Jumlah</span><span>${money(total)}</span></div>
     </div>
     ${minO&&sub<minO?`<div class="notice warn"><span class="ms s">info</span><div>Minimum order ${money(minO)}. Tambah ${money(minO-sub)} lagi.</div></div>`:''}
   </div>`;
-  const blocked=os==='closed'||!o||(minO&&sub<minO)||(!del&&!asap&&!sl.length)||delClosed;
-  ab.innerHTML=`<div class="tot"><small>Jumlah</small><b>${money(total)}</b></div><button class="btn-r press" id="place" ${blocked||S.placing?'disabled':''}>${S.placing?'<span class="spin"></span> Menghantar…':'Hantar pesanan'}</button>`;
-  ab.querySelector('#place').onclick=place;
+  const blocked=os==='closed'||!o||(minO&&sub<minO)||(!del&&!asap&&!sl.length)||delClosed||far;
+  ab.innerHTML=`<div class="tot"><small>Jumlah</small><b>${money(total)}</b></div><button class="btn-r press" id="place" ${blocked||S.placing?'disabled':''}>${S.placing?'<span class="spin"></span> Menghantar…':pinReq?'<span class="ms s">my_location</span> Pin lokasi dahulu':'Hantar pesanan'}</button>`;
+  ab.querySelector('#place').onclick=()=>pinReq&&!S.placing?(document.getElementById('pinB')?.scrollIntoView({behavior:'smooth',block:'center'}),pin()):place();
   el.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{save();setMode(b.dataset.m)});
   el.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{save();S.pickupAt=b.dataset.w==='asap'?'asap':(sl[0]??'asap');vib(5);rCheckout()});
   el.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{save();S.pickupAt=Number(b.dataset.s);vib(5);rCheckout()});
@@ -904,6 +958,10 @@ async function place(){
   if(del&&!asapOk()){rCheckout();return toast('Delivery hanya diterima semasa outlet buka.')}
   if(!del&&S.pickupAt==='asap'&&!asapOk()){rCheckout();return toast('Sila pilih masa pickup.')}
   if(!del&&S.pickupAt!=='asap'&&!slots().includes(Number(S.pickupAt))){S.pickupAt='asap';rCheckout();return toast('Masa dipilih sudah lepas. Sila pilih semula.')}
+  if(del&&needPin()){rCheckout();document.getElementById('pinB')?.scrollIntoView({behavior:'smooth',block:'center'});toast('Sila pin lokasi anda untuk kira yuran penghantaran.');return pin()}
+  if(del&&outOfZone()){rCheckout();return dialog({title:'Di luar kawasan delivery',body:`Lokasi anda ±${distKm()} km dari outlet (maksimum ${delCfg().maxKm} km). Sila pilih Pickup atau outlet lain.`})}
+  const nAct=S.orders.filter(active).length;
+  if(nAct>=MAX_ACTIVE){const ok2=await dialog({title:'Anda ada pesanan aktif',body:`Anda sudah ada ${nAct} pesanan yang sedang berjalan. Sila tunggu pesanan selesai atau hubungi outlet untuk order tambahan.`,ok:'Lihat pesanan',cancel:'Tutup'});if(ok2)go('orders');return}
   if(!navigator.onLine)return dialog({title:'Tiada sambungan internet',body:'Sila sambung ke internet dan cuba lagi. Troli anda masih disimpan.'});
   const na=S.cart.filter(l=>{const p=S.products.find(x=>x.id===l.id);return!p||p.active===false||soldOut(p)});
   if(na.length)return dialog({title:'Ada item tidak tersedia',body:`${na.map(l=>esc(l.name)).join(', ')} tidak tersedia di outlet ini. Sila buang dari troli.`});
@@ -912,7 +970,7 @@ async function place(){
   const when=S.pickupAt==='asap'?`Sekarang (~${prepMin()} min)`:t12(Number(S.pickupAt));
   const ok=await dialog({title:'Sahkan pesanan',body:`<div style="display:grid;gap:8px;color:var(--ink)">
     <div><b>${del?'Delivery COD':'Pickup'}</b> · ${esc(o.short)}</div>
-    <div>${del?esc(P.address.slice(0,70)):`Waktu pickup: <b>${esc(when)}</b>`}</div>
+    <div>${del?`${esc(P.address.slice(0,70))}${distKm()!==null&&zoneOn()?` <span class="muted">(±${distKm()} km)</span>`:''}`:`Waktu pickup: <b>${esc(when)}</b>`}</div>
     <div>${count()} item · <b style="color:var(--red)">${money(total)}</b></div>
     <div>${del?'Bayar tunai kepada rider':'Bayar di kaunter'}</div></div>`,ok:'Hantar',cancel:'Semak'});
   if(!ok)return;
@@ -923,7 +981,8 @@ async function place(){
     itemCount:count(),subtotal:Math.round(sub*100)/100,deliveryFee:f,total,status:'new',orderStatus:'new',etaMinutes:num(setting().defaultEta),
     pickupTime:!del&&S.pickupAt!=='asap'?hhmm(Number(S.pickupAt)):null,orderNote:S.orderNote.trim(),
     paymentMethod:del?'cod':'counter',paymentStatus:'unpaid',deliveryAddress:del?P.address:null,deliveryNote:del?(P.addressNote||''):null,
-    deliveryContact:del?phone:null,deliveryLocation:del&&S.location?{lat:S.location.lat,lng:S.location.lng}:null,source:'web-v14'};
+    deliveryContact:del?phone:null,deliveryLocation:del&&S.location?{lat:S.location.lat,lng:S.location.lng}:null,
+    deliveryDistanceKm:del&&zoneOn()?distKm():null,shortNo:null,source:'web-v16'};
   try{const r=await S.fb.createOrder(order);order.firestoreId=r.id}
   catch(err){console.error(err);S.placing=false;rCheckout();return dialog({title:'Pesanan gagal dihantar',body:'Semak sambungan internet anda dan cuba lagi. Troli anda masih disimpan.'})}
   S.placing=false;S.orders=[order,...S.orders.filter(x=>x.firestoreId!==order.firestoreId)];store.set('ay_orders',S.orders.slice(0,30));
@@ -931,11 +990,17 @@ async function place(){
 }
 function success(o){
   const del=modeOf(o)==='delivery';
-  $('#sucNo').textContent='#'+o.id;
+  $('#sucNo').textContent=(o.shortNo?'':'#')+ono(o);
+  const oi=outletInfo(o.outletId);
+  $('#sucWa').classList.toggle('hidden',!oi?.phone);
+  $('#sucWaNote').textContent=oi?.phone?'Tekan "Sahkan di WhatsApp" supaya outlet dapat butiran penuh pesanan anda dengan cepat.':'';
+  $('#sucWa').onclick=()=>open(wa(oi.phone,receipt(o)+'\n\nSaya nak sahkan pesanan ini.'),'_blank','noopener');
+  $('#sucShare').onclick=()=>shareReceipt(o);
   $('#sucSub').textContent=del?'Kami akan hantar ke alamat anda. Sediakan tunai untuk rider.':(o.pickupTime?`Pesanan akan siap pada ${t12(toMin(o.pickupTime))}. Bayar di kaunter.`:`Pesanan akan siap dalam ~${prepMin()} minit. Bayar di kaunter.`);
   $('#actbar').classList.add('hidden');
   const s=$('#success');s.classList.add('show');
   $('#sucTrack').onclick=()=>{s.classList.remove('show');go('track/'+o.firestoreId,{replace:true})};
+  setTimeout(()=>($('#sucWa').classList.contains('hidden')?$('#sucTrack'):$('#sucWa')).focus(),100);
   $('#sucHome').onclick=()=>{s.classList.remove('show');go('home',{replace:true})};
 }
 
@@ -944,8 +1009,8 @@ function chip(o){const s=o.status||'new',m=modeOf(o);const t=s==='ready'?(m==='p
 function rOrders(){
   const el=$('#ordersBody');
   if(!S.orders.length){el.innerHTML=`<div class="empty"><div class="ic"><span class="ms">receipt_long</span></div><b style="font-size:16px">Belum ada pesanan</b><div class="muted" style="margin:4px 0 20px">Status pesanan anda akan dipaparkan di sini.</div><button class="btn-o" data-go="menu" style="max-width:220px;margin:auto">MULA ORDER</button></div>`;return}
-  const card=o=>{const t=tsMs(o),m=modeOf(o);return `<div class="ord press" data-t="${esc(o.firestoreId||'')}"><button class="open-btn" aria-label="Pesanan #${esc(o.id||'')}, ${money(o.total)}"></button>
-    <div class="h"><b>#${esc(o.id||'')}</b>${chip(o)}</div>
+  const card=o=>{const t=tsMs(o),m=modeOf(o);return `<div class="ord press" data-t="${esc(o.firestoreId||'')}"><button class="open-btn" aria-label="Pesanan ${esc(ono(o))}, ${money(o.total)}"></button>
+    <div class="h"><b>${o.shortNo?'':'#'}${esc(ono(o))}</b>${chip(o)}</div>
     <div class="muted" style="font-size:12px;margin-top:4px;display:flex;align-items:center;gap:4px"><span class="ms xs">${m==='delivery'?'two_wheeler':'shopping_bag'}</span>${m==='delivery'?'Delivery':'Pickup'} · ${esc(OUTLETS[o.outletId]?.short||'')} · ${fmtTime(t)}, ${fmtDate(t)}</div>
     <div class="ell" style="font-size:13px;margin-top:8px">${(o.items||[]).map(i=>`${num(i.qty)||1}× ${esc(i.name)}`).join(', ')}</div>
     <div class="h" style="margin-top:10px"><span class="price">${money(o.total)}</span>${active(o)?'<span class="live"><i></i>LIVE</span>':`<button class="re" data-re="${esc(o.firestoreId||o.id)}">ORDER SEMULA</button>`}</div></div>`};
@@ -979,12 +1044,13 @@ function rTrack(){
   const when=o.pickupTime?`Pukul ${t12(toMin(o.pickupTime))}`:m==='delivery'?'Secepat mungkin':'Sekarang';
   el.innerHTML=`<div class="trk-card">
       <div class="trk-top"><span class="trk-ico ${done||s==='ready'?'ok':''}"><span class="ms f" style="font-size:28px">${cp[2]}</span></span>
-        <div style="flex:1"><b style="font-size:15px">${esc(cp[0])}</b><div class="muted" style="font-size:12.5px;line-height:18px;margin-top:2px">${esc(cp[1])}</div>
+        <div style="flex:1"><b style="font-size:15px">${esc(cp[0])}</b><div class="muted" style="font-size:12.5px;line-height:18px;margin-top:2px">${can&&o.cancelReason?`Sebab: <b style="color:var(--ink)">${esc(o.cancelReason)}</b>. Hubungi outlet jika ada pertanyaan.`:esc(cp[1])}</div>
         ${!done&&!can?`<div style="margin-top:6px"><span class="live"><i></i>LIVE</span>${eta&&t&&!o.pickupTime?` <span class="muted" style="font-size:11.5px">· anggaran siap ${fmtTime(t+eta*60000)}</span>`:''}</div>`:''}</div></div>
       ${can?'':`<div class="hstep">${fl.map((f,i)=>`<div class="s ${i<idx||done?'done':''} ${i===idx&&!done?'cur':''}"><span class="d">${i<idx||done?'<span class="ms">check</span>':''}</span>${f[1]}${i===0&&t?`<time>${fmtTime(t)}</time>`:''}</div>`).join('')}</div>`}
     </div>
     <div class="box box-p">
-      <div class="row"><span class="muted">No. Pesanan</span><b>#${esc(o.id)}</b></div>
+      <div class="row"><span class="muted">No. Pesanan</span><b style="font-size:16px">${o.shortNo?'':'#'}${esc(ono(o))}</b></div>
+      ${o.shortNo?`<div class="row"><span class="muted">Rujukan</span><span class="muted">${esc(o.id)}</span></div>`:''}
       <div class="row"><span class="muted">Outlet</span><span>${esc(oi?.name||'')}</span></div>
       <div class="row"><span class="muted">Jenis Pesanan</span><span>${m==='delivery'?'Delivery (COD)':'Pickup'}</span></div>
       <div class="row"><span class="muted">Waktu</span><span>${esc(when)}</span></div>
@@ -998,11 +1064,13 @@ function rTrack(){
       <div class="row tot"><span>Jumlah</span><span>${money(o.total)}</span></div>
     </div>
     <div style="padding:4px 14px 20px;display:grid;gap:10px">
-      ${oi?.phone&&!done?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><a class="btn-g press" href="tel:+${esc(oi.phone)}"><span class="ms s">call</span>Telefon</a><a class="btn-g press" target="_blank" rel="noopener" href="${esc(wa(oi.phone,`Hai Ayenas, saya nak tanya tentang pesanan #${o.id}`))}"><span class="ms s">chat</span>WhatsApp</a></div>`:''}
+      ${oi?.phone&&!done?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><a class="btn-g press" href="tel:+${esc(oi.phone)}"><span class="ms s">call</span>Telefon</a><a class="btn-g press" target="_blank" rel="noopener" href="${esc(wa(oi.phone,`Hai Ayenas, saya nak tanya tentang pesanan ${ono(o)}.\n\n${receipt(o)}`))}"><span class="ms s">chat</span>WhatsApp</a></div>`:''}
+      <button class="btn-g press" id="trShare"><span class="ms s">receipt_long</span>Simpan / kongsi resit</button>
       ${m==='pickup'&&oi&&!done?`<a class="btn-g press" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent('Ayenas '+oi.address)}"><span class="ms s">directions</span>Arah ke outlet</a>`:''}
       ${done||can?`<button class="btn-o press" id="trRe"><span class="ms s">replay</span>ORDER SEMULA</button>`:''}
     </div>`;
   $('#trRe')&&($('#trRe').onclick=()=>reorder(o.firestoreId));
+  $('#trShare').onclick=()=>shareReceipt(o);
 }
 
 /* ---------- PROFILE ---------- */
@@ -1060,12 +1128,20 @@ setTimeout(()=>{hideSplash();if(!S.outlet)showGate(false)},600);
 (async()=>{
   try{
     const[{initializeApp},{getAuth,signInAnonymously,onAuthStateChanged},fs]=await Promise.all([import(FB+'firebase-app.js'),import(FB+'firebase-auth.js'),import(FB+'firebase-firestore.js')]);
-    const{getFirestore,collection,doc,setDoc,addDoc,onSnapshot,query,where,serverTimestamp,increment}=fs;
+    const{getFirestore,collection,doc,setDoc,addDoc,onSnapshot,query,where,serverTimestamp,increment,runTransaction}=fs;
     const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
     const user=async()=>auth.currentUser||(await signInAnonymously(auth)).user;
     S.fbReady=true;
     S.fb={async createOrder(order){
       const u=await user();
+      try{
+        const d=new Date(),ymd=`${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+        const cref=doc(db,'counters',`${order.outletId}_${ymd}`);
+        const n=await Promise.race([runTransaction(db,async tx=>{const sn=await tx.get(cref);const n=(sn.exists()?Number(sn.data().n)||0:0)+1;
+            if(sn.exists())tx.update(cref,{n});else tx.set(cref,{n,outletId:order.outletId,date:ymd});return n}),
+          new Promise((_,rej)=>setTimeout(()=>rej(new Error('counter timeout')),4000))]);
+        order.shortNo=`${OUT_PREFIX[order.outletId]||'A'}-${String(n).padStart(3,'0')}`;
+      }catch(e){console.warn('Nombor pendek tidak tersedia, guna ID penuh',e);order.shortNo=null}
       const ref=await addDoc(collection(db,'orders'),{...order,customerUid:u.uid,createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
       setDoc(doc(db,'customers',u.uid),{name:order.name,phone:order.phone,phoneDigits:order.phone.replace(/\D/g,''),lastOutletId:order.outletId,lastOrderType:order.orderType,
         ...(order.deliveryAddress?{lastAddress:order.deliveryAddress}:{}),lastOrderAt:serverTimestamp(),updatedAt:serverTimestamp(),orderCount:increment(1),totalSpend:increment(Number(order.total||0))},{merge:true}).catch(e=>console.warn('customer',e));
@@ -1080,7 +1156,10 @@ setTimeout(()=>{hideSplash();if(!S.outlet)showGate(false)},600);
     },e=>console.warn('menu',e));
     onSnapshot(collection(db,'outletSettings'),snap=>{
       S.settings={};snap.docs.forEach(d=>S.settings[d.id]=d.data());
-      if(calm())chrome();else render();
+      const typing=document.activeElement&&/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
+      if(S.view==='checkout'&&!typing&&!S.placing){save();chrome();rCheckout()}
+      else if(S.view==='cart'&&!typing){chrome();rCart()}
+      else if(calm())chrome();else render();
       if($('#gate').classList.contains('show'))showGate(!!S.outlet);
     },e=>console.warn('outletSettings',e));
     let un=null;const prev={};
@@ -1089,7 +1168,7 @@ setTimeout(()=>{hideSplash();if(!S.outlet)showGate(false)},600);
       un?.();
       un=onSnapshot(query(collection(db,'orders'),where('customerUid','==',u.uid)),snap=>{
         const r=snap.docs.map(d=>({firestoreId:d.id,...d.data()})).sort((a,b)=>tsMs(b)-tsMs(a));
-        r.forEach(o=>{const p=prev[o.firestoreId];if(p&&p!==o.status){vib([40,60,40]);const c=COPY[o.status],t=Array.isArray(c)?c[0]:c?.[modeOf(o)]?.[0];if(t&&!(S.view==='track'&&S.param===o.firestoreId))toast(`#${o.id}: ${t}`,{label:'LIHAT',fn:()=>go('track/'+o.firestoreId)})}prev[o.firestoreId]=o.status});
+        r.forEach(o=>{const p=prev[o.firestoreId];if(p&&p!==o.status){vib([40,60,40]);const c=COPY[o.status],t=Array.isArray(c)?c[0]:c?.[modeOf(o)]?.[0];if(t&&!(S.view==='track'&&S.param===o.firestoreId))toast(`${ono(o)}: ${t}`,{label:'LIHAT',fn:()=>go('track/'+o.firestoreId)})}prev[o.firestoreId]=o.status});
         S.orders=r;store.set('ay_orders',r.slice(0,30).map(o=>({...o,createdAt:o.createdAt?{seconds:o.createdAt.seconds}:null,updatedAt:null})));
         const typing=document.activeElement&&/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName);
         if(['orders','track'].includes(S.view)||(S.view==='profile'&&!typing))render();else chrome();

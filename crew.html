@@ -104,6 +104,17 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 .typeTabs button{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 11px;font-size:10px;font-weight:900}
 .typeTabs button.active{background:#111;color:#fff}
 .branchSelect{border:1px solid var(--line);border-radius:10px;padding:8px;background:#fff;font-weight:800}
+.hoursGrid{display:grid;gap:6px;margin-top:8px}.hrow{display:grid;grid-template-columns:62px 54px 1fr 1fr;gap:6px;align-items:center;font-size:12px}
+.hrow input[type=time]{padding:6px;font-size:13px}.hrow label{display:flex;gap:4px;align-items:center;font-size:11px}.hrow input[type=checkbox]{width:auto}
+.rep{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.repBox{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px;margin-bottom:12px}
+.repRow{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #f1ece7}
+.bar2{height:8px;border-radius:4px;background:#F20D12;margin-top:3px}
+.cmodal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;z-index:60;padding:16px}.cmodal.show{display:flex}
+.cmodal .card{background:#fff;border-radius:18px;padding:18px;width:min(420px,100%)}
+.cmodal label{display:flex;gap:8px;align-items:center;padding:9px 0;font-size:14px;border-bottom:1px solid #f1ece7}.cmodal input[type=radio]{width:auto}
+.wakeBtn.on{background:#fff;color:#111}
+@media(max-width:700px){.rep{grid-template-columns:1fr 1fr}}
 .cancelBtn{width:100%;margin-top:7px;border:1px solid #f1c4c4;border-radius:9px;padding:8px;background:#fff;color:#b32121;font-weight:900;font-size:11px}
 .schedTag{display:inline-block;margin-top:6px;background:#FFC928;color:#111;border-radius:7px;padding:4px 8px;font-size:11px;font-weight:1000}
 .soldRow{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
@@ -130,6 +141,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
   <header class="header">
     <div class="brand"><img src="icon-512.png"><div><h1>AYENAS CREW</h1><small id="profileLine">Loading...</small></div></div>
     <div class="headerActions">
+      <button id="wakeBtn" class="wakeBtn" title="Kekalkan skrin sentiasa hidup">🔆 Skrin</button>
       <button id="notifyBtn" class="notifyBtn">🔔 Bunyi ON</button>
       <button id="logoutBtn">Logout</button>
     </div>
@@ -137,6 +149,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
   <nav class="nav">
     <button class="active" data-panel="orders">🔥 Live Orders</button>
     <button data-panel="menu">🍗 Menu</button>
+    <button data-panel="report">📊 Laporan</button>
     <button data-panel="customers">👥 Customers</button>
     <button data-panel="operations">⚙️ Operations</button>
     <button data-panel="account">👤 Account</button>
@@ -176,6 +189,15 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
       <div class="productList" id="productList"></div>
     </section>
 
+    <section class="panel" id="reportPanel">
+      <div class="toolbar"><h2>Laporan Jualan</h2>
+        <div class="typeTabs" id="repRange" style="padding:0">
+          <button class="active" data-r="1">Hari ini</button><button data-r="7">7 hari</button><button data-r="30">30 hari</button>
+        </div></div>
+      <div class="notice">Kiraan berdasarkan order yang dimuatkan dalam console ini (tidak termasuk order dibatalkan). Ikut pilihan cawangan di tab Live Orders.</div>
+      <div id="repBody"></div>
+    </section>
+
     <section class="panel" id="customersPanel">
       <div class="toolbar"><h2>Customer Database</h2><span id="customerCount" style="font-size:12px;color:#746E68">0 customer</span></div>
       <div class="customerGrid" id="customerList"></div>
@@ -193,7 +215,8 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
    <button onclick="window.setOutletStatus('open')">🟢 Open</button>
    <button onclick="window.setOutletStatus('busy')">🟡 Busy</button>
    <button class="danger" onclick="window.setOutletStatus('closed')">🔴 Closed</button>
-  </div></div>
+   <button class="danger" onclick="window.closeUntilTomorrow()">🌙 Tutup hingga esok</button>
+  </div><small id="statusText"></small></div>
   <div class="opsCard"><b>Default ETA</b><div class="opsBtns">
    <button onclick="window.setDefaultEta(15)">15 min</button><button onclick="window.setDefaultEta(30)">30 min</button><button onclick="window.setDefaultEta(45)">45 min</button>
   </div><small id="defaultEtaText">Belum set</small></div>
@@ -203,6 +226,15 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
    <div class="opsField"><input id="opsFee" type="number" step="0.5" min="0" placeholder="Caj (RM)"><button class="soldToggle" onclick="window.saveOutletNum('deliveryFee','opsFee')">Simpan caj</button></div>
    <div class="opsField"><input id="opsMin" type="number" step="1" min="0" placeholder="Min. order (RM)"><button class="soldToggle" onclick="window.saveOutletNum('minOrder','opsMin')">Simpan min.</button></div>
    <small id="deliveryText"></small></div>
+  <div class="opsCard"><b>Lokasi outlet & kawasan delivery</b>
+   <div class="opsField"><input id="opsLat" type="number" step="any" placeholder="Latitud"><input id="opsLng" type="number" step="any" placeholder="Longitud"></div>
+   <div class="opsField"><button class="soldToggle" onclick="window.useMyLocation()">📍 Guna lokasi semasa</button><button class="soldToggle" onclick="window.saveOutletLoc()">Simpan lokasi</button></div>
+   <div class="opsField"><input id="opsMaxKm" type="number" step="0.5" min="0" placeholder="Maks km (7)"><input id="opsBaseKm" type="number" step="0.5" min="0" placeholder="Km asas (3)"><input id="opsPerKm" type="number" step="0.5" min="0" placeholder="RM/km (1)"></div>
+   <div class="opsField"><button class="soldToggle" onclick="window.saveZone()">Simpan kawasan</button></div>
+   <small id="zoneText"></small></div>
+  <div class="opsCard" style="grid-column:1/-1"><b>Waktu operasi</b>
+   <div class="hoursGrid" id="hoursGrid"></div>
+   <div class="opsField"><button class="soldToggle" onclick="window.saveHours()">💾 Simpan waktu operasi</button><small id="hoursText"></small></div></div>
   <div class="opsCard"><b>No. telefon / WhatsApp outlet</b>
    <div class="opsField"><input id="opsPhone" type="tel" placeholder="cth: 0146089680"><button class="soldToggle" onclick="window.saveOutletPhone()">Simpan</button></div>
    <small>Dipaparkan pada butang Telefon/WhatsApp di app customer. Sold Out diurus pada tab Menu.</small></div>
@@ -216,6 +248,22 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
       <div class="stat"><small>Outlet</small><strong id="accOutlet" style="font-size:18px">—</strong></div>
     </section>
   </main>
+</div>
+
+<div class="cmodal" id="cancelModal" role="dialog" aria-modal="true" aria-labelledby="cmT">
+  <div class="card">
+    <h3 id="cmT" style="margin:0 0 6px">Batalkan order <span id="cmNo"></span>?</h3>
+    <small style="color:#746E68">Customer akan nampak sebab ini.</small>
+    <div id="cmReasons" style="margin-top:8px">
+      <label><input type="radio" name="cr" value="Menu habis / stok tidak cukup" checked>Menu habis / stok tidak cukup</label>
+      <label><input type="radio" name="cr" value="Di luar kawasan delivery">Di luar kawasan delivery</label>
+      <label><input type="radio" name="cr" value="Tidak dapat menghubungi pelanggan">Tidak dapat menghubungi pelanggan</label>
+      <label><input type="radio" name="cr" value="Outlet terlalu sibuk / hampir tutup">Outlet terlalu sibuk / hampir tutup</label>
+      <label><input type="radio" name="cr" value="Pesanan berganda / permintaan pelanggan">Pesanan berganda / permintaan pelanggan</label>
+      <label><input type="radio" name="cr" value="__other">Lain-lain: <input id="cmOther" maxlength="80" style="flex:1;padding:7px"></label>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px"><button class="soldToggle" style="flex:1;padding:12px" id="cmBack">Kembali</button><button class="primary" style="flex:1;margin:0;background:#b32121" id="cmOk">BATALKAN ORDER</button></div>
+  </div>
 </div>
 
 <div class="modal" id="productModal">
@@ -295,7 +343,7 @@ function flashTitle(order){
   },650);
   if('Notification' in window && Notification.permission==='granted'){
     new Notification('Order Baru Ayenas',{
-      body:`#${order.id||''} • ${order.name||'Customer'} • ${money(order.total)}`,
+      body:`${order.shortNo||('#'+(order.id||''))} • ${order.name||'Customer'} • ${money(order.total)}`,
       icon:'icon-192.png'
     });
   }
@@ -314,6 +362,43 @@ $('loginBtn').onclick=async()=>{
   }
 };
 $('logoutBtn').onclick=()=>authMod.signOut(auth);
+let wakeLock=null, wakeWanted=false;
+async function reqWake(){try{wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null;$('wakeBtn').classList.toggle('on',false)});$('wakeBtn').classList.add('on');$('wakeBtn').textContent='🔆 Skrin ON'}catch(e){alert('Peranti ini tidak menyokong kekalkan skrin hidup.');wakeWanted=false}}
+$('wakeBtn').onclick=async()=>{
+  if(!('wakeLock' in navigator))return alert('Browser ini tidak menyokong kekalkan skrin hidup. Cuba Chrome terkini.');
+  wakeWanted=!wakeWanted;
+  if(wakeWanted)await reqWake(); else{try{await wakeLock?.release()}catch{} wakeLock=null;$('wakeBtn').classList.remove('on');$('wakeBtn').textContent='🔆 Skrin'}
+};
+document.addEventListener('visibilitychange',()=>{if(wakeWanted&&!wakeLock&&document.visibilityState==='visible')reqWake()});
+
+let repDays=1;
+document.querySelectorAll('#repRange button').forEach(b=>b.onclick=()=>{repDays=Number(b.dataset.r);document.querySelectorAll('#repRange button').forEach(x=>x.classList.toggle('active',x===b));renderReport()});
+function renderReport(){
+  const el=$('repBody'); if(!el)return;
+  const from=new Date(); from.setHours(0,0,0,0); from.setDate(from.getDate()-(repDays-1));
+  const inBranch=o=>!(ownerBranch!=='all'&&(o.outletId||o.outlet)!==ownerBranch);
+  const all=orders.filter(o=>inBranch(o)&&(o.createdAt?.toDate?.()||new Date(o.created||0))>=from);
+  const ok=all.filter(o=>o.status!=='cancelled'), cancelled=all.length-ok.length;
+  const done=ok.filter(o=>['completed','collected','delivered','served'].includes(o.status));
+  const sum=a=>a.reduce((s,o)=>s+Number(o.total||0),0);
+  const pk=ok.filter(o=>(o.orderType||o.mode)!=='delivery'), dl=ok.filter(o=>(o.orderType||o.mode)==='delivery');
+  const items={}; ok.forEach(o=>(o.items||[]).forEach(i=>{const k=i.name||'?';items[k]=items[k]||{q:0,r:0};items[k].q+=Number(i.qty||1);items[k].r+=(Number(i.price||0)+Number(i.extras||0))*Number(i.qty||1)}));
+  const top=Object.entries(items).sort((a,b)=>b[1].q-a[1].q).slice(0,8), maxQ=top[0]?.[1].q||1;
+  const byDay={}; ok.forEach(o=>{const d=(o.createdAt?.toDate?.()||new Date(o.created||0));const k=d.toLocaleDateString('ms-MY',{weekday:'short',day:'numeric',month:'short'});byDay[k]=(byDay[k]||0)+Number(o.total||0)});
+  const hrs={}; ok.forEach(o=>{const h=(o.createdAt?.toDate?.()||new Date(o.created||0)).getHours();hrs[h]=(hrs[h]||0)+1}); const peak=Object.entries(hrs).sort((a,b)=>b[1]-a[1])[0];
+  el.innerHTML=`<div class="rep">
+    <div class="stat"><strong>${money(sum(ok))}</strong><small>Jualan (${ok.length} order)</small></div>
+    <div class="stat"><strong>${money(sum(done))}</strong><small>Selesai (${done.length})</small></div>
+    <div class="stat"><strong>${money(ok.length?sum(ok)/ok.length:0)}</strong><small>Purata setiap order</small></div>
+    <div class="stat"><strong>${cancelled}</strong><small>Dibatalkan</small></div></div>
+    <div class="repBox"><b>Pickup vs Delivery</b>
+      <div class="repRow"><span>🥡 Pickup</span><span>${pk.length} order • ${money(sum(pk))}</span></div>
+      <div class="repRow"><span>🛵 Delivery</span><span>${dl.length} order • ${money(sum(dl))}</span></div>
+      ${peak?`<div class="repRow"><span>⏰ Waktu paling sibuk</span><span>${String(peak[0]).padStart(2,'0')}:00 – ${String((+peak[0]+1)%24).padStart(2,'0')}:00 (${peak[1]} order)</span></div>`:''}</div>
+    <div class="repBox"><b>Menu paling laku</b>${top.length?top.map(([n,v])=>`<div class="repRow" style="display:block"><div style="display:flex;justify-content:space-between"><span>${esc(n)}</span><span>${v.q} • ${money(v.r)}</span></div><div class="bar2" style="width:${Math.max(4,v.q/maxQ*100)}%"></div></div>`).join(''):'<div class="emptyState">Tiada data</div>'}</div>
+    ${repDays>1?`<div class="repBox"><b>Jualan harian</b>${Object.entries(byDay).map(([d,v])=>`<div class="repRow"><span>${esc(d)}</span><span>${money(v)}</span></div>`).join('')||'<div class="emptyState">Tiada data</div>'}</div>`:''}`;
+}
+
 $('notifyBtn').onclick=async()=>{
   unlockAudio();
   soundEnabled=!soundEnabled;
@@ -386,10 +471,63 @@ function renderOutletOperations(){
   if($('opsFee')&&document.activeElement!==$('opsFee')) $('opsFee').value=outletSetting.deliveryFee??'';
   if($('opsMin')&&document.activeElement!==$('opsMin')) $('opsMin').value=outletSetting.minOrder??'';
   if($('opsPhone')&&document.activeElement!==$('opsPhone')) $('opsPhone').value=outletSetting.phone||'';
+  const cu=Number(outletSetting.closedUntil)||0, cuActive=outletSetting.status==='closed'&&cu>Date.now();
+  const stx=$('statusText'); if(stx) stx.textContent=outletSetting.status==='closed'?(cu?(cuActive?`Tutup sehingga ${new Date(cu).toLocaleString('ms-MY',{weekday:'short',hour:'2-digit',minute:'2-digit'})} — buka semula sendiri`:'Buka semula automatik (tempoh tutup tamat)'):'Tutup sehingga dibuka semula secara manual'):'';
+  [['opsLat','lat'],['opsLng','lng'],['opsMaxKm','deliveryMaxKm'],['opsBaseKm','deliveryBaseKm'],['opsPerKm','deliveryPerKm']].forEach(([i,k])=>{const el=$(i);if(el&&document.activeElement!==el)el.value=outletSetting[k]??''});
+  const zt=$('zoneText'); if(zt) zt.textContent=typeof outletSetting.lat==='number'?`Had kawasan AKTIF: maks ${outletSetting.deliveryMaxKm??7} km • RM${Number(outletSetting.deliveryFee??3).toFixed(2)} untuk ${outletSetting.deliveryBaseKm??3} km pertama • +RM${Number(outletSetting.deliveryPerKm??1).toFixed(2)}/km`:'Lokasi outlet belum diset — had kawasan & caj ikut jarak TIDAK aktif (caj tetap).';
+  renderHoursEditor();
   const t=$('defaultEtaText'); if(t)t.textContent=outletSetting.defaultEta?`Current: ${outletSetting.defaultEta} min`:'Belum set';
 }
 window.setOutletStatus=async status=>{
-  await fsMod.setDoc(fsMod.doc(db,'outletSettings',currentOpsOutlet()),{status,updatedAt:fsMod.serverTimestamp()},{merge:true});
+  try{await fsMod.setDoc(fsMod.doc(db,'outletSettings',currentOpsOutlet()),{status,closedUntil:fsMod.deleteField(),updatedAt:fsMod.serverTimestamp()},{merge:true})}
+  catch(e){alert('Gagal simpan: '+(e?.message||e))}
+};
+window.closeUntilTomorrow=async()=>{
+  const t=new Date(); t.setDate(t.getDate()+1); t.setHours(0,0,0,0);
+  if(!confirm(`Tutup ${outletName(currentOpsOutlet())} sehingga esok? Outlet akan buka semula sendiri ikut waktu operasi esok.`))return;
+  try{await fsMod.setDoc(fsMod.doc(db,'outletSettings',currentOpsOutlet()),{status:'closed',closedUntil:t.getTime(),updatedAt:fsMod.serverTimestamp()},{merge:true})}
+  catch(e){alert('Gagal simpan: '+(e?.message||e))}
+};
+const DAYS=['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];
+const STD_HOURS=['11:00-22:30','11:00-22:30','11:00-22:30','11:00-22:30','11:00-22:30','14:30-22:30','11:00-22:30'];
+function hoursFromSetting(){const h=outletSetting.hours;if(Array.isArray(h)&&h.length===7)return h.map(x=>Array.isArray(x)?x.join('-'):(typeof x==='string'?x:''));return STD_HOURS.slice()}
+function renderHoursEditor(){
+  const g=$('hoursGrid'); if(!g||g.contains(document.activeElement))return;
+  const h=hoursFromSetting();
+  g.innerHTML=h.map((x,i)=>{const[a,b]=(x||'').split('-');const open=!!x;return `<div class="hrow"><b>${DAYS[i]}</b><label><input type="checkbox" data-hopen="${i}" ${open?'checked':''}>Buka</label><input type="time" data-ha="${i}" value="${a||'11:00'}" ${open?'':'disabled'} aria-label="${DAYS[i]} buka"><input type="time" data-hb="${i}" value="${b||'22:30'}" ${open?'':'disabled'} aria-label="${DAYS[i]} tutup"></div>`}).join('');
+  g.querySelectorAll('[data-hopen]').forEach(c=>c.onchange=()=>{const i=c.dataset.hopen;g.querySelector(`[data-ha="${i}"]`).disabled=!c.checked;g.querySelector(`[data-hb="${i}"]`).disabled=!c.checked});
+  $('hoursText').textContent=Array.isArray(outletSetting.hours)?'':'(Waktu lalai — belum disimpan)';
+}
+window.saveHours=async()=>{
+  const g=$('hoursGrid'),out=[];
+  for(let i=0;i<7;i++){
+    if(!g.querySelector(`[data-hopen="${i}"]`).checked){out.push('');continue}
+    const a=g.querySelector(`[data-ha="${i}"]`).value,b=g.querySelector(`[data-hb="${i}"]`).value;
+    if(!/^\d{2}:\d{2}$/.test(a)||!/^\d{2}:\d{2}$/.test(b)||a===b)return alert(`Waktu ${DAYS[i]} tidak sah.`);
+    out.push(`${a}-${b}`);
+  }
+  await window.setOutletField('hours',out); $('hoursText').textContent='✓ Disimpan';
+};
+window.useMyLocation=()=>{
+  if(!navigator.geolocation)return alert('Peranti tidak menyokong lokasi.');
+  navigator.geolocation.getCurrentPosition(p=>{$('opsLat').value=p.coords.latitude.toFixed(6);$('opsLng').value=p.coords.longitude.toFixed(6);alert(`Lokasi diambil (ketepatan ±${Math.round(p.coords.accuracy)} m). Tekan "Simpan lokasi".`)},
+    e=>alert('Gagal dapatkan lokasi: '+e.message),{enableHighAccuracy:true,timeout:15000});
+};
+window.saveOutletLoc=async()=>{
+  const lat=$('opsLat').value.trim(),lng=$('opsLng').value.trim();
+  if(lat===''&&lng===''){ if(!confirm('Padam lokasi outlet? Had kawasan delivery akan dimatikan.'))return;
+    try{await fsMod.setDoc(fsMod.doc(db,'outletSettings',currentOpsOutlet()),{lat:fsMod.deleteField(),lng:fsMod.deleteField(),updatedAt:fsMod.serverTimestamp()},{merge:true})}catch(e){alert('Gagal: '+e.message)} return}
+  const a=Number(lat),b=Number(lng);
+  if(!Number.isFinite(a)||!Number.isFinite(b)||a<0.5||a>7.5||b<99||b>120)return alert('Koordinat tidak sah untuk Malaysia.');
+  try{await fsMod.setDoc(fsMod.doc(db,'outletSettings',currentOpsOutlet()),{lat:a,lng:b,updatedAt:fsMod.serverTimestamp()},{merge:true})}catch(e){alert('Gagal: '+e.message)}
+};
+window.saveZone=async()=>{
+  const v=id=>{const x=$(id).value.trim();return x===''?null:Number(x)};
+  const mx=v('opsMaxKm'),bk=v('opsBaseKm'),pk=v('opsPerKm');
+  for(const x of [mx,bk,pk]) if(x!==null&&(!Number.isFinite(x)||x<0))return alert('Nombor tidak sah.');
+  if(mx!==null&&mx<=0)return alert('Maks km mesti lebih dari 0.');
+  const d=fsMod.deleteField();
+  try{await fsMod.setDoc(fsMod.doc(db,'outletSettings',currentOpsOutlet()),{deliveryMaxKm:mx??d,deliveryBaseKm:bk??d,deliveryPerKm:pk??d,updatedAt:fsMod.serverTimestamp()},{merge:true})}catch(e){alert('Gagal: '+e.message)}
 };
 window.setOutletField=async(field,value)=>{
   try{await fsMod.setDoc(fsMod.doc(db,'outletSettings',currentOpsOutlet()),{[field]:value,updatedAt:fsMod.serverTimestamp()},{merge:true})}
@@ -433,6 +571,7 @@ window.changeOwnerBranch=value=>{
  listenOutletOperations();
  if(typeof renderOrders==='function')renderOrders();
  if(typeof renderProducts==='function')renderProducts();
+ renderReport();
 };
 function orderMatchesV9(o){
  const type=o.orderType||o.mode||'pickup';
@@ -481,6 +620,7 @@ function listenOrders(){
     ordersInitialized=true;
     orders=incoming;
     renderOrders();
+    renderReport();
   });
 }
 
@@ -497,12 +637,12 @@ function orderCard(o){
   const mins=minutesAgo(o);
   const late=mins>=12 && !['completed','collected','delivered','served','cancelled'].includes(o.status||'new');
   const next=v9NextStatus(o);
-  const orderNo=o.id||String(o.firestoreId||'').slice(0,7).toUpperCase();
+  const orderNo=o.shortNo||o.id||String(o.firestoreId||'').slice(0,7).toUpperCase();
 
   return `<div class="orderCard ${(o.status||'new')==='new'?'isNew':''}">
     <div class="orderTop">
       <div>
-        <div class="orderNo">#${esc(orderNo)}</div>
+        <div class="orderNo">${o.shortNo?'':'#'}${esc(orderNo)}</div>${o.shortNo?`<small style="font-size:10px">${esc(o.id||'')}</small>`:''}
         <div class="elapsed ${late?'late':''}">⏱ ${mins<1?'BARU':mins+' min'}</div>
         ${o.pickupTime?`<div class="schedTag">⏰ ${esc(o.pickupTime)}</div>`:''}
       </div>
@@ -527,7 +667,7 @@ function orderCard(o){
       `).join('')}
     </div>
 
-    ${(o.orderType||o.mode)==='delivery'?`<div class="orderNote" style="margin-top:8px">🏠 ${esc(o.deliveryAddress||'-')}${o.deliveryNote?`<br>📝 ${esc(o.deliveryNote)}`:''}${o.deliveryLocation?.lat?`<br><a href="https://maps.google.com/?q=${Number(o.deliveryLocation.lat)},${Number(o.deliveryLocation.lng)}" target="_blank" rel="noopener">📍 Buka Google Maps</a>`:''}</div>`:''}
+    ${(o.orderType||o.mode)==='delivery'?`<div class="orderNote" style="margin-top:8px">🏠 ${o.deliveryDistanceKm?`<b>±${esc(o.deliveryDistanceKm)} km</b> • `:''}${esc(o.deliveryAddress||'-')}${o.deliveryNote?`<br>📝 ${esc(o.deliveryNote)}`:''}${o.deliveryLocation?.lat?`<br><a href="https://maps.google.com/?q=${Number(o.deliveryLocation.lat)},${Number(o.deliveryLocation.lng)}" target="_blank" rel="noopener">📍 Buka Google Maps</a>`:''}</div>`:''}
     ${o.orderNote?`<div class="orderNote" style="margin-top:8px">📝 ${esc(o.orderNote)}</div>`:''}
     ${o.pickupTime?`<div class="orderNote" style="margin-top:8px;background:#fff7db">⏰ AMBIL PUKUL ${esc(o.pickupTime)}</div>`:''}
     <div style="margin-top:6px;font-size:12px;font-weight:800">${o.paymentMethod==='cod'?'💵 COD — kutip '+money(o.total):o.paymentMethod==='counter'?'🧾 Bayar di kaunter':''}${o.phone?` • <a href="tel:${esc(o.phone)}">📞 Call</a>`:''}</div>
@@ -540,7 +680,7 @@ function orderCard(o){
     ${o.paymentStatus==='paid'?`<div class="payStatus paid">✅ PAYMENT CONFIRMED</div>`:''}
     ${next?`<button class="action ${next[1]==='ready'?'ready':''}" onclick="window.updateStatus('${o.firestoreId}','${next[1]}')">${next[0]}</button>`:''}
     ${['new','preparing'].includes(o.status||'new')?`<button class="cancelBtn" onclick="window.cancelOrder('${o.firestoreId}','${esc(orderNo)}')">✕ BATALKAN ORDER</button>`:''}
-    ${o.status==='cancelled'?`<div class="orderNote" style="background:#fff0f0;color:#b32121;margin-top:8px">✕ DIBATALKAN</div>`:''}
+    ${o.status==='cancelled'?`<div class="orderNote" style="background:#fff0f0;color:#b32121;margin-top:8px">✕ DIBATALKAN${o.cancelReason?` — ${esc(o.cancelReason)}`:''}</div>`:''}
   </div>`;
 }
 function renderOrders(){
@@ -556,10 +696,20 @@ function renderOrders(){
   const sales=groups.completed.filter(o=>o.status!=='cancelled').filter(o=>(o.createdAt?.toDate?.()||new Date(o.created||0))>=today).reduce((s,o)=>s+Number(o.total||0),0);
   $('sToday').textContent=money(sales);
 }
-window.cancelOrder=async(id,no)=>{
-  if(!confirm(`Batalkan order #${no}? Customer akan nampak status DIBATALKAN.`)) return;
-  try{await fsMod.updateDoc(fsMod.doc(db,'orders',id),{status:'cancelled',orderStatus:'cancelled',cancelledAt:fsMod.serverTimestamp(),cancelledBy:profile.uid,updatedAt:fsMod.serverTimestamp()})}
-  catch(e){alert('Gagal batalkan: '+(e?.message||e))}
+window.cancelOrder=(id,no)=>{
+  const m=$('cancelModal'); $('cmNo').textContent=no; $('cmOther').value='';
+  m.querySelector('input[value="Menu habis / stok tidak cukup"]').checked=true; m.classList.add('show');
+  $('cmBack').onclick=()=>m.classList.remove('show');
+  m.onclick=e=>{if(e.target===m)m.classList.remove('show')};
+  $('cmOther').onfocus=()=>{m.querySelector('input[value="__other"]').checked=true};
+  $('cmOk').onclick=async()=>{
+    let r=m.querySelector('input[name=cr]:checked')?.value||'';
+    if(r==='__other'){r=$('cmOther').value.trim();if(!r)return alert('Sila tulis sebab pembatalan.')}
+    $('cmOk').disabled=true;
+    try{await fsMod.updateDoc(fsMod.doc(db,'orders',id),{status:'cancelled',orderStatus:'cancelled',cancelReason:r,cancelledAt:fsMod.serverTimestamp(),cancelledBy:profile.uid,updatedAt:fsMod.serverTimestamp()});m.classList.remove('show')}
+    catch(e){alert('Gagal batalkan: '+(e?.message||e))}
+    finally{$('cmOk').disabled=false}
+  };
 };
 window.updateStatus=async(id,status)=>{
   try{await fsMod.updateDoc(fsMod.doc(db,'orders',id),{status,orderStatus:status,updatedAt:fsMod.serverTimestamp()})}

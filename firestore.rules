@@ -45,6 +45,15 @@ service cloud.firestore {
       allow update: if isStaff() && sameOutlet(resource.data);
       allow delete: if isOwner();
     }
+    // Kaunter nombor order harian (T-001, L-001...). Hanya boleh naik 1 setiap kali.
+    match /counters/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.resource.data.n == 1
+        && request.resource.data.keys().hasOnly(['n','outletId','date']);
+      allow update: if signedIn() && request.resource.data.n == resource.data.n + 1
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['n']);
+      allow delete: if isOwner();
+    }
     match /customers/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || isStaff());
       allow create, update: if signedIn() && (request.auth.uid == uid || isStaff());
