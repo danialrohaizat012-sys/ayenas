@@ -31,3 +31,15 @@ crew.html
 - Kad order papar alamat delivery, nota rider, link Google Maps, COD/kaunter dan butang call.
 - Tambahan (extrasList) dipapar nama penuh.
 - Fix: order status collected/delivered/on-the-way tidak lagi naik semula ke kolum NEW.
+
+AYENAS V13 — UI/UX PASS
+- Menu: header ringkas (outlet + status + troli), kad Pickup/Delivery, "Pilihan popular" carousel,
+  tab kategori melekat yang ikut skrol (scrollspy), senarai menu gaya app food delivery.
+- Navigasi 3 tab: Menu · Pesanan · Akaun. Troli dibuka dari bar troli / ikon beg.
+- Checkout: bar "Hantar order" + jumlah sentiasa di bawah, pilihan MASA AMBIL untuk pickup
+  (secepat mungkin atau slot 15 minit ikut waktu operasi), pre-order bila outlet belum buka.
+- Skrin "Order dihantar!" + nombor order, kemudian status live.
+- Warna lebih neutral, ikut identiti Ayenas (merah, kuning, hitam).
+- Gambar menu dibersihkan: tulisan poster (harga, "BAKAR", senarai menu, lencana) dibuang,
+  pinggan/cawan di-trace atas latar studio gelap, semua 800x800.
+- Order baru ada field `pickupTime` ('HH:MM' atau null). crew.html paparkan "AMBIL PUKUL".
