@@ -117,7 +117,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 .cmodal label{display:flex;gap:8px;align-items:center;padding:9px 0;font-size:14px;border-bottom:1px solid #f1ece7}.cmodal input[type=radio]{width:auto}
 .wakeBtn.on{background:#fff;color:#111}
 @media(max-width:700px){.rep{grid-template-columns:1fr 1fr}}
-.ph{width:100%;height:145px;display:grid;place-items:center;background:linear-gradient(135deg,#FFF1F0,#FFD9D6);color:#D10A12}.ph .ms{font-size:56px;width:1em;margin:0}
+.ph{width:100%;height:145px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#FFF5F3,#FFE0DC);line-height:0}.ph svg{height:72%;width:auto;aspect-ratio:1;display:block}
 .preview.ph{height:220px;border-radius:15px;margin-top:10px}
 .chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.chipO{font-size:10px;font-weight:800;padding:3px 7px;border-radius:6px;background:#f3efeb;color:#5d554f}
 .vsum{font-size:11px;color:#746E68;margin-top:4px;line-height:1.4}
@@ -296,7 +296,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 <div class="modal" id="productModal">
   <div class="modalCard">
     <div class="modalHead"><h2 id="modalTitle">Edit Produk</h2><button id="closeModal">×</button></div>
-    <img id="imgPreview" class="preview" src="nasi.jpg" alt=""><div id="imgPh" class="preview ph" style="display:none"><span class="ms">restaurant</span></div>
+    <img id="imgPreview" class="preview" src="nasi.jpg" alt=""><div id="imgPh" class="preview ph" style="display:none"></div>
     <button type="button" class="soldToggle" id="removeImgBtn" style="margin-top:8px">Guna ikon (buang gambar)</button>
     <div class="field">
   <label>GAMBAR BARU</label>
@@ -321,6 +321,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 </div>
 
 <script type="module">
+import {foodIcon} from './food-icons.js';
 const firebaseConfig = {"apiKey": "AIzaSyAQdk3ZfMnIGyr7k2UD1HDc3UQWWbxSFFw", "authDomain": "ayenas-1dcd9.firebaseapp.com", "projectId": "ayenas-1dcd9", "storageBucket": "ayenas-1dcd9.firebasestorage.app", "messagingSenderId": "503075108633", "appId": "1:503075108633:web:0a8e912f634dbfbadeb788"};
 const [appMod,authMod,fsMod] = await Promise.all([
   import('https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js'),
@@ -763,7 +764,7 @@ function renderProducts(){
   const ib=$('importBox'); if(ib) ib.style.display=profile?.role==='owner'?'flex':'none';
   const oid=currentOpsOutlet();
   $('productList').innerHTML=products.map(p=>{const outs=Array.isArray(p.outlets)&&p.outlets.length?p.outlets:null;const here=!outs||outs.includes(oid);const vv=p.variants?.options;return `<div class="product">
-    ${hasPhoto(p)?`<img src="${esc(p.imageUrl)}" alt="" loading="lazy" onerror="this.style.display='none'">`:`<div class="ph"><span class="ms">${esc(picon(p))}</span></div>`}
+    ${hasPhoto(p)?`<img src="${esc(p.imageUrl)}" alt="" loading="lazy" onerror="this.style.display='none'">`:`<div class="ph">${foodIcon(p)}</div>`}
     <div class="productBody">
       <div class="row"><h3>${esc(p.name)}</h3><span class="pill ${p.active===false?'off':''}">${p.active===false?'Tidak aktif':'Aktif'}</span></div>
       <small>${esc(p.category)} • ${Array.isArray(vv)&&vv.length?'dari '+money(Math.min(...vv.map(o=>Number(o.price)||0))):money(p.price)}</small>
@@ -808,7 +809,7 @@ function renderCustomers(){
 }
 
 let removeImg=false;
-function showPreview(p){const ph=!hasPhoto(p);$('imgPreview').style.display=ph?'none':'block';$('imgPh').style.display=ph?'grid':'none';if(!ph)$('imgPreview').src=p.imageUrl;$('imgPh').querySelector('.ms').textContent=picon(p)}
+function showPreview(p){const ph=!hasPhoto(p);$('imgPreview').style.display=ph?'none':'block';$('imgPh').style.display=ph?'grid':'none';if(!ph)$('imgPreview').src=p.imageUrl;$('imgPh').innerHTML=foodIcon({name:p.name||$('pName')?.value||'',category:p.category||$('pCategory')?.value||''})}
 window.editProduct=id=>{
   const p=products.find(x=>x.id===id); editingId=id; removeImg=false;
   $('modalTitle').textContent='Edit Produk'; $('pName').value=p.name||''; $('pCategory').value=p.category||'';

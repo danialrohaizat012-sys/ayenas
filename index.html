@@ -207,10 +207,10 @@ h1[tabindex]{outline:none}
 /* ---------- Product detail ---------- */
 .pd-hero{position:relative;height:min(52vh,420px);background:#1a1412}
 .pd-hero img{width:100%;height:100%;object-fit:cover}
-.ph{width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(135deg,#FFF1F0,#FFD9D6);color:var(--red)}
-.ph .ms{font-size:46px}
-.pd-hero .ph .ms{font-size:120px;opacity:.9}
-.citem .ph,.hocard .ph{width:64px;height:64px;border-radius:12px;flex:none}.citem .ph .ms,.hocard .ph .ms{font-size:30px}
+.ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#FFF5F3,#FFE0DC);line-height:0}
+.ph svg{width:68%;height:68%;display:block;flex:none}
+.pd-hero .ph svg{width:min(52%,240px);height:auto;aspect-ratio:1}
+.citem .ph,.hocard .ph{width:64px;height:64px;border-radius:12px;flex:none}.citem .ph svg,.hocard .ph svg{width:82%;height:82%}
 .hocard .ph{width:56px;height:56px}
 .vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
 .vopt{border:1.5px solid var(--line2);background:#fff;border-radius:12px;padding:10px 8px;text-align:center;display:flex;flex-direction:column;gap:2px;min-height:58px;justify-content:center}
@@ -568,6 +568,7 @@ html.ov #app,html.ov .bnav,html.ov .fcart,html.ov .actbar{visibility:hidden}
 </div>
 
 <script type="module">
+import {foodIcon} from './food-icons.js';
 /* ================= CONFIG ================= */
 const firebaseConfig = {"apiKey":"AIzaSyAQdk3ZfMnIGyr7k2UD1HDc3UQWWbxSFFw","authDomain":"ayenas-1dcd9.firebaseapp.com","projectId":"ayenas-1dcd9","storageBucket":"ayenas-1dcd9.firebasestorage.app","messagingSenderId":"503075108633","appId":"1:503075108633:web:0a8e912f634dbfbadeb788"};
 const FB='https://www.gstatic.com/firebasejs/12.17.1/';
@@ -681,7 +682,7 @@ const CAT_ICONS={'ayam bakar':'outdoor_grill','spageti':'dinner_dining','set kel
 const catIcon=c=>CAT_ICONS[String(c||'').trim().toLowerCase()]||'restaurant';
 const hasPhoto=p=>{const u=p?.imageUrl||p?.image;return !!u&&/^(data:image\/|https?:\/\/|[\w.\-\/]+\.(jpe?g|png|webp|gif)$)/i.test(u)};
 const picon=p=>p?.icon||catIcon(p?.category);
-const pic=(p,lazy=true)=>hasPhoto(p)?`<img src="${esc(imgSrc(p))}" alt=""${lazy?' loading="lazy"':''}>`:`<span class="ph"><span class="ms f" aria-hidden="true">${esc(picon(p))}</span></span>`;
+const pic=(p,lazy=true)=>hasPhoto(p)?`<img src="${esc(imgSrc(p))}" alt=""${lazy?' loading="lazy"':''}>`:`<span class="ph">${foodIcon(p)}</span>`;
 const avail=(p,o=S.outlet)=>!Array.isArray(p?.outlets)||!p.outlets.length||!o||p.outlets.includes(o);
 const variantsOf=p=>{const v=p?.variants;if(!v||!Array.isArray(v.options))return null;const o=v.options.filter(x=>x&&x.name).map(x=>({name:String(x.name),price:num(x.price)}));return o.length?{label:String(v.label||'Pilihan'),options:o}:null};
 const minPrice=p=>{const v=variantsOf(p);return v?Math.min(...v.options.map(o=>o.price)):num(p?.price)};

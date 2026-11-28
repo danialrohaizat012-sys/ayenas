@@ -1,6 +1,6 @@
 // Ayenas v12 — network-first untuk HTML & data, cache-first untuk gambar/ikon.
-const CACHE='ayenas-v22';
-const STATIC=['./','./index.html','./crew.html','./manifest.webmanifest','./icon-192.png','./icon-512.png',
+const CACHE='ayenas-v23';
+const STATIC=['./','./index.html','./crew.html','./manifest.webmanifest','./food-icons.js','./icon-192.png','./icon-512.png',
   './korean.jpg','./nasi.jpg','./ramen.jpg','./pasta.jpg','./mandy.jpg','./superbox.jpg','./chickenchop.jpg','./snacks.jpg','./drinks.jpg'];
 self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(STATIC)).catch(()=>{}))});
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))).then(()=>self.clients.claim())));
