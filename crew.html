@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#F20D12">
 <title>Ayenas Crew Console</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&icon_names=alarm,bar_chart,bedtime,block,call,check,check_circle,close,edit_note,group,history,home,light_mode,location_on,logout,my_location,notifications,notifications_off,payments,person,point_of_sale,receipt_long,restaurant_menu,save,schedule,settings,shopping_bag,two_wheeler,verified&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&icon_names=alarm,bakery_dining,bar_chart,bedtime,block,call,check,check_circle,close,coffee,dinner_dining,edit_note,egg,emoji_food_beverage,fastfood,group,history,home,light_mode,local_cafe,local_drink,location_on,logout,lunch_dining,my_location,notifications,notifications_off,nutrition,outdoor_grill,payments,person,point_of_sale,ramen_dining,receipt_long,restaurant,restaurant_menu,rice_bowl,save,schedule,set_meal,settings,shopping_bag,takeout_dining,tapas,two_wheeler,verified,water_drop&display=block" rel="stylesheet">
 <style>
 :root{--red:#D10A12;--black:#111;--cream:#FFF8F1;--yellow:#FFC928;--line:#E9E2DA;--muted:#746E68}
 *{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f2eee9;color:#111}
@@ -117,6 +117,13 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 .cmodal label{display:flex;gap:8px;align-items:center;padding:9px 0;font-size:14px;border-bottom:1px solid #f1ece7}.cmodal input[type=radio]{width:auto}
 .wakeBtn.on{background:#fff;color:#111}
 @media(max-width:700px){.rep{grid-template-columns:1fr 1fr}}
+.ph{width:100%;height:145px;display:grid;place-items:center;background:linear-gradient(135deg,#FFF1F0,#FFD9D6);color:#D10A12}.ph .ms{font-size:56px;width:1em;margin:0}
+.preview.ph{height:220px;border-radius:15px;margin-top:10px}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.chipO{font-size:10px;font-weight:800;padding:3px 7px;border-radius:6px;background:#f3efeb;color:#5d554f}
+.vsum{font-size:11px;color:#746E68;margin-top:4px;line-height:1.4}
+.importBox{background:#fff;border:1px solid var(--line);border-radius:15px;padding:14px;margin-bottom:14px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.outletChecks{display:flex;gap:14px;flex-wrap:wrap}.outletChecks label{display:flex;gap:6px;align-items:center;font-size:13px;font-weight:700}.outletChecks input{width:auto}
+.hint{display:block;color:#746E68;font-size:11px;margin-top:4px;line-height:1.4}
 .cancelBtn{width:100%;margin-top:7px;border:1px solid #f1c4c4;border-radius:9px;padding:8px;background:#fff;color:#b32121;font-weight:900;font-size:11px}
 .schedTag{display:inline-block;margin-top:6px;background:#FFC928;color:#111;border-radius:7px;padding:4px 8px;font-size:11px;font-weight:1000}
 .soldRow{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
@@ -202,6 +209,10 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
       <div class="toolbar"><h2>Menu Ayenas</h2><button id="addProductBtn">+ Produk</button></div>
       <div class="notice" id="seedNotice">Jika Firestore masih kosong, tekan “Import Menu Asas” sekali sahaja.</div>
       <button class="primary" id="seedBtn" style="max-width:220px;margin:0 0 14px">IMPORT MENU ASAS</button>
+      <div class="importBox" id="importBox" style="display:none">
+        <div><b>Menu Tanah Merah 2025</b><span class="hint">54 menu daripada PDF menu (saiz S/M, perisa mix, minuman sejuk/panas, add-on). Menu lama sedia ada akan ditanda untuk Lembah Sireh sahaja.</span></div>
+        <button class="primary" style="width:auto;margin:0;padding:12px 16px" id="importTmBtn">IMPORT MENU TANAH MERAH</button>
+      </div>
       <div class="productList" id="productList"></div>
     </section>
 
@@ -285,7 +296,8 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
 <div class="modal" id="productModal">
   <div class="modalCard">
     <div class="modalHead"><h2 id="modalTitle">Edit Produk</h2><button id="closeModal">×</button></div>
-    <img id="imgPreview" class="preview" src="nasi.jpg">
+    <img id="imgPreview" class="preview" src="nasi.jpg" alt=""><div id="imgPh" class="preview ph" style="display:none"><span class="ms">restaurant</span></div>
+    <button type="button" class="soldToggle" id="removeImgBtn" style="margin-top:8px">Guna ikon (buang gambar)</button>
     <div class="field">
   <label>GAMBAR BARU</label>
   <input id="pImage" type="file" accept="image/*" capture="environment">
@@ -299,6 +311,10 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}
     <div class="field"><label>HARGA (RM)</label><input id="pPrice" type="number" step="0.10"></div>
     <div class="field"><label>DESCRIPTION</label><textarea id="pDesc" rows="3"></textarea></div>
     <div class="field"><label>BADGE</label><input id="pBadge" placeholder="POPULAR / NEW / HOT"></div>
+    <div class="field"><label>DIJUAL DI OUTLET</label><div class="outletChecks"><label><input type="checkbox" id="pOutTM" value="tanah-merah">Tanah Merah</label><label><input type="checkbox" id="pOutLS" value="lembah-sireh">Lembah Sireh</label></div></div>
+    <div class="field"><label for="pVarLabel">PILIHAN (SAIZ / PERISA)</label><input id="pVarLabel" placeholder="cth: Pilih saiz"><textarea id="pVars" rows="3" placeholder="Satu pilihan setiap baris, cth:&#10;S = 7.90&#10;M = 11.90" style="margin-top:6px"></textarea><span class="hint">Kosongkan jika tiada pilihan. Jika ada pilihan, harga di atas diabaikan (harga ikut pilihan).</span></div>
+    <div class="field"><label for="pAddons">ADD-ON / EXTRA</label><textarea id="pAddons" rows="2" placeholder="Satu add-on setiap baris, cth:&#10;Cheese Nacho = 2&#10;Sos Thai Pedas = 1"></textarea></div>
+    <div class="field"><label for="pSort">SUSUNAN</label><input id="pSort" type="number" step="1" placeholder="cth: 10 (kecil = di atas)"></div>
     <div class="switchRow"><b>Available</b><input id="pActive" type="checkbox" style="width:auto"></div>
     <button class="primary" id="saveProductBtn">SIMPAN PERUBAHAN</button>
   </div>
@@ -324,6 +340,13 @@ let orderTypeFilter='all', ownerBranch='all', opsBranch=null;
 const $=id=>document.getElementById(id);
 const money=n=>'RM'+Number(n||0).toFixed(2);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MENU_TM=[{"id": "tm-nasi-ayam-madu", "name": "Nasi Ayam Madu", "category": "Nasi Ayam", "desc": "Ayam bakar madu manis berasap + nasi basmathi.", "badge": "POPULAR", "sort": 10, "addons": [{"id": "cheese", "name": "Cheese Nacho", "price": 2}, {"id": "sos-thai", "name": "Sos Thai Pedas", "price": 1}], "variants": {"label": "Pilih saiz", "options": [{"name": "S", "price": 7.9}, {"name": "M", "price": 11.9}]}, "price": 7.9, "imageUrl": "nasi.jpg"}, {"id": "tm-nasi-ayam-herba", "name": "Nasi Ayam Herba", "category": "Nasi Ayam", "desc": "Ayam bakar herba aromatik + nasi basmathi.", "badge": "", "sort": 20, "addons": [{"id": "cheese", "name": "Cheese Nacho", "price": 2}, {"id": "sos-thai", "name": "Sos Thai Pedas", "price": 1}], "variants": {"label": "Pilih saiz", "options": [{"name": "S", "price": 8.9}, {"name": "M", "price": 13.9}]}, "price": 8.9, "imageUrl": "nasi.jpg"}, {"id": "tm-nasi-ayam-korean", "name": "Nasi Ayam Korean Spicy", "category": "Nasi Ayam", "desc": "Ayam bakar Korean Spicy + nasi basmathi + sos Ayenas.", "badge": "#1 BEST SELLER", "sort": 30, "addons": [{"id": "cheese", "name": "Cheese Nacho", "price": 2}, {"id": "sos-thai", "name": "Sos Thai Pedas", "price": 1}], "variants": {"label": "Pilih saiz", "options": [{"name": "S", "price": 8.9}, {"name": "M", "price": 13.9}]}, "price": 8.9, "imageUrl": "korean.jpg"}, {"id": "tm-nasi-ayam-mix", "name": "Nasi Ayam Mix", "category": "Nasi Ayam", "desc": "Dua perisa ayam bakar + nasi basmathi.", "badge": "", "sort": 40, "addons": [{"id": "cheese", "name": "Cheese Nacho", "price": 2}, {"id": "sos-thai", "name": "Sos Thai Pedas", "price": 1}], "variants": {"label": "Pilih perisa", "options": [{"name": "Madu + Herba", "price": 12.9}, {"name": "Madu + Korean Spicy", "price": 13.9}, {"name": "Herba + Korean Spicy", "price": 14.9}]}, "price": 12.9, "imageUrl": ""}, {"id": "tm-set-ayam-bakar", "name": "Set Ayam Bakar (2 pcs)", "category": "Ayam Bakar", "desc": "Dua ketul ayam bakar Ayenas.", "badge": "", "sort": 50, "addons": [{"id": "cheese", "name": "Cheese Nacho", "price": 2}, {"id": "sos-thai", "name": "Sos Thai Pedas", "price": 1}], "variants": {"label": "Pilih perisa", "options": [{"name": "Madu", "price": 9.9}, {"name": "Herba", "price": 11.9}, {"name": "Korean Spicy", "price": 11.5}, {"name": "Madu + Herba", "price": 11.9}, {"name": "Madu + Korean Spicy", "price": 10.9}, {"name": "Herba + Korean Spicy", "price": 12.9}]}, "price": 9.9, "imageUrl": ""}, {"id": "tm-ramen-madu", "name": "Ramen Ayam Madu", "category": "Ramen", "desc": "Ramen + ayam bakar madu.", "badge": "", "sort": 60, "addons": [{"id": "cheese", "name": "Cheese Nacho", "price": 1}, {"id": "sos-thai", "name": "Sos Thai Pedas", "price": 1}], "variants": {"label": "Pilih saiz", "options": [{"name": "S", "price": 9.9}, {"name": "M", "price": 13.9}]}, "price": 9.9, "imageUrl": "ramen.jpg"}, {"id": "tm-ramen-herba", "name": "Ramen Ayam Herba", "category": "Ramen", "desc": "Ramen + ayam bakar herba.", "badge": "", "sort": 70, "addons": [{"id": "cheese", "name": "Cheese Nacho", "price": 1}, {"id": "sos-thai", "name": "Sos Thai Pedas", "price": 1}], "variants": {"label": "Pilih saiz", "options": [{"name": "S", "price": 12.9}, {"name": "M", "price": 17.9}]}, "price": 12.9, "imageUrl": "ramen.jpg"}, {"id": "tm-ramen-korean", "name": "Ramen Ayam Korean Spicy", "category": "Ramen", "desc": "Ramen spicy + ayam bakar Korean Spicy.", "badge": "HOT", "sort": 80, "addons": [{"id": "cheese", "name": "Cheese Nacho", "price": 1}, {"id": "sos-thai", "name": "Sos Thai Pedas", "price": 1}], "variants": {"label": "Pilih saiz", "options": [{"name": "S", "price": 11.5}, {"name": "M", "price": 15.9}]}, "price": 11.5, "imageUrl": "ramen.jpg"}, {"id": "tm-ramen-mix", "name": "Ramen Ayam Mix", "category": "Ramen", "desc": "Ramen + dua perisa ayam bakar.", "badge": "", "sort": 90, "addons": [{"id": "cheese", "name": "Cheese Nacho", "price": 1}, {"id": "sos-thai", "name": "Sos Thai Pedas", "price": 1}], "variants": {"label": "Pilih perisa", "options": [{"name": "Madu + Herba", "price": 15.9}, {"name": "Madu + Korean Spicy", "price": 15.9}, {"name": "Herba + Korean Spicy", "price": 17.9}]}, "price": 15.9, "imageUrl": ""}, {"id": "tm-ramen-2xl", "name": "Ramen Ayam Bakar Korean Spicy 2XL", "category": "Ramen", "desc": "2x ramen, 4 pcs ayam bakar Korean Spicy, 1 set tortilla nachos.", "badge": "NEW", "sort": 100, "addons": [{"id": "cheese", "name": "Cheese Nacho", "price": 1}, {"id": "sos-thai", "name": "Sos Thai Pedas", "price": 1}], "price": 33.9, "imageUrl": "korean.jpg"}, {"id": "tm-aglio-madu", "name": "Aglio Olio Ayam Madu", "category": "Spageti", "desc": "Spageti aglio olio + ayam bakar madu.", "badge": "", "sort": 110, "addons": [{"id": "cheese", "name": "Cheese Nacho", "price": 1}, {"id": "sos-thai", "name": "Sos Thai Pedas", "price": 1}], "variants": {"label": "Pilih saiz", "options": [{"name": "S", "price": 9.9}, {"name": "M", "price": 13.9}]}, "price": 9.9, "imageUrl": "pasta.jpg"}, {"id": "tm-aglio-herba", "name": "Aglio Olio Ayam Herba", "category": "Spageti", "desc": "Spageti aglio olio + ayam bakar herba.", "badge": "", "sort": 120, "addons": [{"id": "cheese", "name": "Cheese Nacho", "price": 1}, {"id": "sos-thai", "name": "Sos Thai Pedas", "price": 1}], "variants": {"label": "Pilih saiz", "options": [{"name": "S", "price": 12.9}, {"name": "M", "price": 17.9}]}, "price": 12.9, "imageUrl": "pasta.jpg"}, {"id": "tm-aglio-korean", "name": "Aglio Olio Ayam Korean Spicy", "category": "Spageti", "desc": "Spageti aglio olio + ayam bakar Korean Spicy.", "badge": "", "sort": 130, "addons": [{"id": "cheese", "name": "Cheese Nacho", "price": 1}, {"id": "sos-thai", "name": "Sos Thai Pedas", "price": 1}], "variants": {"label": "Pilih saiz", "options": [{"name": "S", "price": 11.5}, {"name": "M", "price": 15.9}]}, "price": 11.5, "imageUrl": "pasta.jpg"}, {"id": "tm-aglio-mix", "name": "Aglio Olio Ayam Mix", "category": "Spageti", "desc": "Spageti aglio olio + dua perisa ayam bakar.", "badge": "", "sort": 140, "addons": [{"id": "cheese", "name": "Cheese Nacho", "price": 1}, {"id": "sos-thai", "name": "Sos Thai Pedas", "price": 1}], "variants": {"label": "Pilih perisa", "options": [{"name": "Madu + Herba", "price": 15.9}, {"name": "Madu + Korean Spicy", "price": 15.5}, {"name": "Herba + Korean Spicy", "price": 17.9}]}, "price": 15.5, "imageUrl": ""}, {"id": "tm-nasi-mandy-ayam", "name": "Nasi Mandy Ayam", "category": "Mandy", "desc": "Nasi Arab Mandy dengan ayam.", "badge": "", "sort": 150, "addons": [], "variants": {"label": "Pilih set", "options": [{"name": "1/4 ekor (Single)", "price": 13.9}, {"name": "1/2 ekor (Medium)", "price": 25.9}]}, "price": 13.9, "imageUrl": "mandy.jpg"}, {"id": "tm-nasi-mandy-kambing", "name": "Nasi Mandy Kambing", "category": "Mandy", "desc": "Nasi Arab Mandy dengan kambing.", "badge": "", "sort": 160, "addons": [], "variants": {"label": "Pilih set", "options": [{"name": "140g (Single)", "price": 17.9}, {"name": "250g (Medium)", "price": 31.9}]}, "price": 17.9, "imageUrl": ""}, {"id": "tm-mandy-ayam-sekor", "name": "Mandy Ayam Sekor (Talam)", "category": "Mandy", "desc": "Satu talam untuk 4 dewasa. Harga bungkus / take-away.", "badge": "FAMILY PICK", "sort": 170, "addons": [], "price": 46.9, "imageUrl": "mandy.jpg"}, {"id": "tm-mandy-kambing-500", "name": "Mandy Kambing 500g (Talam)", "category": "Mandy", "desc": "Satu talam untuk 4 dewasa. Harga bungkus / take-away.", "badge": "", "sort": 180, "addons": [], "price": 59.9, "imageUrl": ""}, {"id": "tm-mandy-mix", "name": "Mandy Mix (Talam)", "category": "Mandy", "desc": "Ayam 1/2 + kambing 250g. Satu talam untuk 4 dewasa. Harga bungkus / take-away.", "badge": "", "sort": 190, "addons": [], "price": 55.9, "imageUrl": ""}, {"id": "tm-set-mesra-keluarga", "name": "Set Mesra Keluarga", "category": "Set Keluarga", "desc": "2 nasi basmathi, ramen, spageti aglio olio, tortilla nachos, burrito Ayenas, ayam sekor (madu + Korean Spicy).", "badge": "FAMILY", "sort": 200, "addons": [], "price": 69.9, "imageUrl": ""}, {"id": "tm-superbox", "name": "Superbox Ayenas", "category": "Set Keluarga", "desc": "5 menu dalam 1 box: ayam bakar madu, herba & Korean Spicy, ramen spicy, spageti aglio olio.", "badge": "SHARE", "sort": 210, "addons": [], "price": 32.9, "imageUrl": "superbox.jpg"}, {"id": "tm-chicken-chop", "name": "Chicken Chop Ayenas", "category": "Western", "desc": "Homemade fresh chicken chop dengan fries, salad & sos.", "badge": "NEW", "sort": 220, "addons": [], "price": 17.9, "imageUrl": "chickenchop.jpg"}, {"id": "tm-diet-chicken-grill", "name": "Set Chicken Grill", "category": "Menu Diet", "desc": "Chicken grill, telur rebus & sayur. Realfood & healthy meal.", "badge": "", "sort": 230, "addons": [{"id": "sayur", "name": "Tambah Sayur", "price": 4}], "price": 10.9, "imageUrl": ""}, {"id": "tm-diet-burrito", "name": "Burrito + Sayur", "category": "Menu Diet", "desc": "Burrito Ayenas bersama sayur.", "badge": "", "sort": 240, "addons": [{"id": "sayur", "name": "Tambah Sayur", "price": 4}], "price": 10.9, "imageUrl": ""}, {"id": "tm-diet-nasi-ayam", "name": "Set Nasi Ayam Diet", "category": "Menu Diet", "desc": "Nasi perang (brown rice), chicken grill herba & sayur.", "badge": "", "sort": 250, "addons": [{"id": "sayur", "name": "Tambah Sayur", "price": 4}], "price": 12.9, "imageUrl": ""}, {"id": "tm-diet-aglio", "name": "Set Aglio Olio Diet", "category": "Menu Diet", "desc": "Aglio olio, chicken grill, telur rebus & sayur.", "badge": "", "sort": 260, "addons": [{"id": "sayur", "name": "Tambah Sayur", "price": 4}], "price": 13.9, "imageUrl": ""}, {"id": "tm-diet-grill-sayur", "name": "Chicken Grill Herba + Sayur", "category": "Menu Diet", "desc": "Chicken grill herba bersama sayur.", "badge": "", "sort": 270, "addons": [{"id": "sayur", "name": "Tambah Sayur", "price": 4}], "price": 9.9, "imageUrl": ""}, {"id": "tm-diet-telur-sayur", "name": "Telur 2 Biji + Sayur", "category": "Menu Diet", "desc": "Dua biji telur bersama sayur.", "badge": "", "sort": 280, "addons": [{"id": "sayur", "name": "Tambah Sayur", "price": 4}], "price": 6.9, "icon": "egg", "imageUrl": ""}, {"id": "tm-tortilla", "name": "Tortilla", "category": "Snek", "desc": "Tortilla nachos rangup dengan sos.", "badge": "", "sort": 290, "addons": [], "price": 7.0, "imageUrl": ""}, {"id": "tm-burrito", "name": "Burrito Ayenas", "category": "Snek", "desc": "Burrito ringkas untuk snek atau light meal.", "badge": "", "sort": 300, "addons": [], "price": 7.0, "imageUrl": "snacks.jpg"}, {"id": "tm-tortilla-fries", "name": "Tortilla & Fries (Mix)", "category": "Snek", "desc": "Gabungan tortilla nachos dan fries dengan sos.", "badge": "", "sort": 310, "addons": [], "price": 8.0, "icon": "fastfood", "imageUrl": ""}, {"id": "tm-fries", "name": "Fries", "category": "Snek", "desc": "Kentang goreng dengan sos.", "badge": "", "sort": 320, "addons": [], "price": 7.0, "icon": "fastfood", "imageUrl": ""}, {"id": "tm-freshie", "name": "Freshie Sparkling", "category": "Minuman", "desc": "Minuman sparkling yang segar.", "badge": "MOST POPULAR", "sort": 330, "addons": [], "variants": {"label": "Pilih perisa", "options": [{"name": "Pink Lemonade", "price": 6}, {"name": "Syrup Lemonade", "price": 6}, {"name": "Peach Tea", "price": 6}, {"name": "Mango", "price": 5}, {"name": "Strawberry", "price": 5}, {"name": "Kiwi", "price": 5}]}, "price": 5, "imageUrl": "drinks.jpg"}, {"id": "tm-special-milky", "name": "Special Milky", "category": "Minuman", "desc": "Minuman susu istimewa Ayenas.", "badge": "", "sort": 340, "addons": [], "variants": {"label": "Pilih perisa", "options": [{"name": "Avocado", "price": 7}, {"name": "Green Tea", "price": 7}, {"name": "Latte", "price": 6.5}, {"name": "Chocolate", "price": 6.5}, {"name": "Mango", "price": 6}, {"name": "Strawberry", "price": 6}]}, "price": 6, "icon": "local_cafe", "imageUrl": ""}, {"id": "tm-coklat-vico", "name": "Coklat Vico", "category": "Minuman", "desc": "Minuman Bestie Ayenas — sejuk atau panas.", "badge": "", "sort": 350, "addons": [], "variants": {"label": "Pilihan", "options": [{"name": "Sejuk", "price": 3.5}, {"name": "Panas", "price": 3.0}]}, "price": 3.0, "icon": "coffee", "imageUrl": ""}, {"id": "tm-nescafe", "name": "Nescafe", "category": "Minuman", "desc": "Minuman Bestie Ayenas — sejuk atau panas.", "badge": "", "sort": 360, "addons": [], "variants": {"label": "Pilihan", "options": [{"name": "Sejuk", "price": 3.3}, {"name": "Panas", "price": 2.9}]}, "price": 2.9, "icon": "coffee", "imageUrl": ""}, {"id": "tm-nescafe-o", "name": "Nescafe O", "category": "Minuman", "desc": "Minuman Bestie Ayenas — sejuk atau panas.", "badge": "", "sort": 370, "addons": [], "variants": {"label": "Pilihan", "options": [{"name": "Sejuk", "price": 2.7}, {"name": "Panas", "price": 2.4}]}, "price": 2.4, "icon": "coffee", "imageUrl": ""}, {"id": "tm-neslo", "name": "Neslo", "category": "Minuman", "desc": "Minuman Bestie Ayenas — sejuk atau panas.", "badge": "", "sort": 380, "addons": [], "variants": {"label": "Pilihan", "options": [{"name": "Sejuk", "price": 3.9}, {"name": "Panas", "price": 3.3}]}, "price": 3.3, "icon": "coffee", "imageUrl": ""}, {"id": "tm-teh", "name": "Teh", "category": "Minuman", "desc": "Minuman Bestie Ayenas — sejuk atau panas.", "badge": "", "sort": 390, "addons": [], "variants": {"label": "Pilihan", "options": [{"name": "Sejuk", "price": 3.0}, {"name": "Panas", "price": 2.7}]}, "price": 2.7, "icon": "emoji_food_beverage", "imageUrl": ""}, {"id": "tm-teh-o", "name": "Teh O", "category": "Minuman", "desc": "Minuman Bestie Ayenas — sejuk atau panas.", "badge": "", "sort": 400, "addons": [], "variants": {"label": "Pilihan", "options": [{"name": "Sejuk", "price": 2.0}, {"name": "Panas", "price": 1.3}]}, "price": 1.3, "icon": "emoji_food_beverage", "imageUrl": ""}, {"id": "tm-kopi", "name": "Kopi", "category": "Minuman", "desc": "Minuman Bestie Ayenas — sejuk atau panas.", "badge": "", "sort": 410, "addons": [], "variants": {"label": "Pilihan", "options": [{"name": "Sejuk", "price": 3.0}, {"name": "Panas", "price": 2.8}]}, "price": 2.8, "icon": "coffee", "imageUrl": ""}, {"id": "tm-kopi-o", "name": "Kopi O", "category": "Minuman", "desc": "Minuman Bestie Ayenas — sejuk atau panas.", "badge": "", "sort": 420, "addons": [], "variants": {"label": "Pilihan", "options": [{"name": "Sejuk", "price": 2.7}, {"name": "Panas", "price": 2.3}]}, "price": 2.3, "icon": "coffee", "imageUrl": ""}, {"id": "tm-lemon-tea", "name": "Lemon Tea", "category": "Minuman", "desc": "Minuman Bestie Ayenas — sejuk atau panas.", "badge": "", "sort": 430, "addons": [], "variants": {"label": "Pilihan", "options": [{"name": "Sejuk", "price": 3.9}, {"name": "Panas", "price": 3.3}]}, "price": 3.3, "icon": "emoji_food_beverage", "imageUrl": ""}, {"id": "tm-lychee-tea", "name": "Lychee Tea", "category": "Minuman", "desc": "Minuman Bestie Ayenas (sejuk).", "badge": "", "sort": 440, "addons": [], "price": 3.9, "icon": "emoji_food_beverage", "imageUrl": ""}, {"id": "tm-sirap", "name": "Sirap", "category": "Minuman", "desc": "Minuman Bestie Ayenas (sejuk).", "badge": "", "sort": 450, "addons": [], "price": 2.0, "icon": "local_drink", "imageUrl": ""}, {"id": "tm-sirap-lemon", "name": "Sirap Lemon", "category": "Minuman", "desc": "Minuman Bestie Ayenas (sejuk).", "badge": "", "sort": 460, "addons": [], "price": 3.9, "icon": "local_drink", "imageUrl": ""}, {"id": "tm-bandung", "name": "Bandung", "category": "Minuman", "desc": "Minuman Bestie Ayenas (sejuk).", "badge": "", "sort": 470, "addons": [], "price": 3.0, "icon": "local_drink", "imageUrl": ""}, {"id": "tm-air-mineral", "name": "Air Mineral", "category": "Minuman", "desc": "Minuman Bestie Ayenas (sejuk).", "badge": "", "sort": 480, "addons": [], "price": 1.3, "icon": "water_drop", "imageUrl": ""}, {"id": "tm-stevia-sparkling-peach-tea", "name": "Sparkling Peach Tea", "category": "Minuman Stevia", "desc": "Tanpa gula, guna stevia. Free sugar, free calorie.", "badge": "", "sort": 490, "addons": [], "price": 6.0, "icon": "local_drink", "imageUrl": ""}, {"id": "tm-stevia-sparkling-syrup-lemonade", "name": "Sparkling Syrup Lemonade", "category": "Minuman Stevia", "desc": "Tanpa gula, guna stevia. Free sugar, free calorie.", "badge": "", "sort": 500, "addons": [], "price": 6.0, "icon": "local_drink", "imageUrl": ""}, {"id": "tm-stevia-lemon-tea-stevia", "name": "Lemon Tea Stevia", "category": "Minuman Stevia", "desc": "Tanpa gula, guna stevia. Free sugar, free calorie.", "badge": "", "sort": 510, "addons": [], "price": 3.9, "icon": "emoji_food_beverage", "imageUrl": ""}, {"id": "tm-stevia-black-coffee", "name": "Black Coffee", "category": "Minuman Stevia", "desc": "Tanpa gula, guna stevia. Free sugar, free calorie.", "badge": "", "sort": 520, "addons": [], "price": 3.0, "icon": "coffee", "imageUrl": ""}, {"id": "tm-stevia-latte-fresh-milk", "name": "Latte (Fresh Milk)", "category": "Minuman Stevia", "desc": "Tanpa gula, guna stevia. Free sugar, free calorie.", "badge": "", "sort": 530, "addons": [], "price": 6.5, "icon": "coffee", "imageUrl": ""}, {"id": "tm-stevia-chocolate-fresh-milk", "name": "Chocolate (Fresh Milk)", "category": "Minuman Stevia", "desc": "Tanpa gula, guna stevia. Free sugar, free calorie.", "badge": "", "sort": 540, "addons": [], "price": 6.5, "icon": "local_cafe", "imageUrl": ""}];
+const LEGACY_IDS=['nasi-korean','nasi-madu','nasi-herba','ramen-korean','ramen-madu','aglio-korean','mandy-ayam','superbox','chicken-chop','burrito','freshie'];
+const CAT_ICONS={'nasi ayam':'rice_bowl','ayam bakar':'outdoor_grill','ramen':'ramen_dining','pasta':'dinner_dining','spageti':'dinner_dining','mandy':'set_meal','superbox':'takeout_dining','set keluarga':'takeout_dining','western':'lunch_dining','menu diet':'nutrition','snek':'tapas','snacks':'bakery_dining','drinks':'local_drink','minuman':'local_drink','minuman stevia':'local_cafe'};
+const picon=p=>p?.icon||CAT_ICONS[String(p?.category||'').trim().toLowerCase()]||'restaurant';
+const hasPhoto=p=>!!(p?.imageUrl&&/^(data:image\/|https?:\/\/|[\w.\-\/]+\.(jpe?g|png|webp|gif)$)/i.test(p.imageUrl));
+const parseLines=t=>String(t||'').split('\n').map(x=>x.trim()).filter(Boolean).map(x=>{const m=x.match(/^(.+?)\s*[=:\-–]\s*(?:RM)?\s*([0-9]+(?:[.,][0-9]{1,2})?)\s*$/i);if(!m)throw new Error(`Format salah: "${x}". Guna "Nama = 7.90".`);return{name:m[1].trim(),price:Number(m[2].replace(',','.'))}});
+const fmtLines=a=>(a||[]).map(o=>`${o.name} = ${Number(o.price).toFixed(2)}`).join('\n');
 const outletName=id=>id==='tanah-merah'?'Tanah Merah':id==='lembah-sireh'?'Lembah Sireh':'Semua Outlet';
 
 function unlockAudio(){
@@ -458,7 +481,7 @@ document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>{
 function listenProducts(){
   if(unsubProducts)unsubProducts();
   unsubProducts=fsMod.onSnapshot(fsMod.collection(db,'products'),snap=>{
-    products=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.category||'').localeCompare(b.category||''));
+    products=snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(Number(a.sort)||9999)-(Number(b.sort)||9999)||(a.category||'').localeCompare(b.category||''));
     renderProducts();
     $('seedNotice').style.display=products.length?'none':'block';
     $('seedBtn').style.display=products.length?'none':'block';
@@ -737,15 +760,19 @@ window.updateStatus=async(id,status)=>{
 };
 
 function renderProducts(){
-  $('productList').innerHTML=products.map(p=>`<div class="product">
-    <img src="${esc(p.imageUrl||'nasi.jpg')}" alt="" loading="lazy" onerror="this.src='nasi.jpg'">
+  const ib=$('importBox'); if(ib) ib.style.display=profile?.role==='owner'?'flex':'none';
+  const oid=currentOpsOutlet();
+  $('productList').innerHTML=products.map(p=>{const outs=Array.isArray(p.outlets)&&p.outlets.length?p.outlets:null;const here=!outs||outs.includes(oid);const vv=p.variants?.options;return `<div class="product">
+    ${hasPhoto(p)?`<img src="${esc(p.imageUrl)}" alt="" loading="lazy" onerror="this.style.display='none'">`:`<div class="ph"><span class="ms">${esc(picon(p))}</span></div>`}
     <div class="productBody">
       <div class="row"><h3>${esc(p.name)}</h3><span class="pill ${p.active===false?'off':''}">${p.active===false?'Tidak aktif':'Aktif'}</span></div>
-      <small>${esc(p.category)} • ${money(p.price)}</small>
-      <div class="soldRow">${(()=>{const oid=currentOpsOutlet();const so=!!(p.soldOutByOutlet&&p.soldOutByOutlet[oid]);
+      <small>${esc(p.category)} • ${Array.isArray(vv)&&vv.length?'dari '+money(Math.min(...vv.map(o=>Number(o.price)||0))):money(p.price)}</small>
+      ${Array.isArray(vv)&&vv.length?`<div class="vsum">${vv.map(o=>`${esc(o.name)} ${money(o.price)}`).join(' · ')}</div>`:''}
+      <div class="chips">${outs?outs.map(o=>`<span class="chipO">${esc(outletName(o))}</span>`).join(''):'<span class="chipO">Semua outlet</span>'}</div>
+      <div class="soldRow">${(()=>{if(!here)return `<span class="hint">Tidak dijual di ${outletName(oid)}</span>`;const so=!!(p.soldOutByOutlet&&p.soldOutByOutlet[oid]);
         return `<button class="soldToggle ${so?'sold':''}" onclick="window.toggleSoldOut('${esc(p.id)}',${so})">${so?'<span class="ms">block</span>HABIS':'<span class="ms">check_circle</span>ADA'} • ${outletName(oid)}</button>`})()}</div>
       <button class="primary" style="margin-top:10px" onclick="window.editProduct('${esc(p.id)}')">EDIT</button>
-    </div></div>`).join('');
+    </div></div>`}).join('');
 }
 
 
@@ -780,22 +807,32 @@ function renderCustomers(){
   }).join('');
 }
 
+let removeImg=false;
+function showPreview(p){const ph=!hasPhoto(p);$('imgPreview').style.display=ph?'none':'block';$('imgPh').style.display=ph?'grid':'none';if(!ph)$('imgPreview').src=p.imageUrl;$('imgPh').querySelector('.ms').textContent=picon(p)}
 window.editProduct=id=>{
-  const p=products.find(x=>x.id===id); editingId=id;
+  const p=products.find(x=>x.id===id); editingId=id; removeImg=false;
   $('modalTitle').textContent='Edit Produk'; $('pName').value=p.name||''; $('pCategory').value=p.category||'';
   $('pPrice').value=p.price||0; $('pDesc').value=p.desc||''; $('pBadge').value=p.badge||''; $('pActive').checked=p.active!==false;
-  $('imgPreview').src=p.imageUrl||'nasi.jpg'; $('pImage').value=''; $('productModal').classList.add('show');
+  const outs=Array.isArray(p.outlets)&&p.outlets.length?p.outlets:['tanah-merah','lembah-sireh'];
+  $('pOutTM').checked=outs.includes('tanah-merah'); $('pOutLS').checked=outs.includes('lembah-sireh');
+  $('pVarLabel').value=p.variants?.label||''; $('pVars').value=fmtLines(p.variants?.options);
+  $('pAddons').value=fmtLines(p.addons); $('pAddons').dataset.had=Array.isArray(p.addons)?'1':'';
+  $('pSort').value=p.sort??'';
+  showPreview(p); $('pImage').value=''; $('productModal').classList.add('show');
 };
 $('addProductBtn').onclick=()=>{
-  editingId=null; $('modalTitle').textContent='Tambah Produk'; ['pName','pCategory','pDesc','pBadge'].forEach(id=>$(id).value='');
-  $('pPrice').value=''; $('pActive').checked=true; $('pImage').value=''; $('imgPreview').src='nasi.jpg'; $('productModal').classList.add('show');
+  editingId=null; removeImg=false; $('modalTitle').textContent='Tambah Produk'; ['pName','pCategory','pDesc','pBadge','pVarLabel','pVars','pAddons','pSort'].forEach(id=>$(id).value='');
+  $('pAddons').dataset.had='1';
+  const oid=currentOpsOutlet(); $('pOutTM').checked=oid==='tanah-merah'; $('pOutLS').checked=oid==='lembah-sireh';
+  $('pPrice').value=''; $('pActive').checked=true; $('pImage').value=''; showPreview({}); $('productModal').classList.add('show');
 };
+$('removeImgBtn').onclick=()=>{removeImg=true;$('pImage').value='';showPreview({category:$('pCategory').value})};
 $('closeModal').onclick=()=>$('productModal').classList.remove('show');
 $('productModal').onclick=e=>{if(e.target.id==='productModal')$('productModal').classList.remove('show')};
 $('pImage').onchange=e=>{
   const f=e.target.files[0];
   if($('compressInfo')) $('compressInfo').style.display='none';
-  if(f) $('imgPreview').src=URL.createObjectURL(f);
+  if(f){ removeImg=false; $('imgPreview').src=URL.createObjectURL(f); $('imgPreview').style.display='block'; $('imgPh').style.display='none'; }
 };
 
 
@@ -865,7 +902,7 @@ $('saveProductBtn').onclick=async()=>{
   try{
     const id=editingId||('p-'+Date.now());
     const oldProduct=editingId?products.find(x=>x.id===editingId):null;
-    let imageUrl=oldProduct?.imageUrl||'nasi.jpg';
+    let imageUrl=removeImg?'':(oldProduct?.imageUrl||'');
 
     const file=$('pImage').files[0];
     if(file){
@@ -888,11 +925,19 @@ $('saveProductBtn').onclick=async()=>{
 
     const name=$('pName').value.trim();
     const category=$('pCategory').value.trim();
-    const price=Number($('pPrice').value||0);
+    let price=Number($('pPrice').value||0);
 
     if(!name) throw new Error('Nama produk wajib diisi.');
     if(!category) throw new Error('Kategori wajib diisi.');
+    const outlets=[...($('pOutTM').checked?['tanah-merah']:[]),...($('pOutLS').checked?['lembah-sireh']:[])];
+    if(!outlets.length) throw new Error('Pilih sekurang-kurangnya satu outlet.');
+    const vopts=parseLines($('pVars').value);
+    if(vopts.some(o=>!Number.isFinite(o.price)||o.price<0)) throw new Error('Harga pilihan tidak sah.');
+    if(new Set(vopts.map(o=>o.name.toLowerCase())).size!==vopts.length) throw new Error('Nama pilihan tidak boleh berulang.');
+    const adds=parseLines($('pAddons').value).map(a=>({id:a.name.toLowerCase().replace(/[^a-z0-9]+/g,'-'),name:a.name,price:a.price}));
+    if(vopts.length) price=Math.min(...vopts.map(o=>o.price));
     if(!Number.isFinite(price) || price<0) throw new Error('Harga tidak sah.');
+    const sortRaw=$('pSort').value.trim();
 
     await fsMod.setDoc(
       fsMod.doc(db,'products',id),
@@ -904,6 +949,10 @@ $('saveProductBtn').onclick=async()=>{
         badge:$('pBadge').value.trim(),
         active:$('pActive').checked,
         imageUrl,
+        outlets,
+        variants:vopts.length?{label:$('pVarLabel').value.trim()||'Pilihan',options:vopts}:fsMod.deleteField(),
+        ...(adds.length||$('pAddons').dataset.had?{addons:adds}:{}),
+        sort:sortRaw===''?fsMod.deleteField():Number(sortRaw),
         updatedAt:fsMod.serverTimestamp(),
         updatedBy:profile.uid
       },
@@ -923,6 +972,27 @@ $('saveProductBtn').onclick=async()=>{
     btn.disabled=false;
     btn.textContent=oldText||'SIMPAN PERUBAHAN';
   }
+};
+
+$('importTmBtn').onclick=async()=>{
+  if(profile?.role!=='owner') return alert('Hanya owner boleh import menu.');
+  const exist=new Set(products.map(p=>p.id));
+  const already=MENU_TM.filter(m=>exist.has(m.id)).length;
+  const legacy=products.filter(p=>LEGACY_IDS.includes(p.id)&&!(Array.isArray(p.outlets)&&p.outlets.length));
+  if(!confirm(`Import ${MENU_TM.length} menu Tanah Merah?${already?`\n\n${already} menu sudah wujud dan akan dikemas kini (harga, pilihan, add-on). Gambar yang crew upload akan dikekalkan.`:''}${legacy.length?`\n\n${legacy.length} menu lama akan ditanda untuk Lembah Sireh sahaja.`:''}`)) return;
+  const btn=$('importTmBtn'); btn.disabled=true; btn.textContent='MENGIMPORT...';
+  try{
+    const b=fsMod.writeBatch(db);
+    for(const m of MENU_TM){
+      const {id,...data}=m; const cur=products.find(p=>p.id===id);
+      const keepImg=cur&&cur.imageUrl&&String(cur.imageUrl).startsWith('data:');
+      b.set(fsMod.doc(db,'products',id),{...data,...(keepImg?{imageUrl:cur.imageUrl}:{}),outlets:['tanah-merah'],active:cur?cur.active!==false:true,...(cur?{}:{createdAt:fsMod.serverTimestamp()}),updatedAt:fsMod.serverTimestamp(),updatedBy:profile.uid},{merge:true});
+    }
+    for(const p of legacy) b.update(fsMod.doc(db,'products',p.id),{outlets:['lembah-sireh'],updatedAt:fsMod.serverTimestamp()});
+    await b.commit();
+    alert(`Selesai. ${MENU_TM.length} menu Tanah Merah diimport${legacy.length?`, ${legacy.length} menu lama ditanda Lembah Sireh`:''}.`);
+  }catch(e){console.error(e);alert('Import gagal: '+(e?.message||e))}
+  finally{btn.disabled=false;btn.textContent='IMPORT MENU TANAH MERAH'}
 };
 
 $('seedBtn').onclick=async()=>{

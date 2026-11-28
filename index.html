@@ -20,7 +20,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&icon_names=add,add_circle,add_shopping_cart,arrow_back_ios_new,arrow_forward,bakery_dining,block,call,cancel,chat,check,check_circle,chevron_right,close,cloud_off,delete,dinner_dining,directions,error,expand_more,home,hourglass_top,icecream,info,install_mobile,inventory_2,local_drink,local_fire_department,location_on,lunch_dining,my_location,payments,person,point_of_sale,ramen_dining,receipt_long,remove,replay,restaurant,restaurant_menu,rice_bowl,schedule,search,search_off,set_meal,shopping_bag,skillet,storefront,takeout_dining,task_alt,two_wheeler,where_to_vote&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..700,0..1,0&icon_names=add,add_circle,add_shopping_cart,arrow_back_ios_new,arrow_forward,bakery_dining,block,call,cancel,chat,check,check_circle,chevron_right,close,cloud_off,coffee,delete,dinner_dining,directions,egg,emoji_food_beverage,error,expand_more,fastfood,home,hourglass_top,icecream,info,install_mobile,inventory_2,local_cafe,local_drink,local_fire_department,location_on,lunch_dining,my_location,nutrition,outdoor_grill,payments,person,point_of_sale,ramen_dining,receipt_long,remove,replay,restaurant,restaurant_menu,rice_bowl,schedule,search,search_off,set_meal,shopping_bag,skillet,storefront,takeout_dining,tapas,task_alt,two_wheeler,water_drop,where_to_vote&display=block" rel="stylesheet">
 <style>
 /* =========================================================
    AYENAS v14 — Bold red brand UI
@@ -206,6 +206,16 @@ h1[tabindex]{outline:none}
 /* ---------- Product detail ---------- */
 .pd-hero{position:relative;height:min(52vh,420px);background:#1a1412}
 .pd-hero img{width:100%;height:100%;object-fit:cover}
+.ph{width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(135deg,#FFF1F0,#FFD9D6);color:var(--red)}
+.ph .ms{font-size:46px}
+.pd-hero .ph .ms{font-size:120px;opacity:.9}
+.citem .ph,.hocard .ph{width:64px;height:64px;border-radius:12px;flex:none}.citem .ph .ms,.hocard .ph .ms{font-size:30px}
+.hocard .ph{width:56px;height:56px}
+.vgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+.vopt{border:1.5px solid var(--line2);background:#fff;border-radius:12px;padding:10px 8px;text-align:center;display:flex;flex-direction:column;gap:2px;min-height:58px;justify-content:center}
+.vopt b{font-size:13px;line-height:17px}.vopt small{font-size:12px;color:var(--muted);font-weight:600}
+.vopt[aria-pressed="true"]{border-color:var(--red);background:var(--red);color:#fff}.vopt[aria-pressed="true"] small{color:#fff}
+.notsold{margin-top:14px}
 .pd-hero .top{position:absolute;left:0;right:0;top:0;padding:calc(10px + env(safe-area-inset-top)) 12px;display:flex;justify-content:space-between;background:linear-gradient(180deg,rgba(0,0,0,.4),transparent)}
 .pd-hero .ibtn{background:rgba(0,0,0,.38);color:#fff;backdrop-filter:blur(6px)}
 .pd-body{background:#fff;border-radius:24px 24px 0 0;margin-top:-26px;position:relative;padding:20px 18px 12px}
@@ -666,8 +676,18 @@ async function shareReceipt(o){
   try{if(navigator.share){await navigator.share({title:`Pesanan Ayenas ${ono(o)}`,text});return}}catch(e){if(e?.name==='AbortError')return}
   open(wa('',text),'_blank','noopener');
 }
-const CAT_ICONS={'nasi ayam':'rice_bowl','nasi':'rice_bowl','ramen':'ramen_dining','mee':'ramen_dining','pasta':'dinner_dining','spaghetti':'dinner_dining','mandy':'set_meal','nasi arab':'set_meal','superbox':'takeout_dining','combo':'takeout_dining','western':'lunch_dining','burger':'lunch_dining','snacks':'bakery_dining','snack':'bakery_dining','sides':'bakery_dining','drinks':'local_drink','minuman':'local_drink','air':'local_drink','dessert':'icecream','pencuci mulut':'icecream'};
+const CAT_ICONS={'ayam bakar':'outdoor_grill','spageti':'dinner_dining','set keluarga':'takeout_dining','menu diet':'nutrition','diet':'nutrition','snek':'tapas','minuman stevia':'local_cafe','nasi ayam':'rice_bowl','nasi':'rice_bowl','ramen':'ramen_dining','mee':'ramen_dining','pasta':'dinner_dining','spaghetti':'dinner_dining','mandy':'set_meal','nasi arab':'set_meal','superbox':'takeout_dining','combo':'takeout_dining','western':'lunch_dining','burger':'lunch_dining','snacks':'bakery_dining','snack':'bakery_dining','sides':'bakery_dining','drinks':'local_drink','minuman':'local_drink','air':'local_drink','dessert':'icecream','pencuci mulut':'icecream'};
 const catIcon=c=>CAT_ICONS[String(c||'').trim().toLowerCase()]||'restaurant';
+const hasPhoto=p=>{const u=p?.imageUrl||p?.image;return !!u&&/^(data:image\/|https?:\/\/|[\w.\-\/]+\.(jpe?g|png|webp|gif)$)/i.test(u)};
+const picon=p=>p?.icon||catIcon(p?.category);
+const pic=(p,lazy=true)=>hasPhoto(p)?`<img src="${esc(imgSrc(p))}" alt=""${lazy?' loading="lazy"':''}>`:`<span class="ph"><span class="ms f" aria-hidden="true">${esc(picon(p))}</span></span>`;
+const avail=(p,o=S.outlet)=>!Array.isArray(p?.outlets)||!p.outlets.length||!o||p.outlets.includes(o);
+const variantsOf=p=>{const v=p?.variants;if(!v||!Array.isArray(v.options))return null;const o=v.options.filter(x=>x&&x.name).map(x=>({name:String(x.name),price:num(x.price)}));return o.length?{label:String(v.label||'Pilihan'),options:o}:null};
+const minPrice=p=>{const v=variantsOf(p);return v?Math.min(...v.options.map(o=>o.price)):num(p?.price)};
+const priceLabel=p=>{const v=variantsOf(p);return v&&new Set(v.options.map(o=>o.price)).size>1?`dari ${money(minPrice(p))}`:money(minPrice(p))};
+const listed=p=>p&&p.active!==false&&avail(p);
+// Line masih boleh dijual? (produk wujud, aktif, dijual di outlet, tidak habis, pilihan masih wujud)
+const lineOk=l=>{const p=S.products.find(x=>x.id===l.id);if(!listed(p)||soldOut(p))return false;const v=variantsOf(p);if(v)return !!l.variant&&v.options.some(o=>o.name===l.variant);return !l.variant};
 const spicy=p=>/spicy|pedas|hot/i.test(p.name+' '+(p.flavour||''));
 const span=h=>{if(!h)return null;const a=toMin(h[0]);let b=toMin(h[1]);if(b<=a)b+=1440;return[a,b]};
 function hoursState(id=S.outlet){
@@ -777,14 +797,14 @@ function rHome(){
   if(act){const c=COPY[act.status||'new'],cp=Array.isArray(c)?c:c[modeOf(act)];
     ho.innerHTML=`<div class="hocard live press"><button class="open-btn" data-track="${esc(act.firestoreId||'')}" aria-label="Lihat pesanan ${esc(ono(act))}"></button><span class="trk-ico" style="width:48px;height:48px"><span class="ms f">${cp[2]}</span></span><span style="flex:1;min-width:0"><span class="live"><i></i>PESANAN ${esc(ono(act))}</span><b style="display:block;font-size:14px">${esc(cp[0])}</b><span class="muted ell" style="display:block;font-size:12px">${(act.items||[]).map(i=>`${num(i.qty)||1}× ${esc(i.name)}`).join(', ')}</span></span><span class="ms muted">chevron_right</span></div>`;
   }else if(last){const p0=S.products.find(x=>x.id===last.items?.[0]?.id);
-    ho.innerHTML=`<div class="lbl-row" style="margin-top:16px;margin-bottom:0"><span class="lbl">Order lagi?</span></div><div class="hocard press"><button class="open-btn" data-track="${esc(last.firestoreId||'')}" aria-label="Lihat pesanan terakhir"></button><img src="${esc(imgSrc(p0||last.items?.[0]))}" alt=""><span style="flex:1;min-width:0"><span class="muted" style="font-size:11px;font-weight:700;letter-spacing:.4px">PESANAN TERAKHIR · ${new Date(tsMs(last)).toLocaleDateString('ms-MY',{day:'numeric',month:'short'})}</span><b class="ell" style="display:block;font-size:13.5px">${(last.items||[]).map(i=>`${num(i.qty)||1}× ${esc(i.name)}`).join(', ')}</b><span class="price" style="font-size:13px">${money(last.total)}</span></span><button class="act press" data-re="${esc(last.firestoreId||last.id)}">ORDER SEMULA</button></div>`;
+    ho.innerHTML=`<div class="lbl-row" style="margin-top:16px;margin-bottom:0"><span class="lbl">Order lagi?</span></div><div class="hocard press"><button class="open-btn" data-track="${esc(last.firestoreId||'')}" aria-label="Lihat pesanan terakhir"></button>${pic(p0||last.items?.[0])}<span style="flex:1;min-width:0"><span class="muted" style="font-size:11px;font-weight:700;letter-spacing:.4px">PESANAN TERAKHIR · ${new Date(tsMs(last)).toLocaleDateString('ms-MY',{day:'numeric',month:'short'})}</span><b class="ell" style="display:block;font-size:13.5px">${(last.items||[]).map(i=>`${num(i.qty)||1}× ${esc(i.name)}`).join(', ')}</b><span class="price" style="font-size:13px">${money(last.total)}</span></span><button class="act press" data-re="${esc(last.firestoreId||last.id)}">ORDER SEMULA</button></div>`;
   }else ho.innerHTML='';
   ho.querySelectorAll('[data-track]').forEach(b=>b.onclick=()=>b.dataset.track&&go('track/'+b.dataset.track));
   ho.querySelectorAll('[data-re]').forEach(b=>b.onclick=e=>{e.stopPropagation();reorder(b.dataset.re)});
 
   // promos
-  const ap=S.products.filter(p=>p.active!==false&&!soldOut(p));
-  const feat=ap.filter(p=>p.badge).slice(0,3);
+  const ap=S.products.filter(p=>listed(p)&&!soldOut(p));
+  const feat=ap.filter(p=>p.badge&&hasPhoto(p)).slice(0,3);
   const words=p=>{const w=p.name.replace(/^(Nasi|Ramen)\s+Ayam\s+/i,'').split(' ');return w.length>1?`${esc(w.slice(0,-1).join(' '))}<br><span>${esc(w.at(-1))}</span>`:`<span>${esc(w[0])}</span>`};
   const tag={'#1 BEST SELLER':'Pedas dia lain macam.',POPULAR:'Manis berasap, kegemaran ramai.',HOT:'Panas, pedas, puas!','FAMILY PICK':'Kenyang satu keluarga.',SHARE:'5 menu dalam 1 box.',NEW:'Menu baru — cuba hari ini!',REFRESH:'Segar & ringan.'};
   $('#promos').innerHTML=feat.map(p=>`<button class="promo press" data-p="${esc(p.id)}"><img src="${esc(imgSrc(p))}" alt=""><div class="t"><div class="k">${words(p)}</div><div class="d">${esc(tag[p.badge]||p.desc||'')}</div><span class="cta-y">ORDER SEKARANG <span class="ms xs">arrow_forward</span></span></div></button>`).join('');
@@ -799,9 +819,9 @@ function rHome(){
   $('#cats').innerHTML=`<button class="cat press" data-cat="Popular"><span class="c hot"><span class="ms f" aria-hidden="true">local_fire_department</span></span>Popular</button>`+cats.map(c=>`<button class="cat press" data-cat="${esc(c)}"><span class="c"><span class="ms f" aria-hidden="true">${catIcon(c)}</span></span>${esc(c)}</button>`).join('');
   // popular
   const pop=[...ap.filter(p=>p.badge),...ap.filter(p=>!p.badge)].slice(0,8);
-  $('#popular').innerHTML=pop.map(p=>{const q=qtyOf(p.id);return `<div class="pcard press" data-p="${esc(p.id)}"><button class="open-btn" data-open aria-label="${esc(p.name)}, ${money(p.price)}"></button>
-    <div class="im"><img src="${esc(imgSrc(p))}" alt="" loading="lazy">${p.badge?`<span class="tag-r">${esc(p.badge)}</span>`:''}</div>
-    <div class="b"><div class="n clamp2">${esc(p.name)}</div><div class="pr"><span class="price">${money(p.price)}</span><button class="plus ${q?'has':''}" data-add="${esc(p.id)}" aria-label="Tambah ${esc(p.name)}">${q||'<span class="ms">add</span>'}</button></div></div></div>`}).join('');
+  $('#popular').innerHTML=pop.map(p=>{const q=qtyOf(p.id);return `<div class="pcard press" data-p="${esc(p.id)}"><button class="open-btn" data-open aria-label="${esc(p.name)}, ${priceLabel(p)}"></button>
+    <div class="im">${pic(p)}${p.badge?`<span class="tag-r">${esc(p.badge)}</span>`:''}</div>
+    <div class="b"><div class="n clamp2">${esc(p.name)}</div><div class="pr"><span class="price">${priceLabel(p)}</span><button class="plus ${q?'has':''}" data-add="${esc(p.id)}" aria-label="Tambah ${esc(p.name)}">${q||'<span class="ms">add</span>'}</button></div></div></div>`}).join('');
   bindProducts($('#v-home'));
   $$('#cats [data-cat]').forEach(b=>b.onclick=()=>{S.cat=b.dataset.cat;go('menu')});
 }
@@ -819,7 +839,7 @@ function bindProducts(root){
 
 /* ---------- MENU ---------- */
 function rMenu(){
-  const ap=S.products.filter(p=>p.active!==false);
+  const ap=S.products.filter(listed);
   const cats=['Semua','Popular',...new Set(ap.map(p=>p.category||'Lain-lain'))];
   if(!cats.includes(S.cat))S.cat='Semua';
   $('#menuTitle').textContent=S.cat==='Semua'?'Menu':S.cat;
@@ -833,14 +853,14 @@ function rMenu(){
   bindProducts($('#mlist'));
 }
 function mcard(p){
-  const so=soldOut(p),q=qtyOf(p.id),simple=S.cart.find(l=>l.key===lineKey(p.id,[],''));
+  const so=soldOut(p),q=qtyOf(p.id),simple=variantsOf(p)?null:S.cart.find(l=>l.key===lineKey(p.id,[],''));
   const ctrl=so?'':(simple&&q===simple.qty?`<div class="qmini"><button data-dec="${esc(p.id)}" aria-label="Kurang"><span class="ms s">${q===1?'delete':'remove'}</span></button><b>${q}</b><button data-inc="${esc(p.id)}" aria-label="Tambah"><span class="ms s">add</span></button></div>`
     :`<button class="plus ${q?'has':''}" data-add="${esc(p.id)}" aria-label="Tambah ${esc(p.name)}">${q||'<span class="ms">add</span>'}</button>`);
-  return `<div class="mcard press ${so?'so':''}" data-p="${esc(p.id)}"><button class="open-btn" data-open aria-label="${esc(p.name)}, ${money(p.price)}${so?', habis':''}"></button>
-    <div class="im"><img src="${esc(imgSrc(p))}" alt="" loading="lazy">${so?'<span class="so-tag">HABIS</span>':''}</div>
+  return `<div class="mcard press ${so?'so':''}" data-p="${esc(p.id)}"><button class="open-btn" data-open aria-label="${esc(p.name)}, ${priceLabel(p)}${so?', habis':''}"></button>
+    <div class="im">${pic(p)}${so?'<span class="so-tag">HABIS</span>':''}</div>
     <div class="b">${(p.badge&&!so)||spicy(p)?`<span class="tags">${p.badge&&!so?`<span class="tag-y" style="font-size:9.5px;padding:2px 7px">${esc(p.badge)}</span>`:''}${spicy(p)?'<span class="spice"><span class="ms f" aria-hidden="true">local_fire_department</span>Pedas</span>':''}</span>`:''}
       <div class="n">${esc(p.name)}</div><div class="d clamp2">${esc(p.desc||'')}</div>
-      <div class="f"><span class="price">${money(p.price)}</span>${ctrl}</div></div></div>`;
+      <div class="f"><span class="price">${priceLabel(p)}</span>${ctrl}</div></div></div>`;
 }
 $('#searchBtn').onclick=()=>{$('#searchBox').classList.remove('hidden');$('#search').focus()};
 $('#homeSearch').onclick=()=>{S.cat='Semua';go('menu');$('#searchBox').classList.remove('hidden');setTimeout(()=>$('#search').focus(),80)};
@@ -851,37 +871,43 @@ let sT;$('#search').oninput=e=>{clearTimeout(sT);sT=setTimeout(()=>{S.query=e.ta
 function rProduct(){
   const p=S.products.find(x=>x.id===S.param),el=$('#v-product'),ab=$('#actbar');
   if(!p){el.innerHTML=`<div class="empty"><div class="ic"><span class="ms">error</span></div><b>Menu tidak dijumpai</b><div style="margin-top:16px"><button class="btn-o" data-go="menu" style="max-width:220px;margin:auto">Lihat menu</button></div></div>`;ab.classList.add('hidden');return}
-  const so=soldOut(p),ad=addonsFor(p);let qty=1;const ch=new Set();
-  el.innerHTML=`<div class="pd-hero"><img src="${esc(imgSrc(p))}" alt="">
+  const notHere=!avail(p),so=soldOut(p)||notHere||p.active===false,ad=addonsFor(p),vv=variantsOf(p);let qty=1,vi=0;const ch=new Set();
+  const unitNow=()=>vv?vv.options[vi].price:num(p.price);
+  el.innerHTML=`<div class="pd-hero">${pic(p,false)}
     <div class="top"><button class="ibtn" data-back aria-label="Kembali"><span class="ms">arrow_back_ios_new</span></button><button class="ibtn" data-go="cart" aria-label="Troli"><span class="ms">shopping_bag</span><span class="badge-n" data-cart-n data-n="${count()}">${count()}</span></button></div></div>
     <div class="pd-body">
       ${p.badge||spicy(p)?`<span class="tags">${p.badge?`<span class="tag-y">${esc(p.badge)}</span>`:''}${spicy(p)?'<span class="spice lg"><span class="ms f" aria-hidden="true">local_fire_department</span>Pedas</span>':''}</span>`:''}
       <h1 class="pd-name" tabindex="-1">${esc(p.name)}</h1>
       <div class="pd-desc">${esc(p.desc||'')}</div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px"><span class="price" style="font-size:22px">${money(p.price)}</span>
-      ${so?'<span class="chip cancelled">HABIS HARI INI</span>':`<div class="qty"><button id="qd" aria-label="Kurang"><span class="ms s">remove</span></button><b id="qv">1</b><button id="qi" aria-label="Tambah"><span class="ms s">add</span></button></div>`}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px"><span class="price" style="font-size:22px" id="pPrice">${vv?money(vv.options[0].price):money(p.price)}</span>
+      ${so?`<span class="chip cancelled">${notHere?'TIADA DI OUTLET INI':'HABIS HARI INI'}</span>`:`<div class="qty"><button id="qd" aria-label="Kurang"><span class="ms s">remove</span></button><b id="qv">1</b><button id="qi" aria-label="Tambah"><span class="ms s">add</span></button></div>`}</div>
+      ${notHere?`<div class="notice info notsold"><span class="ms s">storefront</span><div>Menu ini tidak dijual di ${esc(OUTLETS[S.outlet]?.short||'outlet ini')}. Tukar outlet untuk order.</div></div>`:''}
+      ${!so&&vv?`<div class="hr"></div><div class="sec-t">${esc(vv.label)} <small>(pilih satu)</small></div>
+        <div class="vgrid" role="radiogroup" aria-label="${esc(vv.label)}">${vv.options.map((o,i)=>`<button class="vopt press" role="radio" data-v="${i}" aria-pressed="${i===0}" aria-checked="${i===0}"><b>${esc(o.name)}</b><small>${money(o.price)}</small></button>`).join('')}</div>`:''}
       ${!so&&ad.length?`<div class="hr"></div><div class="sec-t">Tambah Extra <small>(pilihan)</small></div>
         ${ad.map(a=>`<label class="chk"><input type="checkbox" value="${esc(a.id)}"><span class="bx"><span class="ms">check</span></span>${esc(a.name)}<span class="p">+${money(a.price)}</span></label>`).join('')}`:''}
       ${so?'':`<div class="hr"></div><div class="sec-t">Catatan <small>(opsyenal)</small></div>
         <textarea class="ta" id="pn" rows="2" maxlength="60" placeholder="Contoh: Tak nak pedas, extra sos..."></textarea><div class="cnt"><span id="pc">0</span>/60</div>`}
     </div>`;
-  const upd=()=>{const ex=ad.filter(a=>ch.has(a.id)).reduce((s,a)=>s+a.price,0);ab.querySelector('#abT').textContent=money((num(p.price)+ex)*qty);const v=el.querySelector('#qv');if(v){v.textContent=qty;el.querySelector('#qd').disabled=qty<=1}};
-  ab.innerHTML=so?`<button class="btn-r" data-back>KEMBALI KE MENU</button>`:`<div class="tot"><small>Jumlah</small><b id="abT">${money(p.price)}</b></div><button class="btn-r press" id="abAdd"><span class="ms s">add_shopping_cart</span>Tambah ke troli</button>`;
+  const upd=()=>{const ex=ad.filter(a=>ch.has(a.id)).reduce((s,a)=>s+a.price,0);ab.querySelector('#abT').textContent=money((unitNow()+ex)*qty);if(vv)el.querySelector('#pPrice').textContent=money(unitNow());const v=el.querySelector('#qv');if(v){v.textContent=qty;el.querySelector('#qd').disabled=qty<=1}};
+  ab.innerHTML=so?`<button class="btn-r" data-back>KEMBALI KE MENU</button>`:`<div class="tot"><small>Jumlah</small><b id="abT">${money(unitNow())}</b></div><button class="btn-r press" id="abAdd"><span class="ms s">add_shopping_cart</span>Tambah ke troli</button>`;
   if(so)return;
   el.querySelectorAll('input[type=checkbox]').forEach(c=>c.onchange=()=>{c.checked?ch.add(c.value):ch.delete(c.value);vib(5);upd()});
+  el.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{vi=Number(b.dataset.v);el.querySelectorAll('[data-v]').forEach(x=>{const on=x===b;x.setAttribute('aria-pressed',on);x.setAttribute('aria-checked',on)});vib(5);upd()});
   el.querySelector('#qd').onclick=()=>{if(qty>1){qty--;upd()}};
   el.querySelector('#qi').onclick=()=>{if(qty<20){qty++;upd()}};
   el.querySelector('#pn').oninput=e=>{el.querySelector('#pc').textContent=e.target.value.length};
-  ab.querySelector('#abAdd').onclick=()=>{addToCart(p,qty,ad.filter(a=>ch.has(a.id)),el.querySelector('#pn').value.trim());back()};
+  ab.querySelector('#abAdd').onclick=()=>{addToCart(p,qty,ad.filter(a=>ch.has(a.id)),el.querySelector('#pn').value.trim(),false,vv?vv.options[vi]:null);back()};
   upd();
 }
 
 /* ---------- CART OPS ---------- */
-function addToCart(p,qty,list,note,silent){
-  if(soldOut(p))return toast('Menu ini sudah habis.');
-  const key=lineKey(p.id,list.map(a=>a.id),note),ex=S.cart.find(l=>l.key===key);
+function addToCart(p,qty,list,note,silent,variant){
+  if(soldOut(p)||!avail(p))return toast('Menu ini tidak tersedia di outlet ini.');
+  if(variantsOf(p)&&!variant){go('product/'+encodeURIComponent(p.id));return}
+  const key=lineKey(p.id+(variant?'#'+variant.name:''),list.map(a=>a.id),note),ex=S.cart.find(l=>l.key===key);
   if(ex)ex.qty=Math.min(50,ex.qty+qty);
-  else S.cart.push({key,id:p.id,name:p.name,price:num(p.price),category:p.category||'',imageUrl:imgSrc(p).startsWith('data:')?'':imgSrc(p),qty,extras:list.reduce((s,a)=>s+a.price,0),extrasList:list.map(a=>a.name),note});
+  else S.cart.push({key,id:p.id,name:variant?`${p.name} (${variant.name})`:p.name,variant:variant?variant.name:null,price:variant?variant.price:num(p.price),category:p.category||'',imageUrl:hasPhoto(p)&&!imgSrc(p).startsWith('data:')?imgSrc(p):'',qty,extras:list.reduce((s,a)=>s+a.price,0),extrasList:list.map(a=>a.name),note});
   persist();vib(12);render();
   const f=$('#fcart');f.classList.remove('bump');void f.offsetWidth;f.classList.add('bump');
   if(!silent)setTimeout(()=>toast(`${p.name} ditambah ke troli`),50);
@@ -892,7 +918,7 @@ function changeQty(key,d){
   if(l.qty<=0){const i=S.cart.indexOf(l),r={...l,qty:1};S.cart.splice(i,1);toast(`${l.name} dibuang`,{label:'UNDO',fn:()=>{S.cart.splice(i,0,r);persist();render()}})}
   persist();vib(6);render();
 }
-const cartImg=l=>imgSrc(S.products.find(x=>x.id===l.id)||l);
+const cartPic=l=>pic(S.products.find(x=>x.id===l.id)||l);
 
 /* ---------- CART ---------- */
 function rCart(){
@@ -901,8 +927,8 @@ function rCart(){
   if(!S.cart.length){el.innerHTML=`<div class="empty"><div class="ic"><span class="ms">shopping_bag</span></div><b style="font-size:16px">Troli anda kosong</b><div class="muted" style="margin:4px 0 20px">Jom pilih ayam bakar kegemaran anda!</div><button class="btn-o" data-go="menu" style="max-width:220px;margin:auto">LIHAT MENU</button></div>`;ab.classList.add('hidden');return}
   const sub=subtotal(),f=fee();
   el.innerHTML=`<div class="box">${S.cart.map(l=>`<div class="citem">
-      <img src="${esc(cartImg(l))}" alt="">
-      <div class="m"><div class="n">${esc(l.name)}</div>${(()=>{const p=S.products.find(x=>x.id===l.id);return !p||p.active===false||soldOut(p)?'<span class="warn">Tidak tersedia di outlet ini</span>':''})()}${l.extrasList?.length?`<div class="x">+ ${esc(l.extrasList.join(', '))}</div>`:''}${l.note?`<div class="x" style="font-style:italic">“${esc(l.note)}”</div>`:''}<div class="price" style="margin-top:4px">${money(unit(l)*l.qty)}</div></div>
+      ${cartPic(l)}
+      <div class="m"><div class="n">${esc(l.name)}</div>${(()=>{return !lineOk(l)?'<span class="warn">Tidak tersedia di outlet ini</span>':''})()}${l.extrasList?.length?`<div class="x">+ ${esc(l.extrasList.join(', '))}</div>`:''}${l.note?`<div class="x" style="font-style:italic">“${esc(l.note)}”</div>`:''}<div class="price" style="margin-top:4px">${money(unit(l)*l.qty)}</div></div>
       <div class="qty"><button data-q="${esc(l.key)}" data-d="-1" aria-label="Kurang"><span class="ms s">${l.qty===1?'delete':'remove'}</span></button><b>${l.qty}</b><button data-q="${esc(l.key)}" data-d="1" aria-label="Tambah"><span class="ms s">add</span></button></div>
     </div>`).join('')}
     <div style="padding:4px 14px 14px"><button class="link" data-go="menu" style="padding:8px 0;display:flex;align-items:center;gap:4px"><span class="ms s">add_circle</span>Tambah menu lain</button></div></div>
@@ -1014,7 +1040,7 @@ async function place(){
   const nAct=S.orders.filter(active).length;
   if(nAct>=MAX_ACTIVE){const ok2=await dialog({title:'Anda ada pesanan aktif',body:`Anda sudah ada ${nAct} pesanan yang sedang berjalan. Sila tunggu pesanan selesai atau hubungi outlet untuk order tambahan.`,ok:'Lihat pesanan',cancel:'Tutup'});if(ok2)go('orders');return}
   if(!navigator.onLine)return dialog({title:'Tiada sambungan internet',body:'Sila sambung ke internet dan cuba lagi. Troli anda masih disimpan.'});
-  const na=S.cart.filter(l=>{const p=S.products.find(x=>x.id===l.id);return!p||p.active===false||soldOut(p)});
+  const na=S.cart.filter(l=>!lineOk(l));
   if(na.length)return dialog({title:'Ada item tidak tersedia',body:`${na.map(l=>esc(l.name)).join(', ')} tidak tersedia di outlet ini. Sila buang dari troli.`});
   if(!S.user){showLogin();return}
   if(!S.fb)return dialog({title:'Tiada sambungan',body:'App tidak dapat sambung ke server. Semak internet anda dan cuba lagi.'});
@@ -1029,7 +1055,7 @@ async function place(){
   S.placing=true;rCheckout();
   const phone=normPhone(P.phone);
   const order={id:'AY'+Date.now().toString().slice(-5)+String(Math.floor(Math.random()*100)).padStart(2,'0'),created:new Date().toISOString(),name:P.name,phone,mode:S.mode,orderType:S.mode,outlet:S.outlet,outletId:S.outlet,
-    items:S.cart.map(l=>({id:l.id,name:l.name,price:l.price,qty:l.qty,extras:l.extras,extrasList:l.extrasList||[],note:l.note||'',category:l.category||'',imageUrl:l.imageUrl||''})),
+    items:S.cart.map(l=>({id:l.id,name:l.name,variant:l.variant||null,price:l.price,qty:l.qty,extras:l.extras,extrasList:l.extrasList||[],note:l.note||'',category:l.category||'',imageUrl:l.imageUrl||''})),
     itemCount:count(),subtotal:Math.round(sub*100)/100,deliveryFee:f,total,status:'new',orderStatus:'new',etaMinutes:num(setting().defaultEta),
     pickupTime:!del&&S.pickupAt!=='asap'?hhmm(Number(S.pickupAt)):null,orderNote:S.orderNote.trim(),
     paymentMethod:del?'cod':'counter',paymentStatus:'unpaid',deliveryAddress:del?P.address:null,deliveryNote:del?(P.addressNote||''):null,
@@ -1073,9 +1099,10 @@ function rOrders(){
 function reorder(id){
   const o=S.orders.find(x=>(x.firestoreId||x.id)===id);if(!o)return;
   if(OUTLETS[o.outletId])S.outlet=o.outletId;let add=0,skip=0;
-  (o.items||[]).forEach(i=>{const p=S.products.find(x=>x.id===i.id);if(!p||p.active===false||soldOut(p)){skip++;return}
-    const al=addonsFor(p).filter(a=>(i.extrasList||[]).includes(a.name)),key=lineKey(p.id,al.map(a=>a.id),i.note||''),ex=S.cart.find(l=>l.key===key);
-    if(ex)ex.qty+=num(i.qty)||1;else S.cart.push({key,id:p.id,name:p.name,price:num(p.price),category:p.category||'',imageUrl:imgSrc(p).startsWith('data:')?'':imgSrc(p),qty:num(i.qty)||1,extras:al.reduce((s,a)=>s+a.price,0),extrasList:al.map(a=>a.name),note:i.note||''});add++});
+  (o.items||[]).forEach(i=>{const p=S.products.find(x=>x.id===i.id);if(!listed(p)||soldOut(p)){skip++;return}
+    const vv=variantsOf(p),opt=vv?vv.options.find(x=>x.name===i.variant):null;if(vv&&!opt){skip++;return}
+    const al=addonsFor(p).filter(a=>(i.extrasList||[]).includes(a.name)),key=lineKey(p.id+(opt?'#'+opt.name:''),al.map(a=>a.id),i.note||''),ex=S.cart.find(l=>l.key===key);
+    if(ex)ex.qty+=num(i.qty)||1;else S.cart.push({key,id:p.id,name:opt?`${p.name} (${opt.name})`:p.name,variant:opt?opt.name:null,price:opt?opt.price:num(p.price),category:p.category||'',imageUrl:hasPhoto(p)&&!imgSrc(p).startsWith('data:')?imgSrc(p):'',qty:num(i.qty)||1,extras:al.reduce((s,a)=>s+a.price,0),extrasList:al.map(a=>a.name),note:i.note||''});add++});
   if(modeOf(o)==='delivery'&&deliveryEnabled())S.mode='delivery';persist();
   if(add){go('cart');toast(skip?`${skip} item tidak tersedia dilangkau`:'Item ditambah ke troli')}else toast('Item dalam pesanan ini tidak tersedia sekarang.');
 }
@@ -1168,7 +1195,8 @@ function showGate(dismiss){
   $('#gX')&&($('#gX').onclick=()=>g.classList.remove('show'));
   g.classList.add('show');
 }
-function pick(id){const ch=S.outlet&&S.outlet!==id;S.outlet=id;persist();$('#gate').classList.remove('show');vib(10);render();if(ch)toast(`Outlet ditukar ke ${OUTLETS[id].short}`)}
+function pick(id){const ch=S.outlet&&S.outlet!==id;S.outlet=id;persist();$('#gate').classList.remove('show');vib(10);render();
+  if(ch){const bad=S.cart.filter(l=>!lineOk(l)).length;toast(bad?`Outlet ditukar. ${bad} item dalam troli tiada di ${OUTLETS[id].short}.`:`Outlet ditukar ke ${OUTLETS[id].short}`)}}
 
 /* ---------- Overlay background (iOS toolbar) ---------- */
 const syncOv=()=>document.documentElement.classList.toggle('ov',$('#login').classList.contains('show')||$('#gate').classList.contains('show')||$('#success').classList.contains('show'));
@@ -1274,7 +1302,9 @@ setTimeout(()=>{if(!S.authReady){hideSplash();showLogin()}},6000);
     onSnapshot(collection(db,'products'),snap=>{
       if(snap.empty)return;
       S.products=snap.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.active!==false).sort((a,b)=>num(a.sort)-num(b.sort));
-      S.cart.forEach(l=>{const p=S.products.find(x=>x.id===l.id);if(p){l.price=num(p.price);l.name=p.name}});persist();
+      S.cart.forEach(l=>{const p=S.products.find(x=>x.id===l.id);if(!p)return;const vv=variantsOf(p);
+        if(vv){const o=vv.options.find(x=>x.name===l.variant);if(o){l.price=o.price;l.name=`${p.name} (${o.name})`}}
+        else if(!l.variant){l.price=num(p.price);l.name=p.name}});persist();
       if(calm())chrome();else render();
     },e=>console.warn('menu',e));
     onSnapshot(collection(db,'outletSettings'),snap=>{
