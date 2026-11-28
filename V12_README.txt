@@ -65,3 +65,11 @@ AYENAS V16 — OPERASI
 - Home: kad pesanan aktif (LIVE) atau "Order semula" pesanan terakhir.
 - Crew: Tutup hingga esok (buka semula automatik), editor waktu operasi, lokasi & kawasan delivery,
   sebab pembatalan (dipapar kepada customer), butang Skrin (kekal hidup), tab Laporan (jualan, menu laku, waktu sibuk).
+
+MENU IKUT OUTLET (v21)
+- Setiap produk ada `outlets` (cth ['tanah-merah']). Tiada field = dijual di semua outlet.
+- `variants` {label, options:[{name,price}]} untuk saiz S/M, perisa Mix, sejuk/panas, set Mandy.
+- `addons` [{id,name,price}] ikut produk. `icon` = ikon generik bila tiada gambar.
+- Crew > Menu > "IMPORT MENU TANAH MERAH" (owner) memasukkan 54 menu dari MENU AYENAS 2025.pdf
+  dan menanda menu lama untuk Lembah Sireh sahaja.
+- Crew boleh edit outlet, pilihan, add-on & susunan setiap menu.
